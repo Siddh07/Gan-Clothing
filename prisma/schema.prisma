@@ -1,35 +1,39 @@
-// Prisma Schema for Garment Association of Nepal (GAN) B2B Export Directory
+// Prisma Schema for Garment Association of Nepal (GAN) B2B Export Directory & CMS
 // 
-// To use PostgreSQL for production:
-// 1. Change provider = "postgresql" below
-// 2. Set DATABASE_URL in .env to your PostgreSQL connection string
-// 3. Run: npx prisma db push
+// Universal Schema: Works with SQLite for local zero-config prototyping
+// and switches seamlessly to PostgreSQL by changing provider = "postgresql".
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite" // Change to "postgresql" when deploying with Neon/Supabase/PostgreSQL
+  provider = "sqlite" // Change to "postgresql" in production
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String?
-  role         String   @default("ADMIN") // "SUPERADMIN" | "ADMIN"
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String      @id @default(cuid())
+  email            String      @unique
+  passwordHash     String
+  name             String?
+  role             String      @default("FACTORY_REP") // "SUPER_ADMIN" | "ADMIN_EDITOR" | "FACTORY_REP"
+  enterpriseId     String?     // Linked factory if role is FACTORY_REP
+  enterprise       Enterprise? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  auditLogs        AuditLog[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   @@map("users")
 }
 
 model Enterprise {
-  id                 String          @id @default(cuid())
+  id                 String            @id @default(cuid())
   name               String
-  slug               String          @unique
+  slug               String            @unique
+  status             String            @default("PENDING_REVIEW") // "PENDING_REVIEW" | "APPROVED" | "SUSPENDED" | "REJECTED"
   registrationNumber String
   panNumber          String
   description        String
@@ -43,23 +47,27 @@ model Enterprise {
   contactPhone       String
   logoUrl            String?
   coverImageUrl      String?
-  exportMarkets      String          @default("USA, EU, UK, Japan") // Stored as comma-separated or JSON list for universal DB portability
-  isVerified         Boolean         @default(false)
+  exportMarkets      String            @default("USA, EU, UK, Japan")
+  isVerified         Boolean           @default(false)
   certifications     Certification[]
   products           Product[]
-  inquiries          LeadInquiry[]
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  users              User[]
+  inquiries          LeadInquiryItem[]
+  pageViews          AnalyticsEvent[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@map("enterprises")
 }
 
 model Certification {
   id                 String     @id @default(cuid())
-  name               String     // e.g., WRAP, ISO 9001, OEKO-TEX, Sedex, GOTS
+  name               String     // e.g. WRAP, ISO 9001, OEKO-TEX, Sedex, GOTS
   issuer             String
+  certificateNumber  String?
+  issueDate          DateTime?
+  expiryDate         DateTime?
   certificateFileUrl String?
-  validUntil         DateTime?
   enterpriseId       String
   enterprise         Enterprise @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
   createdAt          DateTime   @default(now())
@@ -79,42 +87,91 @@ model Category {
 }
 
 model Product {
-  id           String        @id @default(cuid())
+  id           String            @id @default(cuid())
   title        String
-  slug         String        @unique
-  fabricType   String        // e.g., Cashmere Knit, Organic Cotton, Twill Woven, Denim, Technical Fleece
-  gsmWeight    Int?          // Grams per square meter
-  moq          Int           @default(500) // Minimum Order Quantity
-  targetGender String        @default("Unisex") // Men, Women, Unisex, Kids
-  description  String
-  images       String        @default("[]") // JSON string array of image URLs
-  isFeatured   Boolean       @default(false)
+  slug         String            @unique
   enterpriseId String
-  enterprise   Enterprise    @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
+  enterprise   Enterprise        @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
   categoryId   String
-  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  inquiries    LeadInquiry[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  category     Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  fabricType   String
+  gsmWeight    Int?
+  moq          Int               @default(500)
+  targetGender String?           @default("Unisex")
+  description  String
+  images       String            @default("[]") // JSON string array of URLs
+  isFeatured   Boolean           @default(false)
+  inquiryItems LeadInquiryItem[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   @@map("products")
 }
 
 model LeadInquiry {
-  id                  String      @id @default(cuid())
-  enterpriseId        String?
-  enterprise          Enterprise? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull)
-  productId           String?
-  product             Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
-  buyerName           String
-  buyerEmail          String
-  buyerCompany        String
-  buyerCountry        String
-  orderQuantityTarget Int
-  message             String
-  status              String      @default("NEW") // "NEW" | "FORWARDED" | "CLOSED"
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  id                 String            @id @default(cuid())
+  inquiryNumber      String            @unique // e.g. GAN-RFQ-2026-001
+  buyerName          String
+  buyerEmail         String
+  buyerCompany       String
+  buyerCountry       String
+  generalMessage     String
+  status             String            @default("NEW") // "NEW" | "VIEWED" | "FORWARDED" | "RESPONDED" | "CLOSED"
+  targetDeliveryDate DateTime?
+  items              LeadInquiryItem[]
+  communications     InquiryNote[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@map("lead_inquiries")
+}
+
+model LeadInquiryItem {
+  id                   String      @id @default(cuid())
+  inquiryId            String
+  inquiry              LeadInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  enterpriseId         String
+  enterprise           Enterprise  @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
+  productId            String?
+  product              Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  requestedQuantity    Int         @default(500)
+  customSpecifications String?
+
+  @@map("lead_inquiry_items")
+}
+
+model InquiryNote {
+  id        String      @id @default(cuid())
+  inquiryId String
+  inquiry   LeadInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  author    String
+  content   String
+  createdAt DateTime    @default(now())
+
+  @@map("inquiry_notes")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // e.g. "ENTERPRISE_APPROVED", "PRODUCT_UPDATED", "BULK_IMPORT"
+  entityType String   // e.g. "Enterprise", "Product", "Certification"
+  entityId   String
+  metadata   String?  // JSON stringified context
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model AnalyticsEvent {
+  id           String      @id @default(cuid())
+  eventType    String      // "PAGE_VIEW", "RFQ_SENT", "CATALOG_DOWNLOAD"
+  enterpriseId String?
+  enterprise   Enterprise? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull)
+  countryCode  String?     // e.g. "US", "DE", "JP", "NP"
+  ipHash       String?
+  createdAt    DateTime    @default(now())
+
+  @@map("analytics_events")
 }

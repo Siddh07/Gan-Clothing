@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { logAuditAction } from "@/lib/audit";
 
 async function verifyAuth() {
   const session = await getServerSession(authOptions);
@@ -15,11 +16,25 @@ async function verifyAuth() {
 }
 
 export async function toggleEnterpriseVerification(id: string, currentStatus: boolean) {
-  await verifyAuth();
-  await prisma.enterprise.update({
+  const session = await verifyAuth();
+  const nextStatus = !currentStatus;
+
+  const enterprise = await prisma.enterprise.update({
     where: { id },
-    data: { isVerified: !currentStatus },
+    data: { isVerified: nextStatus },
   });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "ENTERPRISE_VERIFICATION_TOGGLED",
+    entityType: "Enterprise",
+    entityId: id,
+    metadata: {
+      enterpriseName: enterprise.name,
+      isVerified: nextStatus,
+    },
+  });
+
   revalidatePath("/admin/enterprises");
   revalidatePath("/admin");
   revalidatePath("/directory");
@@ -45,7 +60,7 @@ export async function createEnterprise(data: {
   isVerified?: boolean;
   certifications?: { name: string; issuer: string; certificateFileUrl?: string }[];
 }) {
-  await verifyAuth();
+  const session = await verifyAuth();
 
   const slug = slugify(data.name) + "-" + Math.floor(1000 + Math.random() * 9000);
 
@@ -53,6 +68,7 @@ export async function createEnterprise(data: {
     data: {
       name: data.name,
       slug,
+      status: "APPROVED",
       registrationNumber: data.registrationNumber,
       panNumber: data.panNumber,
       description: data.description,
@@ -74,27 +90,64 @@ export async function createEnterprise(data: {
     },
   });
 
+  await logAuditAction({
+    userId: session.user.id,
+    action: "ENTERPRISE_CREATED",
+    entityType: "Enterprise",
+    entityId: enterprise.id,
+    metadata: {
+      name: enterprise.name,
+      panNumber: enterprise.panNumber,
+    },
+  });
+
   revalidatePath("/admin/enterprises");
   revalidatePath("/directory");
   return { success: true, enterprise };
 }
 
 export async function deleteEnterprise(id: string) {
-  await verifyAuth();
+  const session = await verifyAuth();
+  
+  const enterprise = await prisma.enterprise.findUnique({
+    where: { id },
+    select: { name: true },
+  });
+
   await prisma.enterprise.delete({
     where: { id },
   });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "ENTERPRISE_DELETED",
+    entityType: "Enterprise",
+    entityId: id,
+    metadata: {
+      deletedName: enterprise?.name || "Unknown",
+    },
+  });
+
   revalidatePath("/admin/enterprises");
   revalidatePath("/directory");
   return { success: true };
 }
 
 export async function toggleProductFeatured(id: string, currentStatus: boolean) {
-  await verifyAuth();
+  const session = await verifyAuth();
   await prisma.product.update({
     where: { id },
     data: { isFeatured: !currentStatus },
   });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "PRODUCT_FEATURED_TOGGLED",
+    entityType: "Product",
+    entityId: id,
+    metadata: { isFeatured: !currentStatus },
+  });
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   return { success: true };
@@ -112,7 +165,7 @@ export async function createProduct(data: {
   images: string[];
   isFeatured?: boolean;
 }) {
-  await verifyAuth();
+  const session = await verifyAuth();
 
   const slug = slugify(data.title) + "-" + Math.floor(1000 + Math.random() * 9000);
 
@@ -132,28 +185,86 @@ export async function createProduct(data: {
     },
   });
 
+  await logAuditAction({
+    userId: session.user.id,
+    action: "PRODUCT_CREATED",
+    entityType: "Product",
+    entityId: product.id,
+    metadata: {
+      title: product.title,
+      enterpriseId: product.enterpriseId,
+    },
+  });
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   return { success: true, product };
 }
 
 export async function deleteProduct(id: string) {
-  await verifyAuth();
+  const session = await verifyAuth();
   await prisma.product.delete({
     where: { id },
   });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "PRODUCT_DELETED",
+    entityType: "Product",
+    entityId: id,
+  });
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   return { success: true };
 }
 
-export async function updateInquiryStatus(id: string, status: "NEW" | "FORWARDED" | "CLOSED") {
-  await verifyAuth();
-  await prisma.leadInquiry.update({
+export async function updateInquiryStatus(
+  id: string,
+  status: "NEW" | "VIEWED" | "FORWARDED" | "RESPONDED" | "CLOSED"
+) {
+  const session = await verifyAuth();
+  const inquiry = await prisma.leadInquiry.update({
     where: { id },
     data: { status },
   });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "INQUIRY_STATUS_UPDATED",
+    entityType: "LeadInquiry",
+    entityId: id,
+    metadata: {
+      inquiryNumber: inquiry.inquiryNumber,
+      status,
+    },
+  });
+
   revalidatePath("/admin/inquiries");
   revalidatePath("/admin");
   return { success: true };
+}
+
+export async function addAdminInquiryNote(inquiryId: string, content: string) {
+  const session = await verifyAuth();
+  if (!content.trim()) return { success: false, error: "Note cannot be empty" };
+
+  const note = await prisma.inquiryNote.create({
+    data: {
+      inquiryId,
+      author: session.user.name || "GAN Trade Secretariat",
+      content: content.trim(),
+    },
+  });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "INQUIRY_NOTE_ADDED",
+    entityType: "LeadInquiry",
+    entityId: inquiryId,
+    metadata: { noteId: note.id },
+  });
+
+  revalidatePath("/admin/inquiries");
+  return { success: true, note };
 }

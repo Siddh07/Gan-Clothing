@@ -25,7 +25,7 @@ interface ProductItem {
   fabricType: string;
   gsmWeight?: number | null;
   moq: number;
-  targetGender: string;
+  targetGender?: string | null;
   isFeatured: boolean;
   images: string;
   enterprise: { id: string; name: string; slug: string };

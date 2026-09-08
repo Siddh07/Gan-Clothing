@@ -7,6 +7,7 @@ import { DirectoryFilters } from "@/components/directory/DirectoryFilters";
 import { DirectorySearch } from "@/components/directory/DirectorySearch";
 import { DirectoryToolbar } from "@/components/directory/DirectoryToolbar";
 import { FactoryCard } from "@/components/directory/FactoryCard";
+import { PaginationControls } from "@/components/common/PaginationControls";
 import { ShieldCheck, Building2, HelpCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -27,6 +28,7 @@ interface DirectoryPageProps {
     moq?: string;
     view?: "grid" | "list";
     sort?: string;
+    page?: string;
   }>;
 }
 
@@ -40,20 +42,42 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
   const viewMode = resolvedParams.view || "grid";
   const sort = resolvedParams.sort || "capacity-desc";
 
-  // Build Prisma where clause
-  const where: any = {};
+  const pageSize = 12;
+  const page = Math.max(1, parseInt(resolvedParams.page || "1", 10));
 
-  if (search) {
-    where.OR = [
-      { name: { contains: search } },
-      { description: { contains: search } },
-      { city: { contains: search } },
-      { address: { contains: search } },
-    ];
+  // Build Prisma where clause
+  const where: any = {
+    status: "APPROVED",
+  };
+
+  // Multi-keyword fuzzy search
+  if (search.trim()) {
+    const terms = search.trim().split(/\s+/).filter(Boolean);
+    where.AND = terms.map((term) => ({
+      OR: [
+        { name: { contains: term } },
+        { description: { contains: term } },
+        { city: { contains: term } },
+        { address: { contains: term } },
+        {
+          products: {
+            some: {
+              OR: [
+                { title: { contains: term } },
+                { fabricType: { contains: term } },
+                { description: { contains: term } },
+                { category: { name: { contains: term } } },
+              ],
+            },
+          },
+        },
+      ],
+    }));
   }
 
   if (category) {
     where.products = {
+      ...where.products,
       some: {
         category: {
           slug: category,
@@ -92,11 +116,14 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
   if (sort === "established-desc") orderBy = { yearEstablished: "asc" }; // Earlier year = more established
   if (sort === "name-asc") orderBy = { name: "asc" };
 
-  // Fetch factories and metadata options in parallel
-  const [factories, categories, allCertifications, allEnterprises] = await Promise.all([
+  // Fetch factories and metadata options in parallel with pagination
+  const [totalCount, factories, categories, allCertifications, allEnterprises] = await Promise.all([
+    prisma.enterprise.count({ where }),
     prisma.enterprise.findMany({
       where,
       orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       include: {
         certifications: true,
         products: {
@@ -113,9 +140,12 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
       distinct: ["name"],
     }),
     prisma.enterprise.findMany({
+      where: { status: "APPROVED" },
       select: { exportMarkets: true },
     }),
   ]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   // Extract distinct markets
   const marketSet = new Set<string>();
@@ -176,7 +206,7 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
 
             {/* Right Factory Results Section */}
             <div className="lg:col-span-3 space-y-6">
-              <DirectoryToolbar totalCount={factories.length} />
+              <DirectoryToolbar totalCount={totalCount} />
 
               {factories.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
@@ -217,6 +247,16 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
                   ))}
                 </div>
               )}
+
+              {/* Pagination Controls */}
+              <PaginationControls
+                currentPage={page}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                pageSize={pageSize}
+                baseUrl="/directory"
+                searchParams={resolvedParams}
+              />
             </div>
           </div>
         </div>

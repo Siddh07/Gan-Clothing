@@ -35,8 +35,12 @@ export default async function AdminDashboardPage() {
       take: 5,
       orderBy: { createdAt: "desc" },
       include: {
-        enterprise: { select: { name: true } },
-        product: { select: { title: true } },
+        items: {
+          include: {
+            enterprise: { select: { name: true } },
+            product: { select: { title: true } },
+          },
+        },
       },
     }),
     prisma.enterprise.aggregate({
@@ -183,6 +187,9 @@ export default async function AdminDashboardPage() {
             <div key={inquiry.id} className="p-5 hover:bg-slate-50/80 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
+                  <span className="font-mono text-emerald-800 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    {inquiry.inquiryNumber || "GAN-RFQ"}
+                  </span>
                   <span className="font-bold text-slate-900 text-sm">
                     {inquiry.buyerCompany}
                   </span>
@@ -203,11 +210,11 @@ export default async function AdminDashboardPage() {
                   </span>
                 </div>
                 <div className="text-slate-700">
-                  Target: <strong>{inquiry.enterprise?.name || "General GAN Trade Desk"}</strong>
-                  {inquiry.product && ` • Item: ${inquiry.product.title}`} • Volume: {inquiry.orderQuantityTarget.toLocaleString()} pcs
+                  Target Factories: <strong>{Array.from(new Set(inquiry.items.map(i => i.enterprise.name))).join(", ") || "General GAN Trade Desk"}</strong>
+                  {inquiry.items.length > 0 && ` • ${inquiry.items.length} RFQ item(s)`} • Total Volume: {inquiry.items.reduce((acc, i) => acc + i.requestedQuantity, 0).toLocaleString()} pcs
                 </div>
                 <p className="text-slate-600 italic line-clamp-1 max-w-2xl">
-                  "{inquiry.message}"
+                  "{inquiry.generalMessage}"
                 </p>
               </div>
 

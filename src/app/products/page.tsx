@@ -4,6 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
+import { PaginationControls } from "@/components/common/PaginationControls";
 import {
   Layers,
   ArrowRight,
@@ -23,20 +24,27 @@ export const metadata: Metadata = {
 interface ProductsPageProps {
   searchParams: Promise<{
     category?: string;
+    page?: string;
   }>;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { category } = await searchParams;
+  const resolvedParams = await searchParams;
+  const category = resolvedParams.category;
+  const pageSize = 12;
+  const page = Math.max(1, parseInt(resolvedParams.page || "1", 10));
 
   const where: any = {};
   if (category) {
     where.category = { slug: category };
   }
 
-  const [products, categories] = await Promise.all([
+  const [totalCount, products, categories] = await Promise.all([
+    prisma.product.count({ where }),
     prisma.product.findMany({
       where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       include: {
         enterprise: {
           select: { name: true, slug: true, city: true, isVerified: true },
@@ -52,6 +60,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       orderBy: { name: "asc" },
     }),
   ]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
@@ -83,11 +93,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               href="/products"
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 !category
-                  ? "bg-emerald-800 text-white shadow-sm"
+                  ? "bg-emerald-800 text-white shadow-xs"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
               }`}
             >
-              All Products ({products.length})
+              All Products ({totalCount})
             </Link>
             {categories.map((cat) => {
               const isSelected = category === cat.slug;
@@ -97,7 +107,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   href={`/products?category=${cat.slug}`}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                     isSelected
-                      ? "bg-emerald-800 text-white shadow-sm"
+                      ? "bg-emerald-800 text-white shadow-xs"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                   }`}
                 >
@@ -107,38 +117,39 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             })}
           </div>
 
-          {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
+          {/* Product Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
             {products.map((product) => {
-              let images: string[] = [];
+              let parsedImages: string[] = [];
               try {
-                images = JSON.parse(product.images);
+                parsedImages = JSON.parse(product.images);
               } catch {
-                images = [product.images];
+                parsedImages = [product.images];
               }
-              const primaryImage =
-                images[0] || "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600";
+              const displayImage =
+                parsedImages[0] ||
+                "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800";
 
               return (
                 <div
                   key={product.id}
-                  className="group bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-500 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between group"
                 >
                   <div>
-                    {/* Image */}
-                    <div className="relative h-64 w-full bg-slate-100 overflow-hidden">
+                    {/* Image Header */}
+                    <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
                       <img
-                        src={primaryImage}
+                        src={displayImage}
                         alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute top-3 left-3 flex flex-col gap-1">
-                        <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        <span className="bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                           {product.category.name}
                         </span>
                         {product.isFeatured && (
-                          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-slate-950">
-                            Featured Sample
+                          <span className="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            Featured
                           </span>
                         )}
                       </div>
@@ -198,6 +209,18 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 </div>
               );
             })}
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="mt-8">
+            <PaginationControls
+              currentPage={page}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              pageSize={pageSize}
+              baseUrl="/products"
+              searchParams={resolvedParams}
+            />
           </div>
         </div>
       </main>

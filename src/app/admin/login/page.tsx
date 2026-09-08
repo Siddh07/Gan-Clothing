@@ -113,6 +113,14 @@ export default function AdminLoginPage() {
                     placeholder="••••••••••••"
                   />
                 </div>
+                <div className="flex justify-end mt-1.5">
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               <div className="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-xl text-[11px] text-emerald-300 leading-relaxed">

@@ -156,3 +156,34 @@ export async function dispatchRFQEmails(payload: SendRFQEmailsPayload) {
     };
   }
 }
+
+export async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string | string[];
+  subject: string;
+  html: string;
+}) {
+  const recipients = Array.isArray(to) ? to : [to];
+
+  if (!resend) {
+    console.log(`\n📧 [EMAIL MOCK DEV] To: ${recipients.join(", ")} | Subject: ${subject}`);
+    return { success: true, mode: "mock" };
+  }
+
+  try {
+    const result = await resend.emails.send({
+      from: `Garment Association of Nepal <${FROM_EMAIL}>`,
+      to: recipients,
+      subject,
+      html,
+    });
+    return { success: true, mode: "live", result };
+  } catch (error) {
+    console.error("Error sending email via Resend:", error);
+    return { success: false, error };
+  }
+}
+

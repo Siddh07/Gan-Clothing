@@ -52,17 +52,32 @@ export async function submitInquiry(rawInput: InquiryInput) {
     }
 
     // 4. Record lead in database
+    const year = new Date().getFullYear();
+    const count = await prisma.leadInquiry.count();
+    const inquiryNumber = `GAN-RFQ-${year}-${String(count + 1).padStart(4, "0")}`;
+
     const lead = await prisma.leadInquiry.create({
       data: {
+        inquiryNumber,
         buyerName,
         buyerEmail,
         buyerCompany,
         buyerCountry,
-        orderQuantityTarget,
-        message,
-        enterpriseId: enterprise?.id || null,
-        productId: product?.id || null,
+        generalMessage: message,
         status: "NEW",
+        ...(enterprise
+          ? {
+              items: {
+                create: [
+                  {
+                    enterpriseId: enterprise.id,
+                    productId: product?.id || null,
+                    requestedQuantity: orderQuantityTarget,
+                  },
+                ],
+              },
+            }
+          : {}),
       },
     });
 

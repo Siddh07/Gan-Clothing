@@ -18,6 +18,7 @@ import {
   Calendar,
   Layers,
   Users,
+  Printer,
 } from "lucide-react";
 
 interface EnterpriseDetailPageProps {
@@ -163,6 +164,17 @@ export default async function EnterpriseDetailPage({
                     Website
                   </a>
                 )}
+              </div>
+
+              <div>
+                <Link
+                  href={`/directory/${enterprise.slug}/pdf`}
+                  target="_blank"
+                  className="inline-flex items-center px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-bold transition-colors shadow-xs"
+                >
+                  <Printer className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
+                  Export Factory Dossier (PDF)
+                </Link>
               </div>
             </div>
           </section>

@@ -15,6 +15,10 @@ import {
   X,
   ShieldCheck,
   User,
+  UserCheck,
+  FileSpreadsheet,
+  ShieldAlert,
+  BarChart3,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -32,10 +36,14 @@ export default function AdminLayout({
   }
 
   const navItems = [
-    { href: "/admin", label: "Analytics Overview", icon: LayoutDashboard, exact: true },
+    { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: "/admin/applications", label: "Review Queue", icon: UserCheck },
     { href: "/admin/enterprises", label: "Member Enterprises", icon: Building2 },
     { href: "/admin/products", label: "Product Catalog", icon: Package },
-    { href: "/admin/inquiries", label: "Inquiries & RFQ Log", icon: Inbox },
+    { href: "/admin/inquiries", label: "Inquiries & RFQs", icon: Inbox },
+    { href: "/admin/import", label: "Bulk CSV Import", icon: FileSpreadsheet },
+    { href: "/admin/audit-logs", label: "Audit Trail", icon: ShieldAlert },
+    { href: "/admin/analytics", label: "Buyer Analytics", icon: BarChart3 },
   ];
 
   const isActive = (item: (typeof navItems)[0]) => {

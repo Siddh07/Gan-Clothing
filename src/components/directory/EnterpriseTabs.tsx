@@ -24,8 +24,10 @@ interface Certification {
   id: string;
   name: string;
   issuer: string;
+  certificateNumber?: string | null;
+  issueDate?: Date | string | null;
+  expiryDate?: Date | string | null;
   certificateFileUrl?: string | null;
-  validUntil?: Date | null;
 }
 
 interface Product {
@@ -35,7 +37,7 @@ interface Product {
   fabricType: string;
   gsmWeight?: number | null;
   moq: number;
-  targetGender: string;
+  targetGender?: string | null;
   description: string;
   images: string;
   category: {
@@ -257,42 +259,88 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {enterprise.certifications.map((cert) => (
-              <div
-                key={cert.id}
-                className="p-5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-emerald-500 hover:shadow-md transition-all flex items-start justify-between gap-4"
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="p-2.5 rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
-                    <Award className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-outfit font-bold text-slate-900 text-base">
-                      {cert.name}
-                    </h4>
-                    <p className="text-xs text-slate-700 mt-0.5">
-                      Issuing Body: <strong>{cert.issuer}</strong>
-                    </p>
-                    <span className="inline-flex items-center text-[11px] font-semibold text-emerald-700 mt-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                      Active & Verified in GAN Registry
-                    </span>
-                  </div>
-                </div>
+            {enterprise.certifications.map((cert) => {
+              const now = new Date();
+              const expiry = cert.expiryDate ? new Date(cert.expiryDate) : null;
+              const daysRemaining = expiry ? Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
 
-                {cert.certificateFileUrl && (
-                  <a
-                    href={cert.certificateFileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-                    title="View Certificate PDF"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                )}
-              </div>
-            ))}
+              const isExpired = daysRemaining !== null && daysRemaining <= 0;
+              const isExpiringSoon = daysRemaining !== null && daysRemaining > 0 && daysRemaining <= 30;
+              const isActive = !isExpired && !isExpiringSoon;
+
+              return (
+                <div
+                  key={cert.id}
+                  className={`p-5 rounded-xl border transition-all flex items-start justify-between gap-4 ${
+                    isExpired
+                      ? "border-red-200 bg-red-50/40"
+                      : isExpiringSoon
+                      ? "border-amber-200 bg-amber-50/40"
+                      : "border-slate-200 bg-slate-50/70 hover:bg-white hover:border-emerald-500 hover:shadow-md"
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className={`p-2.5 rounded-lg shrink-0 ${
+                      isExpired
+                        ? "bg-red-100 text-red-700"
+                        : isExpiringSoon
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                    }`}>
+                      <Award className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-outfit font-bold text-slate-900 text-base">
+                        {cert.name}
+                      </h4>
+                      <p className="text-xs text-slate-700">
+                        Issuing Body: <strong>{cert.issuer}</strong>
+                        {cert.certificateNumber && ` • Cert #${cert.certificateNumber}`}
+                      </p>
+
+                      {cert.expiryDate && (
+                        <p className="text-[11px] text-slate-700">
+                          Valid: {cert.issueDate ? `${new Date(cert.issueDate).toLocaleDateString()} — ` : ""}
+                          {new Date(cert.expiryDate).toLocaleDateString()}
+                        </p>
+                      )}
+
+                      {/* Compliance Status Badge */}
+                      <div className="pt-1">
+                        {isActive && (
+                          <span className="inline-flex items-center text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                            <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                            Active & Audited in GAN Registry
+                          </span>
+                        )}
+                        {isExpiringSoon && (
+                          <span className="inline-flex items-center text-[11px] font-semibold text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                            ⚠ Renewal in Progress ({daysRemaining} days remaining)
+                          </span>
+                        )}
+                        {isExpired && (
+                          <span className="inline-flex items-center text-[11px] font-semibold text-red-800 bg-red-100 px-2 py-0.5 rounded border border-red-300">
+                            ✕ Audit Expired — Recertification Pending
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {cert.certificateFileUrl && (
+                    <a
+                      href={cert.certificateFileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                      title="View Certificate PDF"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

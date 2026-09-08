@@ -27,6 +27,11 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase().trim() },
+          include: {
+            enterprise: {
+              select: { id: true, name: true, slug: true, status: true },
+            },
+          },
         });
 
         if (!user || !user.passwordHash) {
@@ -42,8 +47,11 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name || "GAN Admin",
+          name: user.name || "GAN Member",
           role: user.role,
+          enterpriseId: user.enterpriseId || null,
+          enterpriseName: user.enterprise?.name || null,
+          enterpriseSlug: user.enterprise?.slug || null,
         };
       },
     }),
@@ -53,6 +61,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.enterpriseId = (user as any).enterpriseId;
+        token.enterpriseName = (user as any).enterpriseName;
+        token.enterpriseSlug = (user as any).enterpriseSlug;
       }
       return token;
     },
@@ -60,6 +71,9 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
+        (session.user as any).enterpriseId = (token.enterpriseId as string) || null;
+        (session.user as any).enterpriseName = (token.enterpriseName as string) || null;
+        (session.user as any).enterpriseSlug = (token.enterpriseSlug as string) || null;
       }
       return session;
     },
