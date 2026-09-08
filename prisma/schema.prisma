@@ -1,0 +1,120 @@
+// Prisma Schema for Garment Association of Nepal (GAN) B2B Export Directory
+// 
+// To use PostgreSQL for production:
+// 1. Change provider = "postgresql" below
+// 2. Set DATABASE_URL in .env to your PostgreSQL connection string
+// 3. Run: npx prisma db push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Change to "postgresql" when deploying with Neon/Supabase/PostgreSQL
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         String   @default("ADMIN") // "SUPERADMIN" | "ADMIN"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Enterprise {
+  id                 String          @id @default(cuid())
+  name               String
+  slug               String          @unique
+  registrationNumber String
+  panNumber          String
+  description        String
+  yearEstablished    Int
+  employeeCount      Int
+  monthlyCapacityPcs Int
+  address            String
+  city               String
+  websiteUrl         String?
+  contactEmail       String
+  contactPhone       String
+  logoUrl            String?
+  coverImageUrl      String?
+  exportMarkets      String          @default("USA, EU, UK, Japan") // Stored as comma-separated or JSON list for universal DB portability
+  isVerified         Boolean         @default(false)
+  certifications     Certification[]
+  products           Product[]
+  inquiries          LeadInquiry[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@map("enterprises")
+}
+
+model Certification {
+  id                 String     @id @default(cuid())
+  name               String     // e.g., WRAP, ISO 9001, OEKO-TEX, Sedex, GOTS
+  issuer             String
+  certificateFileUrl String?
+  validUntil         DateTime?
+  enterpriseId       String
+  enterprise         Enterprise @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
+  createdAt          DateTime   @default(now())
+
+  @@map("certifications")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+
+  @@map("categories")
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  fabricType   String        // e.g., Cashmere Knit, Organic Cotton, Twill Woven, Denim, Technical Fleece
+  gsmWeight    Int?          // Grams per square meter
+  moq          Int           @default(500) // Minimum Order Quantity
+  targetGender String        @default("Unisex") // Men, Women, Unisex, Kids
+  description  String
+  images       String        @default("[]") // JSON string array of image URLs
+  isFeatured   Boolean       @default(false)
+  enterpriseId String
+  enterprise   Enterprise    @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  inquiries    LeadInquiry[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("products")
+}
+
+model LeadInquiry {
+  id                  String      @id @default(cuid())
+  enterpriseId        String?
+  enterprise          Enterprise? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull)
+  productId           String?
+  product             Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  buyerName           String
+  buyerEmail          String
+  buyerCompany        String
+  buyerCountry        String
+  orderQuantityTarget Int
+  message             String
+  status              String      @default("NEW") // "NEW" | "FORWARDED" | "CLOSED"
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  @@map("lead_inquiries")
+}
