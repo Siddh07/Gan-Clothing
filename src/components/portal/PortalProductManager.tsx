@@ -62,46 +62,46 @@ export function PortalProductManager({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <p className="text-xs text-slate-500">
-          Showing {initialProducts.length} export apparel sample{initialProducts.length === 1 ? "" : "s"}
+    <div className="space-y-4">
+      <div className="flex justify-between items-center bg-white border border-[#E1E4E7] p-3">
+        <p className="text-xs font-mono text-[#6B7280]">
+          EXHIBITION REGISTER: {initialProducts.length} SAMPLE SPECIMEN{initialProducts.length === 1 ? "" : "S"}
         </p>
         <button
           onClick={() => setIsCreateOpen(true)}
-          className="inline-flex items-center px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors shadow-xs cursor-pointer"
+          className="inline-flex items-center px-3.5 py-2 text-xs font-mono font-medium text-white bg-[#1E3A52] hover:bg-[#0D0D0D] transition-colors rounded-none cursor-pointer"
         >
-          <Plus className="w-4 h-4 mr-1.5" />
-          Add Sample Garment
+          <Plus className="w-3.5 h-3.5 mr-1.5" />
+          ENROLL SAMPLE SPECIMEN
         </button>
       </div>
 
       {initialProducts.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-            <Package className="w-6 h-6" />
+        <div className="bg-white border border-[#E1E4E7] p-12 text-center space-y-3">
+          <div className="w-10 h-10 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
+            <Package className="w-5 h-5" />
           </div>
-          <h3 className="font-outfit text-base font-bold text-slate-900">
-            No Sample Garments Listed
+          <h3 className="text-sm font-bold text-[#0D0D0D]">
+            No Garment Samples Registered
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Upload sample garments to showcase your mill's fabric textures, stitch quality, and production capabilities to global buyers.
+          <p className="text-xs font-mono text-[#6B7280] max-w-sm mx-auto">
+            Upload sample garments to showcase fabric weights, yarn compositions, and production craft to international procurement buyers.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
+        <div className="bg-white border border-[#E1E4E7] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <table className="w-full text-left text-xs table-ledger">
+              <thead className="bg-[#F6F7F8] border-b border-[#E1E4E7] text-[10px] font-mono uppercase text-[#6B7280]">
                 <tr>
-                  <th className="px-6 py-4">Apparel Sample</th>
-                  <th className="px-6 py-4">Category</th>
-                  <th className="px-6 py-4">Fabric Composition</th>
-                  <th className="px-6 py-4">MOQ</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                  <th className="px-4 py-3">Garment Specimen</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Material & GSM</th>
+                  <th className="px-4 py-3">MOQ (Pcs)</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
+              <tbody className="divide-y divide-[#E1E4E7] font-mono text-xs">
                 {initialProducts.map((prod) => {
                   let img = "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=200";
                   try {
@@ -110,56 +110,58 @@ export function PortalProductManager({
                   } catch {}
 
                   return (
-                    <tr key={prod.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-3">
+                    <tr key={prod.id} className="hover:bg-[#F6F7F8] transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
                           <img
                             src={img}
                             alt={prod.title}
-                            className="w-10 h-10 rounded-lg object-cover bg-slate-100 border"
+                            className="w-10 h-10 object-cover bg-[#F6F7F8] border border-[#E1E4E7] shrink-0"
                           />
                           <div>
-                            <div className="font-bold text-slate-900 text-sm">
+                            <div className="font-bold text-[#0D0D0D] font-sans text-xs">
                               {prod.title}
                             </div>
-                            <div className="text-[10px] text-slate-400">
-                              {prod.targetGender || "Unisex"}
+                            <div className="text-[10px] text-[#6B7280]">
+                              DEMO: {prod.targetGender || "UNISEX"}
                             </div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                      <td className="px-4 py-3">
+                        <span className="tag-neutral text-[10px]">
                           {prod.category.name}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4">
-                        <div className="text-slate-800">{prod.fabricType}</div>
+                      <td className="px-4 py-3">
+                        <div className="text-[#0D0D0D] font-sans">{prod.fabricType}</div>
                         {prod.gsmWeight && (
-                          <div className="text-[10px] text-slate-400">{prod.gsmWeight} GSM</div>
+                          <div className="text-[10px] text-[#6B7280]">{prod.gsmWeight} GSM</div>
                         )}
                       </td>
 
-                      <td className="px-6 py-4 font-bold text-emerald-700">
+                      <td className="px-4 py-3 font-bold text-[#0D0D0D]">
                         {prod.moq.toLocaleString()} pcs
                       </td>
 
-                      <td className="px-6 py-4 text-right space-x-2">
+                      <td className="px-4 py-3 text-right space-x-1.5">
                         <Link
                           href={`/products/${prod.slug}`}
                           target="_blank"
-                          className="p-1.5 text-slate-400 hover:text-emerald-700 inline-block"
+                          className="p-1.5 text-[#6B7280] hover:text-[#0D0D0D] hover:bg-[#F6F7F8] border border-transparent hover:border-[#E1E4E7] inline-block"
+                          title="View Specimen Page"
                         >
-                          <ExternalLink className="w-4 h-4" />
+                          <ExternalLink className="w-3.5 h-3.5" />
                         </Link>
                         <button
                           onClick={() => handleDelete(prod.id, prod.title)}
                           disabled={isPending}
-                          className="p-1.5 text-slate-400 hover:text-red-600 inline-block cursor-pointer"
+                          className="p-1.5 text-[#6B7280] hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 inline-block cursor-pointer"
+                          title="Archive Specimen"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </td>
                     </tr>
@@ -171,21 +173,28 @@ export function PortalProductManager({
         </div>
       )}
 
-      {/* Create Product Modal */}
+      {/* Create Product Modal / Tech Pack Spec Form */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in">
-            <div className="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
-              <h3 className="font-outfit font-bold text-base">Add Sample Garment to Showroom</h3>
-              <button onClick={() => setIsCreateOpen(false)}>
-                <X className="w-5 h-5 text-slate-400 hover:text-white cursor-pointer" />
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0D0D0D]/60 flex items-center justify-center p-4">
+          <div className="bg-white max-w-xl w-full border border-[#E1E4E7] shadow-xl overflow-hidden">
+            <div className="bg-[#0D0D0D] text-white px-5 py-3.5 flex justify-between items-center">
+              <div>
+                <h3 className="font-mono font-bold text-xs uppercase tracking-wider">
+                  Technical Tech Pack Specimen Enrollment
+                </h3>
+                <p className="text-[10px] font-mono text-[#E1E4E7]/70">
+                  STANDARD OPERATING PROCEDURE: SAMPLE SPECIFICATION ENTRY
+                </p>
+              </div>
+              <button onClick={() => setIsCreateOpen(false)} className="text-[#E1E4E7] hover:text-white cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreate} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Product Title *
+                <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                  Garment Style Title *
                 </label>
                 <input
                   type="text"
@@ -193,19 +202,19 @@ export function PortalProductManager({
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. 100% Cashmere Ribbed Cardigan"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Category *
+                  <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                    Apparel Category *
                   </label>
                   <select
                     value={formData.categoryId}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none"
+                    className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -216,13 +225,13 @@ export function PortalProductManager({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
                     Target Demographic
                   </label>
                   <select
                     value={formData.targetGender}
                     onChange={(e) => setFormData({ ...formData, targetGender: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none"
+                    className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                   >
                     <option value="Unisex">Unisex</option>
                     <option value="Men">Men</option>
@@ -234,84 +243,84 @@ export function PortalProductManager({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Fabric Composition *
+                  <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                    Fabric Composition & Weave *
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.fabricType}
                     onChange={(e) => setFormData({ ...formData, fabricType: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                    className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    GSM Weight (Optional)
+                  <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                    Fabric Weight (GSM)
                   </label>
                   <input
                     type="number"
                     value={formData.gsmWeight}
                     onChange={(e) => setFormData({ ...formData, gsmWeight: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                    className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Minimum Order Quantity (MOQ) *
+                <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                  Minimum Order Quantity (MOQ Pcs) *
                 </label>
                 <input
                   type="number"
                   required
                   value={formData.moq}
                   onChange={(e) => setFormData({ ...formData, moq: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                  className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Photo URL *
+                <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                  Primary Specimen Photograph URL *
                 </label>
                 <input
                   type="url"
                   required
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                  className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Garment Description *
+                <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                  Technical Description & Finishing Notes *
                 </label>
                 <textarea
                   rows={3}
                   required
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                  className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs rounded-none focus:outline-none bg-white"
                 ></textarea>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex justify-end gap-2 pt-4 border-t border-[#E1E4E7]">
                 <button
                   type="button"
                   onClick={() => setIsCreateOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900"
+                  className="px-4 py-2 text-xs font-mono text-[#6B7280] hover:text-[#0D0D0D] border border-[#E1E4E7] hover:bg-[#F6F7F8] rounded-none cursor-pointer"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm"
+                  className="px-5 py-2 text-xs font-mono font-medium text-white bg-[#1E3A52] hover:bg-[#0D0D0D] rounded-none cursor-pointer disabled:opacity-50"
                 >
-                  {isPending ? "Adding Sample..." : "Add to Showroom"}
+                  {isPending ? "REGISTERING..." : "COMMIT SPECIMEN TO SHOWROOM"}
                 </button>
               </div>
             </form>

@@ -100,12 +100,15 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          International Buyer Intent & Sourcing Analytics
+      <div className="pb-4 border-b border-[#E1E4E7]">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280] mb-1">
+          Bilateral Trade Intelligence · Demand Telemetry
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#0D0D0D]">
+          Buyer Intent, Sourcing Telemetry & Export Corridors
         </h1>
-        <p className="text-xs text-slate-700 mt-1">
-          Geo-attribution telemetry, market demand for Nepalese garment categories, and member enterprise lead conversion analytics.
+        <p className="text-xs text-[#6B7280] mt-1 max-w-2xl">
+          Geographic attribution of international buyers, product category demand volumes, and member mill requisition conversion metrics.
         </p>
       </div>
 

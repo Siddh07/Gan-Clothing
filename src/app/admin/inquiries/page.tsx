@@ -22,12 +22,15 @@ export default async function AdminInquiriesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          International Buyer Sourcing Inquiries (RFQs)
+      <div className="pb-4 border-b border-[#E1E4E7]">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280] mb-1">
+          Bilateral Trade Desk · Export Purchase Requisitions
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#0D0D0D]">
+          Buyer Sourcing Inquiries & Purchase Orders
         </h1>
-        <p className="text-xs text-slate-700 mt-1">
-          Monitor trade leads, update merchandising dispatch status, log internal secretariat notes, and download records for bilateral trade reporting.
+        <p className="text-xs text-[#6B7280] mt-1 max-w-2xl">
+          International buyer purchase requisitions, factory production allocations, FOB terms, and secretariat export routing.
         </p>
       </div>
 

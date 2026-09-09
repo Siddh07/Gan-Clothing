@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { QuoteCartProvider } from "@/context/QuoteCartContext";
 import { QuoteCartDrawer } from "@/components/public/QuoteCartDrawer";
 
-const inter = Inter({
-  variable: "--font-inter",
+const geistSans = Geist({
+  variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const geistMono = Geist_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -20,28 +20,11 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   title: {
-    default: "Garment Association of Nepal (GAN) | B2B Export Directory & Sourcing Portal",
-    template: "%s | Garment Association of Nepal (GAN)",
+    default: "Garment Association of Nepal (GAN) | Procurement & Export Portal",
+    template: "%s | Garment Association of Nepal",
   },
   description:
-    "Official B2B Export Portal for the Garment Association of Nepal. Discover verified garment manufacturers, cashmere artisans, woven mills, and export-compliant factories.",
-  keywords: [
-    "Garment Association of Nepal",
-    "GAN Nepal",
-    "Nepal Garment Export",
-    "Nepal Apparel Manufacturer",
-    "Himalayan Cashmere",
-    "Nepal Textile Sourcing",
-    "B2B Garment Directory",
-    "Ethical Apparel Nepal",
-  ],
-  openGraph: {
-    title: "Garment Association of Nepal (GAN) | B2B Export Directory",
-    description: "Official B2B platform connecting global apparel buyers with verified Nepalese garment exporters.",
-    siteName: "Garment Association of Nepal",
-    locale: "en_US",
-    type: "website",
-  },
+    "Official B2B procurement and operations console of the Garment Association of Nepal. Audited member mills, technical production specifications, and trade inquiries.",
 };
 
 export default function RootLayout({
@@ -50,8 +33,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-900">
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col font-sans bg-[#F6F7F8] text-[#0D0D0D] selection:bg-[#1E3A52]/15 selection:text-[#0D0D0D]">
         <AuthProvider>
           <QuoteCartProvider>
             {children}

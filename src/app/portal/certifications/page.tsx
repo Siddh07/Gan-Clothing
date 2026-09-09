@@ -22,12 +22,12 @@ export default async function PortalCertificationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          Compliance & Sustainability Audits
+      <div className="border-b border-[#E1E4E7] pb-4">
+        <h1 className="text-xl font-bold text-[#0D0D0D] tracking-tight">
+          Compliance Accreditations & Social Audit Dossier
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Maintain active accreditation credentials for social labor, chemical safety (OEKO-TEX), and environmental management.
+        <p className="text-xs font-mono text-[#6B7280] mt-1">
+          LABOUR INTEGRITY, CHEMICAL RESTRICTIONS (OEKO-TEX) & ENVIRONMENTAL AUDIT RECORDS
         </p>
       </div>
 

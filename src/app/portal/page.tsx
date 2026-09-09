@@ -42,72 +42,96 @@ export default async function PortalDashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Top Banner / Technical Dossier Header */}
+      <div className="border-b border-[#E1E4E7] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="font-outfit text-3xl font-black text-slate-900">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-bold text-[#0D0D0D] tracking-tight">
               {enterprise.name}
             </h1>
-            {enterprise.isVerified && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                Verified Mill
+            {enterprise.isVerified ? (
+              <span className="tag-approved">
+                ACCREDITED MILL
+              </span>
+            ) : (
+              <span className="tag-pending">
+                PENDING VERIFICATION
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Status: <strong className="text-slate-900">{enterprise.status}</strong> • PAN: {enterprise.panNumber} • Reg: {enterprise.registrationNumber}
-          </p>
+          <div className="font-mono text-xs text-[#6B7280] mt-1 space-x-3">
+            <span>STATUS: <strong className="text-[#0D0D0D]">{enterprise.status}</strong></span>
+            <span>PAN: <strong className="text-[#0D0D0D]">{enterprise.panNumber}</strong></span>
+            <span>REG: <strong className="text-[#0D0D0D]">{enterprise.registrationNumber}</strong></span>
+          </div>
         </div>
       </div>
 
-      {/* KPI Stats Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+      {/* Metric Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 bg-white border border-[#E1E4E7] divide-x divide-y md:divide-y-0 divide-[#E1E4E7]">
+        <div className="p-4">
+          <div className="text-[10px] font-mono uppercase text-[#6B7280] tracking-wider">
             Monthly Capacity
-          </span>
-          <div className="font-outfit text-2xl font-black text-slate-900">
-            {enterprise.monthlyCapacityPcs.toLocaleString()} pcs
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-xl font-bold font-mono text-[#0D0D0D] mt-1">
+            {enterprise.monthlyCapacityPcs.toLocaleString()} <span className="text-xs font-normal text-[#6B7280]">pcs</span>
+          </div>
+          <div className="text-[10px] font-mono text-[#6B7280] mt-0.5">
             {enterprise.employeeCount} active craftspeople
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="p-4">
+          <div className="text-[10px] font-mono uppercase text-[#6B7280] tracking-wider">
             Showroom Samples
-          </span>
-          <div className="font-outfit text-2xl font-black text-slate-900">
-            {productCount} Styles
           </div>
-          <div className="text-[11px] text-emerald-700 font-semibold">
-            Live in Export Catalog
+          <div className="text-xl font-bold font-mono text-[#0D0D0D] mt-1">
+            {productCount} <span className="text-xs font-normal text-[#6B7280]">styles</span>
+          </div>
+          <div className="text-[10px] font-mono text-[#1E3A52] mt-0.5">
+            Active in catalog
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Buyer Inquiries Logged
-          </span>
-          <div className="font-outfit text-2xl font-black text-slate-900">
-            {inquiryCount} Leads
+        <div className="p-4">
+          <div className="text-[10px] font-mono uppercase text-[#6B7280] tracking-wider">
+            Routed RFQs
           </div>
-          <div className="text-[11px] text-slate-500">
-            Dispatched by GAN Trade Desk
+          <div className="text-xl font-bold font-mono text-[#0D0D0D] mt-1">
+            {inquiryCount} <span className="text-xs font-normal text-[#6B7280]">leads</span>
+          </div>
+          <div className="text-[10px] font-mono text-[#6B7280] mt-0.5">
+            GAN Trade Desk
+          </div>
+        </div>
+
+        <div className="p-4">
+          <div className="text-[10px] font-mono uppercase text-[#6B7280] tracking-wider">
+            Active Audits
+          </div>
+          <div className="text-xl font-bold font-mono text-[#0D0D0D] mt-1">
+            {enterprise.certifications?.length || 0} <span className="text-xs font-normal text-[#6B7280]">certs</span>
+          </div>
+          <div className="text-[10px] font-mono text-[#6B7280] mt-0.5">
+            Verified compliance
           </div>
         </div>
       </div>
 
       {/* Profile Editor Form */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
-        <h2 className="font-outfit text-xl font-bold text-slate-900 mb-6">
-          Factory Information & Technical Capabilities
-        </h2>
-        <FactoryProfileForm enterprise={enterprise} />
+      <div className="bg-white border border-[#E1E4E7]">
+        <div className="px-5 py-3 border-b border-[#E1E4E7] bg-[#F6F7F8] flex items-center justify-between">
+          <h2 className="text-xs font-bold uppercase tracking-wider font-mono text-[#0D0D0D]">
+            Plant Technical Specification & Commercial Dossier
+          </h2>
+          <span className="text-[10px] font-mono text-[#6B7280]">
+            SYNCED TO DIRECTORY
+          </span>
+        </div>
+        <div className="p-6">
+          <FactoryProfileForm enterprise={enterprise} />
+        </div>
       </div>
     </div>
   );

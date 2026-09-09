@@ -19,12 +19,15 @@ export default async function AdminEnterprisesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          Member Garment Exporters Registry
+      <div className="pb-4 border-b border-[#E1E4E7]">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280] mb-1">
+          Accreditation & Mill Registry · Garment Association of Nepal
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#0D0D0D]">
+          Accredited Export Mill & Manufacturer Registry
         </h1>
-        <p className="text-xs text-slate-700 mt-1">
-          Manage accredited Nepalese apparel mills, verify compliance certifications, and configure plant capacity limits.
+        <p className="text-xs text-[#6B7280] mt-1 max-w-2xl">
+          Verified apparel manufacturing plants, government PAN & company registrations, monthly volume capacities, and compliance accreditations.
         </p>
       </div>
 

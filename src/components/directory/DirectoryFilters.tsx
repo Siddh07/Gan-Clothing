@@ -89,11 +89,10 @@ export function DirectoryFilters({
         <div className="space-y-1">
           <button
             onClick={() => updateParam("category", "")}
-            className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-              !selectedCategory
+            className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${!selectedCategory
                 ? "bg-emerald-50 text-emerald-800 font-bold"
                 : "text-slate-600 hover:bg-slate-50"
-            }`}
+              }`}
           >
             <span>All Sectors</span>
             {!selectedCategory && <Check className="w-3.5 h-3.5 text-emerald-700" />}
@@ -104,11 +103,10 @@ export function DirectoryFilters({
               <button
                 key={cat.id}
                 onClick={() => updateParam("category", isSelected ? "" : cat.slug)}
-                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                  isSelected
+                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${isSelected
                     ? "bg-emerald-50 text-emerald-800 font-bold"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <span className="truncate">{cat.name}</span>
                 {isSelected && <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />}
@@ -126,11 +124,10 @@ export function DirectoryFilters({
         <div className="space-y-1">
           <button
             onClick={() => updateParam("certification", "")}
-            className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-              !selectedCertification
+            className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${!selectedCertification
                 ? "bg-emerald-50 text-emerald-800 font-bold"
                 : "text-slate-600 hover:bg-slate-50"
-            }`}
+              }`}
           >
             <span>Any Certification</span>
             {!selectedCertification && <Check className="w-3.5 h-3.5 text-emerald-700" />}
@@ -141,11 +138,10 @@ export function DirectoryFilters({
               <button
                 key={cert}
                 onClick={() => updateParam("certification", isSelected ? "" : cert)}
-                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                  isSelected
+                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${isSelected
                     ? "bg-emerald-50 text-emerald-800 font-bold"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <span className="truncate">{cert}</span>
                 {isSelected && <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />}
@@ -191,11 +187,10 @@ export function DirectoryFilters({
               <button
                 key={moqOption.label}
                 onClick={() => updateParam("moq", moqOption.value)}
-                className={`px-2.5 py-2 rounded-lg font-medium border text-center transition-colors ${
-                  isSelected
+                className={`px-2.5 py-2 rounded-lg font-medium border text-center transition-colors ${isSelected
                     ? "bg-emerald-700 text-white border-emerald-700"
                     : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 {moqOption.label}
               </button>

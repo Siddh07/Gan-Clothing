@@ -86,95 +86,89 @@ export function PortalInquiryInbox({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center text-xs text-slate-500">
-        <span>
-          Showing {initialItems.length} trade lead{initialItems.length === 1 ? "" : "s"} allocated to your mill
-        </span>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center bg-white border border-[#E1E4E7] p-3">
+        <p className="text-xs font-mono text-[#6B7280]">
+          ALLOCATED REQUISITIONS: {initialItems.length} INCOMING ORDER{initialItems.length === 1 ? "" : "S"}
+        </p>
       </div>
 
       {initialItems.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-            <Inbox className="w-6 h-6" />
+        <div className="bg-white border border-[#E1E4E7] p-12 text-center space-y-3">
+          <div className="w-10 h-10 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
+            <Inbox className="w-5 h-5" />
           </div>
-          <h3 className="font-outfit text-base font-bold text-slate-900">
-            No Incoming Inquiries
+          <h3 className="text-sm font-bold text-[#0D0D0D]">
+            No Procurement Requisitions Allocated
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <p className="text-xs font-mono text-[#6B7280] max-w-sm mx-auto">
             Trade leads dispatched by global buyers through the GAN Directory or central secretariat will appear here in real time.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
+        <div className="bg-white border border-[#E1E4E7] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <table className="w-full text-left text-xs table-ledger">
+              <thead className="bg-[#F6F7F8] border-b border-[#E1E4E7] text-[10px] font-mono uppercase text-[#6B7280]">
                 <tr>
-                  <th className="px-6 py-4">Ref & Buyer Company</th>
-                  <th className="px-6 py-4">Country</th>
-                  <th className="px-6 py-4">Target Apparel Item</th>
-                  <th className="px-6 py-4">Target Volume</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Logged Date</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                  <th className="px-4 py-3">PO Ref & Client Entity</th>
+                  <th className="px-4 py-3">Origin / Destination</th>
+                  <th className="px-4 py-3">Target Apparel Specimen</th>
+                  <th className="px-4 py-3">Target Volume</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Logged Date</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
+              <tbody className="divide-y divide-[#E1E4E7] font-mono text-xs">
                 {initialItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-slate-900 text-sm">
+                  <tr key={item.id} className="hover:bg-[#F6F7F8] transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="font-bold text-[#0D0D0D] font-sans text-xs">
                         {item.inquiry.buyerCompany}
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono">
+                      <div className="text-[10px] text-[#6B7280] font-mono">
                         {item.inquiry.inquiryNumber} • {item.inquiry.buyerName}
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 font-semibold text-slate-800">
+                    <td className="px-4 py-3 font-medium text-[#0D0D0D]">
                       {item.inquiry.buyerCountry}
                     </td>
 
-                    <td className="px-6 py-4 font-semibold text-emerald-700">
+                    <td className="px-4 py-3 text-[#1E3A52] font-sans font-medium">
                       {item.product?.title || "General Sourcing Request"}
                     </td>
 
-                    <td className="px-6 py-4 font-black text-slate-900">
+                    <td className="px-4 py-3 font-bold text-[#0D0D0D]">
                       {item.requestedQuantity.toLocaleString()} pcs
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        className={
                           item.inquiry.status === "NEW"
-                            ? "bg-amber-100 text-amber-800"
+                            ? "tag-pending"
                             : item.inquiry.status === "RESPONDED"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : item.inquiry.status === "VIEWED"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-slate-100 text-slate-700"
-                        }`}
+                            ? "tag-approved"
+                            : "tag-neutral"
+                        }
                       >
                         {item.inquiry.status}
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-slate-400">
-                      {new Date(item.inquiry.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                    <td className="px-4 py-3 text-[#6B7280]">
+                      {new Date(item.inquiry.createdAt).toISOString().split("T")[0]}
                     </td>
 
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => setSelectedInquiry(item)}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 font-semibold inline-flex items-center text-slate-700 cursor-pointer"
+                        className="px-2.5 py-1 text-xs font-mono text-[#0D0D0D] border border-[#E1E4E7] hover:bg-[#F6F7F8] rounded-none inline-flex items-center cursor-pointer"
                       >
-                        <Eye className="w-3.5 h-3.5 mr-1 text-slate-500" />
-                        Inspect Lead
+                        <Eye className="w-3.5 h-3.5 mr-1 text-[#6B7280]" />
+                        INSPECT
                       </button>
                     </td>
                   </tr>
@@ -185,51 +179,51 @@ export function PortalInquiryInbox({
         </div>
       )}
 
-      {/* Inquiry Inspection Modal */}
+      {/* Inquiry Inspection Modal / Commercial Dossier */}
       {selectedInquiry && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in">
-            <div className="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0D0D0D]/60 flex items-center justify-center p-4">
+          <div className="bg-white max-w-2xl w-full border border-[#E1E4E7] shadow-xl overflow-hidden">
+            <div className="bg-[#0D0D0D] text-white px-5 py-3.5 flex justify-between items-center">
               <div>
-                <h3 className="font-outfit font-bold text-base">
-                  Trade Lead #{selectedInquiry.inquiry.inquiryNumber}
+                <h3 className="font-mono font-bold text-xs uppercase tracking-wider">
+                  Commercial Purchase Requisition #{selectedInquiry.inquiry.inquiryNumber}
                 </h3>
-                <span className="text-[10px] text-slate-400">
-                  {selectedInquiry.inquiry.buyerCompany} ({selectedInquiry.inquiry.buyerCountry})
+                <span className="text-[10px] font-mono text-[#E1E4E7]/70">
+                  BUYER: {selectedInquiry.inquiry.buyerCompany} ({selectedInquiry.inquiry.buyerCountry})
                 </span>
               </div>
-              <button onClick={() => setSelectedInquiry(null)}>
-                <X className="w-5 h-5 text-slate-400 hover:text-white cursor-pointer" />
+              <button onClick={() => setSelectedInquiry(null)} className="text-[#E1E4E7] hover:text-white cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5 text-xs max-h-[80vh] overflow-y-auto">
+            <div className="p-6 space-y-5 text-xs font-mono max-h-[80vh] overflow-y-auto">
               {/* Buyer specs */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Primary Contact:</span>
-                  <span className="font-bold text-slate-900">
+              <div className="border border-[#E1E4E7] divide-y divide-[#E1E4E7] bg-[#F6F7F8]">
+                <div className="p-2.5 flex justify-between">
+                  <span className="text-[#6B7280] uppercase text-[10px]">Buyer Officer:</span>
+                  <span className="font-bold text-[#0D0D0D]">
                     {selectedInquiry.inquiry.buyerName}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Buyer Email:</span>
+                <div className="p-2.5 flex justify-between">
+                  <span className="text-[#6B7280] uppercase text-[10px]">Contact Email:</span>
                   <a
                     href={`mailto:${selectedInquiry.inquiry.buyerEmail}`}
-                    className="font-bold text-emerald-700 hover:underline"
+                    className="font-bold text-[#1E3A52] hover:underline"
                   >
                     {selectedInquiry.inquiry.buyerEmail}
                   </a>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Target Item:</span>
-                  <span className="font-bold text-emerald-800">
+                <div className="p-2.5 flex justify-between">
+                  <span className="text-[#6B7280] uppercase text-[10px]">Target Garment:</span>
+                  <span className="font-bold text-[#0D0D0D] font-sans">
                     {selectedInquiry.product?.title || "General Sourcing Requirement"}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Target Quantity:</span>
-                  <span className="font-black text-slate-900">
+                <div className="p-2.5 flex justify-between">
+                  <span className="text-[#6B7280] uppercase text-[10px]">Target Volume:</span>
+                  <span className="font-bold text-[#0D0D0D]">
                     {selectedInquiry.requestedQuantity.toLocaleString()} pcs
                   </span>
                 </div>
@@ -238,10 +232,10 @@ export function PortalInquiryInbox({
               {/* Line item specifications */}
               {selectedInquiry.customSpecifications && (
                 <div>
-                  <strong className="block text-slate-900 mb-1">
-                    Line Item Custom Specifications:
-                  </strong>
-                  <div className="p-3.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-100">
+                  <span className="text-[10px] uppercase text-[#6B7280] block mb-1">
+                    Custom Technical Specifications & Grading:
+                  </span>
+                  <div className="p-3 bg-[#F6F7F8] border border-[#1E3A52] text-[#0D0D0D] text-xs font-sans">
                     {selectedInquiry.customSpecifications}
                   </div>
                 </div>
@@ -249,23 +243,22 @@ export function PortalInquiryInbox({
 
               {/* General Message */}
               <div>
-                <strong className="block text-slate-900 mb-1">
-                  Buyer General Sourcing Notes:
-                </strong>
-                <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 whitespace-pre-wrap font-mono text-[11px]">
+                <span className="text-[10px] uppercase text-[#6B7280] block mb-1">
+                  Procurement Brief / Notes:
+                </span>
+                <div className="p-3 bg-[#F6F7F8] border border-[#E1E4E7] text-[#0D0D0D] whitespace-pre-wrap text-[11px]">
                   {selectedInquiry.inquiry.generalMessage}
                 </div>
               </div>
 
               {/* Internal Communications Log */}
-              <div className="pt-2 border-t border-slate-100 space-y-3">
-                <strong className="block text-slate-900 text-xs flex items-center">
-                  <MessageSquare className="w-4 h-4 mr-1.5 text-slate-500" />
-                  Internal Progress Notes & Communications Log:
-                </strong>
+              <div className="pt-3 border-t border-[#E1E4E7] space-y-3">
+                <span className="text-[10px] uppercase text-[#6B7280] block font-bold">
+                  Merchandising Follow-up & Audit Trail
+                </span>
 
                 {selectedInquiry.inquiry.communications.length === 0 ? (
-                  <p className="text-[11px] text-slate-400 italic">
+                  <p className="text-[11px] text-[#6B7280] italic">
                     No follow-up notes logged yet.
                   </p>
                 ) : (
@@ -273,15 +266,15 @@ export function PortalInquiryInbox({
                     {selectedInquiry.inquiry.communications.map((comm) => (
                       <div
                         key={comm.id}
-                        className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs"
+                        className="p-2.5 bg-white border border-[#E1E4E7] text-xs"
                       >
-                        <div className="flex justify-between text-[10px] text-slate-400 font-semibold mb-1">
-                          <span className="text-emerald-800">{comm.author}</span>
+                        <div className="flex justify-between text-[10px] text-[#6B7280] mb-1">
+                          <span className="font-bold text-[#1E3A52]">{comm.author}</span>
                           <span>
                             {new Date(comm.createdAt).toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-slate-700">{comm.content}</p>
+                        <p className="text-[#0D0D0D] font-sans">{comm.content}</p>
                       </div>
                     ))}
                   </div>
@@ -291,25 +284,25 @@ export function PortalInquiryInbox({
                 <form onSubmit={handleAddNote} className="flex gap-2 pt-2">
                   <input
                     type="text"
-                    placeholder="Log a progress note (e.g., Sent cost matrix, swatches dispatched)..."
+                    placeholder="Log progress note (e.g. Swatches dispatched via DHL, Costing sheet sent)..."
                     value={newNoteContent}
                     onChange={(e) => setNewNoteContent(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="flex-1 px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs rounded-none focus:outline-none bg-white font-sans"
                   />
                   <button
                     type="submit"
                     disabled={isPending || !newNoteContent.trim()}
-                    className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:opacity-50 shrink-0 cursor-pointer"
+                    className="px-4 py-2 bg-[#1E3A52] hover:bg-[#0D0D0D] text-white rounded-none text-xs font-mono disabled:opacity-50 shrink-0 cursor-pointer"
                   >
-                    Add Note
+                    APPEND NOTE
                   </button>
                 </form>
               </div>
 
               {/* Status Update Strip */}
-              <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div className="pt-4 border-t border-[#E1E4E7] flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center space-x-2">
-                  <span className="text-slate-500 font-semibold">Triage Lead Status:</span>
+                  <span className="text-[#6B7280] text-[10px] uppercase">Requisition Status:</span>
                   <select
                     value={selectedInquiry.inquiry.status}
                     onChange={(e) =>
@@ -318,7 +311,7 @@ export function PortalInquiryInbox({
                         e.target.value as any
                       )
                     }
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 font-bold text-xs bg-white focus:outline-none"
+                    className="px-2.5 py-1.5 border border-[#E1E4E7] font-bold text-xs bg-white rounded-none focus:outline-none"
                   >
                     <option value="NEW">NEW</option>
                     <option value="VIEWED">VIEWED</option>
@@ -329,9 +322,9 @@ export function PortalInquiryInbox({
 
                 <button
                   onClick={() => setSelectedInquiry(null)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200"
+                  className="px-4 py-1.5 bg-[#F6F7F8] text-[#0D0D0D] font-mono text-xs border border-[#E1E4E7] hover:bg-white rounded-none cursor-pointer"
                 >
-                  Close
+                  DISMISS
                 </button>
               </div>
             </div>

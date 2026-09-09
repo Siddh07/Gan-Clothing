@@ -33,12 +33,12 @@ export default async function PortalInquiriesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          Factory Trade Inquiries & RFQs
+      <div className="border-b border-[#E1E4E7] pb-4">
+        <h1 className="text-xl font-bold text-[#0D0D0D] tracking-tight">
+          Commercial RFQs & Buyer Dispatch Inbox
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Review B2B trade inquiries routed to your mill, update merchandising response status, and communicate internal progress.
+        <p className="text-xs font-mono text-[#6B7280] mt-1">
+          MONITOR PROCUREMENT REQUISITIONS ROUTED BY THE CENTRAL TRADE DESK
         </p>
       </div>
 

@@ -38,9 +38,9 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
           style={
             isZoomed
               ? {
-                  transform: "scale(1.75)",
-                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-                }
+                transform: "scale(1.75)",
+                transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+              }
               : undefined
           }
         />
@@ -60,11 +60,10 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
             <button
               key={idx}
               onClick={() => setSelectedImage(img)}
-              className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
-                selectedImage === img
+              className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${selectedImage === img
                   ? "border-emerald-700 ring-2 ring-emerald-500/20 shadow-md"
                   : "border-slate-200 opacity-70 hover:opacity-100"
-              }`}
+                }`}
             >
               <img
                 src={img}

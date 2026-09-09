@@ -26,12 +26,15 @@ export default async function AdminAuditLogsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          Platform Audit Trail & Security Logs
+      <div className="pb-4 border-b border-[#E1E4E7]">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280] mb-1">
+          Governance & Compliance Ledger · Immutable Audit Trail
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#0D0D0D]">
+          Secretariat Action Logs & Security Audit Trail
         </h1>
-        <p className="text-xs text-slate-700 mt-1">
-          Chronological record of secretariat approvals, application determinations, batch CSV ingestions, and compliance verifications.
+        <p className="text-xs text-[#6B7280] mt-1 max-w-2xl">
+          Timestamped chronological record of mill accreditations, catalog alterations, trade inquiry re-routings, and administrative determinations.
         </p>
       </div>
 

@@ -91,11 +91,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <div className="flex flex-wrap items-center gap-2 pb-6 border-b border-slate-200">
             <Link
               href="/products"
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                !category
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${!category
                   ? "bg-emerald-800 text-white shadow-xs"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Products ({totalCount})
             </Link>
@@ -105,11 +104,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <Link
                   key={cat.id}
                   href={`/products?category=${cat.slug}`}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isSelected
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isSelected
                       ? "bg-emerald-800 text-white shadow-xs"
                       : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                  }`}
+                    }`}
                 >
                   {cat.name} ({cat._count.products})
                 </Link>

@@ -98,7 +98,7 @@ export function QuoteCartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
     try {
       localStorage.removeItem(STORAGE_KEY);
-    } catch {}
+    } catch { }
   };
 
   const itemCount = items.reduce((acc, curr) => acc + curr.requestedQuantity, 0);

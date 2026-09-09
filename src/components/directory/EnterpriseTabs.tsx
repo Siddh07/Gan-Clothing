@@ -106,11 +106,10 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
-                isActive
+              className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${isActive
                   ? "bg-emerald-800 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span>{tab.label}</span>
@@ -271,22 +270,20 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
               return (
                 <div
                   key={cert.id}
-                  className={`p-5 rounded-xl border transition-all flex items-start justify-between gap-4 ${
-                    isExpired
+                  className={`p-5 rounded-xl border transition-all flex items-start justify-between gap-4 ${isExpired
                       ? "border-red-200 bg-red-50/40"
                       : isExpiringSoon
-                      ? "border-amber-200 bg-amber-50/40"
-                      : "border-slate-200 bg-slate-50/70 hover:bg-white hover:border-emerald-500 hover:shadow-md"
-                  }`}
+                        ? "border-amber-200 bg-amber-50/40"
+                        : "border-slate-200 bg-slate-50/70 hover:bg-white hover:border-emerald-500 hover:shadow-md"
+                    }`}
                 >
                   <div className="flex items-start space-x-3">
-                    <div className={`p-2.5 rounded-lg shrink-0 ${
-                      isExpired
+                    <div className={`p-2.5 rounded-lg shrink-0 ${isExpired
                         ? "bg-red-100 text-red-700"
                         : isExpiringSoon
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-emerald-100 text-emerald-700"
-                    }`}>
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-emerald-100 text-emerald-700"
+                      }`}>
                       <Award className="w-6 h-6" />
                     </div>
                     <div className="space-y-1">

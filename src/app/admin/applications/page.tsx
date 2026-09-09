@@ -15,12 +15,15 @@ export default async function AdminApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-outfit text-2xl font-black text-slate-900">
-          Factory Onboarding & Review Queue
+      <div className="pb-4 border-b border-[#E1E4E7]">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280] mb-1">
+          Governance & Secretariat Review · Compliance Triage
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#0D0D0D]">
+          Mill Accreditation Applications & Review Queue
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Review legal registration, PAN authenticity, and capacity figures submitted by prospective member garment mills.
+        <p className="text-xs text-[#6B7280] mt-1 max-w-2xl">
+          Audit statutory tax numbers (PAN), business registration documents, and claimed monthly production capacity before certifying new export facilities.
         </p>
       </div>
 

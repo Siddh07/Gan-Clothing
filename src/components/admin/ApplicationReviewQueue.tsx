@@ -3,17 +3,13 @@
 import React, { useState, useTransition } from "react";
 import { approveFactoryApplication, rejectFactoryApplication } from "@/actions/apply";
 import {
-  FileCheck,
-  CheckCircle2,
-  XCircle,
-  Building2,
-  Clock,
   ShieldCheck,
   MapPin,
   Mail,
-  Phone,
   Search,
-  Loader2,
+  CheckCircle2,
+  FileText,
+  AlertCircle,
 } from "lucide-react";
 
 interface PendingEnterprise {
@@ -41,7 +37,6 @@ export function ApplicationReviewQueue({
 }) {
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [selectedApp, setSelectedApp] = useState<PendingEnterprise | null>(null);
 
   const filtered = initialApplications.filter(
     (app) =>
@@ -51,123 +46,128 @@ export function ApplicationReviewQueue({
   );
 
   const handleApprove = (id: string) => {
-    if (confirm("Approve this factory for full GAN accreditation and public directory listing?")) {
+    if (confirm("Confirm approval of this garment manufacturing facility for full GAN certification and export directory listing?")) {
       startTransition(async () => {
         await approveFactoryApplication(id);
-        setSelectedApp(null);
       });
     }
   };
 
   const handleReject = (id: string) => {
-    const reason = prompt("Enter rejection reason or feedback notes:");
+    const reason = prompt("Specify audit rejection grounds / compliance deficiencies:");
     if (reason !== null) {
       startTransition(async () => {
         await rejectFactoryApplication(id, reason);
-        setSelectedApp(null);
       });
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Search toolbar */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-4">
+      {/* Control Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#E1E4E7]">
         <div className="relative max-w-sm w-full">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search pending applications by name, PAN, city..."
-            className="w-full pl-10 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            placeholder="Filter pending files by mill name, PAN, city..."
+            className="w-full pl-9 pr-3 py-1.5 bg-[#F6F7F8] border border-[#E1E4E7] text-xs font-mono placeholder:font-sans placeholder:text-[#6B7280] focus:border-[#0D0D0D] focus:outline-none"
           />
         </div>
-        <span className="text-xs text-slate-500">
-          {filtered.length} pending review
-        </span>
+        <div className="font-mono text-xs text-[#6B7280]">
+          Pending Compliance Audit: <span className="font-bold text-[#0D0D0D]">{filtered.length} Dossiers</span>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <h3 className="font-outfit text-base font-bold text-slate-900">
-            Review Queue Clean
+        <div className="border border-[#E1E4E7] bg-white p-12 text-center space-y-3">
+          <CheckCircle2 className="w-8 h-8 text-[#6B7280] mx-auto stroke-1" />
+          <h3 className="font-mono text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
+            Review Queue Clean · All Mills Audited
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            No factory membership applications are currently pending verification. All member applications have been processed.
+          <p className="text-xs text-[#6B7280] max-w-md mx-auto">
+            No factory membership dossiers currently require compliance review. Prospective mills will appear here upon submission through the accreditation portal.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((app) => (
             <div
               key={app.id}
-              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-emerald-500 transition-colors"
+              className="border border-[#E1E4E7] bg-white hover:border-[#0D0D0D] transition-colors p-5 flex flex-col justify-between space-y-4"
             >
               <div>
-                <div className="flex justify-between items-start">
+                <div className="flex items-start justify-between">
                   <div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
-                      PENDING REVIEW
+                    <span className="tag-pending">
+                      AUDIT PENDING
                     </span>
-                    <h3 className="font-outfit text-lg font-bold text-slate-900 mt-2">
+                    <h3 className="text-base font-bold text-[#0D0D0D] mt-1.5">
                       {app.name}
                     </h3>
                   </div>
-                  <span className="text-[10px] text-slate-400">
-                    {new Date(app.createdAt).toLocaleDateString()}
+                  <span className="font-mono text-[10px] text-[#6B7280]">
+                    Logged: {new Date(app.createdAt).toLocaleDateString([], {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100">
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">PAN / VAT ID:</span>
-                    <strong className="font-mono text-slate-900">{app.panNumber}</strong>
+                {/* Audit Attributes Table */}
+                <div className="mt-3 border border-[#E1E4E7] bg-[#F6F7F8] divide-y divide-[#E1E4E7] text-xs">
+                  <div className="p-2 flex justify-between">
+                    <span className="font-mono text-[10px] uppercase text-[#6B7280]">PAN / VAT:</span>
+                    <span className="font-mono font-bold text-[#0D0D0D]">{app.panNumber}</span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Company Reg #:</span>
-                    <strong className="font-mono text-slate-900">{app.registrationNumber}</strong>
+                  <div className="p-2 flex justify-between">
+                    <span className="font-mono text-[10px] uppercase text-[#6B7280]">Govt Reg Number:</span>
+                    <span className="font-mono font-semibold text-[#0D0D0D]">{app.registrationNumber}</span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Capacity:</span>
-                    <strong className="text-emerald-700">{app.monthlyCapacityPcs.toLocaleString()} pcs/mo</strong>
+                  <div className="p-2 flex justify-between">
+                    <span className="font-mono text-[10px] uppercase text-[#6B7280]">Claimed Monthly Output:</span>
+                    <span className="font-mono font-bold text-[#1E3A52]">
+                      {app.monthlyCapacityPcs.toLocaleString()} pcs/mo
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Workforce:</span>
-                    <strong className="text-slate-900">{app.employeeCount} staff</strong>
+                  <div className="p-2 flex justify-between">
+                    <span className="font-mono text-[10px] uppercase text-[#6B7280]">Workforce / Floor:</span>
+                    <span className="font-mono text-[#0D0D0D]">{app.employeeCount} staff</span>
                   </div>
                 </div>
 
-                <div className="pt-2 text-xs text-slate-600 space-y-1">
-                  <div className="flex items-center text-slate-500">
-                    <MapPin className="w-3.5 h-3.5 mr-1 shrink-0" />
-                    {app.address}, {app.city}
+                <div className="pt-3 text-xs space-y-1">
+                  <div className="flex items-center text-[#6B7280]">
+                    <MapPin className="w-3.5 h-3.5 mr-1 shrink-0 text-[#0D0D0D]" />
+                    <span>{app.address}, {app.city}</span>
                   </div>
-                  <div className="flex items-center text-slate-500">
-                    <Mail className="w-3.5 h-3.5 mr-1 shrink-0" />
-                    {app.contactEmail} ({app.contactPhone})
+                  <div className="flex items-center text-[#6B7280]">
+                    <Mail className="w-3.5 h-3.5 mr-1 shrink-0 text-[#0D0D0D]" />
+                    <span>{app.contactEmail} ({app.contactPhone})</span>
                   </div>
                   {app.users[0] && (
-                    <div className="text-[11px] text-slate-500">
-                      Representative: <strong>{app.users[0].name}</strong> ({app.users[0].email})
+                    <div className="font-mono text-[10px] text-[#6B7280] pt-1">
+                      Applicant Rep: <strong className="text-[#0D0D0D]">{app.users[0].name}</strong> ({app.users[0].email})
                     </div>
                   )}
                 </div>
 
-                <p className="text-xs text-slate-600 line-clamp-2 mt-2 italic bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  "{app.description}"
-                </p>
+                {app.description && (
+                  <p className="text-xs text-[#0D0D0D] mt-2 italic bg-[#F6F7F8] p-2.5 border border-[#E1E4E7] line-clamp-2">
+                    "{app.description}"
+                  </p>
+                )}
               </div>
 
-              {/* Approval Actions */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+              {/* Action Strip */}
+              <div className="pt-3 border-t border-[#E1E4E7] flex items-center justify-end gap-2 font-mono text-xs">
                 <button
                   onClick={() => handleReject(app.id)}
                   disabled={isPending}
-                  className="px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                  className="px-3 py-1 text-red-700 hover:text-red-900 border border-transparent hover:border-red-200 transition-colors"
                 >
                   Reject Application
                 </button>
@@ -175,10 +175,10 @@ export function ApplicationReviewQueue({
                 <button
                   onClick={() => handleApprove(app.id)}
                   disabled={isPending}
-                  className="inline-flex items-center px-5 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors shadow-xs cursor-pointer"
+                  className="inline-flex items-center px-4 py-1.5 font-medium text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
-                  Approve & Verify Mill
+                  Accredit & Verify Mill
                 </button>
               </div>
             </div>
@@ -188,3 +188,4 @@ export function ApplicationReviewQueue({
     </div>
   );
 }
+

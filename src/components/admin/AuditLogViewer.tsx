@@ -2,11 +2,7 @@
 
 import React, { useState } from "react";
 import {
-  ShieldAlert,
   Search,
-  Filter,
-  User,
-  Clock,
   ChevronDown,
   ChevronRight,
   Database,
@@ -14,6 +10,7 @@ import {
   Package,
   Inbox,
   FileCheck,
+  User,
 } from "lucide-react";
 
 interface AuditLogItem {
@@ -54,56 +51,53 @@ export function AuditLogViewer({
   });
 
   const getActionBadge = (action: string) => {
-    if (action.includes("APPROVED") || action.includes("CREATED")) {
-      return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    if (action.includes("APPROVED") || action.includes("CREATED") || action.includes("VERIFIED")) {
+      return "tag-approved";
     }
-    if (action.includes("REJECTED") || action.includes("DELETED") || action.includes("SUSPENDED")) {
-      return "bg-red-100 text-red-800 border-red-200";
+    if (action.includes("REJECTED") || action.includes("DELETED") || action.includes("REVOKED")) {
+      return "tag-pending";
     }
-    if (action.includes("IMPORT")) {
-      return "bg-purple-100 text-purple-800 border-purple-200";
-    }
-    return "bg-blue-100 text-blue-800 border-blue-200";
+    return "tag-neutral";
   };
 
   const getEntityIcon = (entityType: string) => {
     switch (entityType.toLowerCase()) {
       case "enterprise":
-        return <Building2 className="w-3.5 h-3.5" />;
+        return <Building2 className="w-3.5 h-3.5 text-[#0D0D0D]" />;
       case "product":
-        return <Package className="w-3.5 h-3.5" />;
+        return <Package className="w-3.5 h-3.5 text-[#0D0D0D]" />;
       case "leadinquiry":
-        return <Inbox className="w-3.5 h-3.5" />;
+        return <Inbox className="w-3.5 h-3.5 text-[#0D0D0D]" />;
       case "certification":
-        return <FileCheck className="w-3.5 h-3.5" />;
+        return <FileCheck className="w-3.5 h-3.5 text-[#0D0D0D]" />;
       default:
-        return <Database className="w-3.5 h-3.5" />;
+        return <Database className="w-3.5 h-3.5 text-[#0D0D0D]" />;
     }
   };
 
   const uniqueActions = Array.from(new Set(initialLogs.map((l) => l.action)));
 
   return (
-    <div className="space-y-6">
-      {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      {/* Controls Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#E1E4E7]">
         <div className="relative max-w-sm w-full">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-700" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by action, user, or entity ID..."
-            className="w-full pl-10 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            placeholder="Search by action, operator, or entity ID..."
+            className="w-full pl-9 pr-3 py-1.5 bg-[#F6F7F8] border border-[#E1E4E7] text-xs font-mono placeholder:font-sans placeholder:text-[#6B7280] focus:border-[#0D0D0D] focus:outline-none"
           />
         </div>
 
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-xs text-slate-700 font-semibold shrink-0">Action:</span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-[#6B7280]">Action Type:</span>
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="bg-[#F6F7F8] border border-[#E1E4E7] px-2.5 py-1.5 text-xs font-mono focus:border-[#0D0D0D] focus:outline-none"
           >
             <option value="ALL">All Actions ({initialLogs.length})</option>
             {uniqueActions.map((action) => (
@@ -116,24 +110,24 @@ export function AuditLogViewer({
       </div>
 
       {/* Audit Log Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="border border-[#E1E4E7] bg-white overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+          <table className="w-full text-left text-xs table-ledger">
+            <thead>
               <tr>
-                <th className="p-3.5 w-8"></th>
-                <th className="p-3.5">Timestamp</th>
-                <th className="p-3.5">Action</th>
-                <th className="p-3.5">Entity</th>
-                <th className="p-3.5">Initiator</th>
-                <th className="p-3.5">Entity ID</th>
+                <th className="w-8"></th>
+                <th>Timestamp</th>
+                <th>Action Recorded</th>
+                <th>Entity Class</th>
+                <th>Operator</th>
+                <th>Entity Identifier</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-700">
-                    No matching audit log records found.
+                  <td colSpan={6} className="py-8 text-center text-[#6B7280]">
+                    No matching audit trail records found.
                   </td>
                 </tr>
               ) : (
@@ -152,68 +146,68 @@ export function AuditLogViewer({
                     <React.Fragment key={log.id}>
                       <tr
                         onClick={() => setExpandedId(isExpanded ? null : log.id)}
-                        className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                        className="hover:bg-[#F6F7F8] cursor-pointer transition-colors"
                       >
-                        <td className="p-3.5 text-slate-700">
+                        <td className="text-center text-[#6B7280]">
                           {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-emerald-600" />
+                            <ChevronDown className="w-3.5 h-3.5 text-[#0D0D0D]" />
                           ) : (
-                            <ChevronRight className="w-4 h-4 text-slate-700" />
+                            <ChevronRight className="w-3.5 h-3.5" />
                           )}
                         </td>
-                        <td className="p-3.5 text-slate-700 whitespace-nowrap font-mono">
+                        <td className="font-mono text-[11px] text-[#6B7280] whitespace-nowrap">
                           {new Date(log.createdAt).toLocaleString("en-US", {
                             month: "short",
                             day: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
+                            second: "2-digit",
                           })}
                         </td>
-                        <td className="p-3.5">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${getActionBadge(
-                              log.action
-                            )}`}
-                          >
+                        <td>
+                          <span className={getActionBadge(log.action)}>
                             {log.action}
                           </span>
                         </td>
-                        <td className="p-3.5">
-                          <div className="flex items-center space-x-1.5 font-medium text-slate-700">
+                        <td>
+                          <div className="flex items-center gap-1.5 font-medium text-[#0D0D0D]">
                             {getEntityIcon(log.entityType)}
                             <span>{log.entityType}</span>
                           </div>
                         </td>
-                        <td className="p-3.5">
+                        <td>
                           {log.user ? (
-                            <div className="flex items-center space-x-1.5">
-                              <User className="w-3.5 h-3.5 text-slate-700" />
-                              <span className="font-semibold text-slate-900">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium text-[#0D0D0D]">
                                 {log.user.name || log.user.email}
                               </span>
-                              <span className="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded font-mono">
-                                {log.user.role}
+                              <span className="font-mono text-[10px] text-[#6B7280]">
+                                ({log.user.role})
                               </span>
                             </div>
                           ) : (
-                            <span className="text-slate-700 italic">System Event</span>
+                            <span className="font-mono text-[10px] text-[#6B7280] italic">
+                              SYSTEM DISPATCH
+                            </span>
                           )}
                         </td>
-                        <td className="p-3.5 font-mono text-slate-700 text-[11px] truncate max-w-xs">
+                        <td className="font-mono text-[11px] text-[#6B7280] truncate max-w-xs">
                           {log.entityId}
                         </td>
                       </tr>
 
                       {/* Expanded JSON inspector */}
                       {isExpanded && (
-                        <tr className="bg-slate-50">
-                          <td colSpan={6} className="p-4 pl-12">
-                            <div className="bg-slate-900 text-slate-200 rounded-xl p-4 font-mono text-[11px] overflow-x-auto space-y-2">
-                              <div className="text-slate-400 font-sans text-xs font-semibold">
-                                Metadata Context Payload:
+                        <tr className="bg-[#F6F7F8]">
+                          <td colSpan={6} className="p-4 pl-10">
+                            <div className="bg-[#0D0D0D] text-slate-100 p-4 font-mono text-[11px] overflow-x-auto space-y-1.5 border border-[#0D0D0D]">
+                              <div className="font-sans text-[11px] text-slate-400 font-semibold uppercase">
+                                Action Context & Telemetry Payload:
                               </div>
-                              <pre className="whitespace-pre-wrap leading-relaxed text-emerald-400">
-                                {parsedMeta ? JSON.stringify(parsedMeta, null, 2) : "No context metadata recorded."}
+                              <pre className="whitespace-pre-wrap leading-relaxed text-slate-200">
+                                {parsedMeta
+                                  ? JSON.stringify(parsedMeta, null, 2)
+                                  : "No auxiliary context payload attached."}
                               </pre>
                             </div>
                           </td>
@@ -230,3 +224,4 @@ export function AuditLogViewer({
     </div>
   );
 }
+

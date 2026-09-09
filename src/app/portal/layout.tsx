@@ -43,66 +43,68 @@ export default async function PortalLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#F6F7F8] flex flex-col md:flex-row text-[#0D0D0D]">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 shrink-0">
+      <aside className="w-full md:w-64 bg-white border-r border-[#E1E4E7] flex flex-col justify-between shrink-0">
         <div>
           {/* Header */}
-          <div className="p-6 border-b border-slate-800">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-700 flex items-center justify-center text-white font-bold text-base shadow-sm">
+          <div className="p-4 border-b border-[#E1E4E7]">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-[#0D0D0D] text-white flex items-center justify-center font-mono font-bold text-xs shrink-0">
                 GAN
               </div>
-              <div className="truncate">
-                <h2 className="font-outfit font-bold text-white text-sm truncate">
+              <div className="min-w-0 flex-1">
+                <h2 className="font-bold text-sm text-[#0D0D0D] leading-tight truncate">
                   {enterprise?.name || "Factory Portal"}
                 </h2>
-                <div className="flex items-center space-x-1 text-[10px] text-emerald-400 font-semibold">
-                  <span>Factory Workspace</span>
-                  {enterprise?.isVerified && <span>• Verified</span>}
+                <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#6B7280] mt-0.5">
+                  <span>PLANT TERMINAL</span>
+                  {enterprise?.isVerified && (
+                    <span className="tag-approved text-[9px] py-0 px-1">ACCREDITED</span>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <PortalNav enterpriseSlug={enterprise?.slug} />
+          <div className="py-2">
+            <div className="px-4 py-1.5 text-[10px] font-mono uppercase text-[#6B7280]">
+              Facility Operations
+            </div>
+            <PortalNav enterpriseSlug={enterprise?.slug} />
+          </div>
         </div>
 
-        {/* User profile & Logout */}
-        <div className="p-4 border-t border-slate-800 space-y-3">
+        {/* User profile & Public Link */}
+        <div className="p-3 border-t border-[#E1E4E7] space-y-2 bg-[#F6F7F8]/50">
           {enterprise?.slug && (
             <Link
               href={`/directory/${enterprise.slug}`}
               target="_blank"
-              className="flex items-center justify-between px-3.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="flex items-center justify-between px-3 py-2 text-xs font-mono text-[#6B7280] hover:text-[#0D0D0D] hover:bg-white border border-transparent hover:border-[#E1E4E7] transition-colors"
             >
               <span className="flex items-center">
-                <ExternalLink className="w-3.5 h-3.5 mr-2 text-emerald-400" />
-                View Public Profile
+                <ExternalLink className="w-3.5 h-3.5 mr-2 text-[#1E3A52]" />
+                Public Directory Entry
               </span>
             </Link>
           )}
 
-          <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 truncate">
-              <div className="w-8 h-8 rounded-full bg-emerald-950 border border-emerald-500/40 text-emerald-300 flex items-center justify-center shrink-0">
-                <User className="w-4 h-4" />
+          <div className="p-2.5 bg-white border border-[#E1E4E7] flex items-center justify-between">
+            <div className="truncate text-xs">
+              <div className="font-bold text-[#0D0D0D] truncate">
+                {session.user.name || "Factory Representative"}
               </div>
-              <div className="truncate text-xs">
-                <div className="font-semibold text-white truncate">
-                  {session.user.name || "Factory Rep"}
-                </div>
-                <div className="text-[10px] text-emerald-400 font-medium truncate">
-                  {session.user.email}
-                </div>
+              <div className="text-[10px] font-mono text-[#6B7280] truncate">
+                {session.user.email}
               </div>
             </div>
 
             <Link
               href="/api/auth/signout"
               title="Sign Out"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+              className="p-1.5 text-[#6B7280] hover:text-[#0D0D0D] hover:bg-[#F6F7F8] border border-transparent hover:border-[#E1E4E7] transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </Link>
@@ -112,7 +114,7 @@ export default async function PortalLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <main className="p-4 sm:p-8 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="p-6 md:p-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
     </div>
   );

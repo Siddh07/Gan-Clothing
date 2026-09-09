@@ -3,15 +3,13 @@
 import React, { useState } from "react";
 import {
   Globe,
-  TrendingUp,
   Inbox,
   Eye,
   Building2,
   Package,
   Activity,
   ArrowUpRight,
-  Download,
-  Filter,
+  TrendingUp,
 } from "lucide-react";
 
 interface CountryStat {
@@ -71,199 +69,243 @@ export function AnalyticsDashboard({
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-700">
-            <span className="text-xs font-semibold uppercase">Platform Sessions</span>
-            <Eye className="w-4 h-4 text-emerald-600" />
+      {/* Metric Summary Strip (Integrated hairline border strip) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 border border-[#E1E4E7] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E1E4E7]">
+        <div className="p-4">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Platform Sessions
           </div>
-          <div className="text-3xl font-black text-slate-900 font-outfit">
-            {totalEvents.toLocaleString()}
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
+              {totalEvents.toLocaleString()}
+            </span>
+            <span className="font-mono text-[10px] text-[#1E3A52] font-semibold">
+              +18.4%
+            </span>
           </div>
-          <div className="text-[11px] text-emerald-700 font-medium flex items-center">
-            <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-            +18.4% international reach
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-700">
-            <span className="text-xs font-semibold uppercase">Total Leads (RFQs)</span>
-            <Inbox className="w-4 h-4 text-amber-600" />
-          </div>
-          <div className="text-3xl font-black text-slate-900 font-outfit">
-            {totalRFQs}
-          </div>
-          <div className="text-[11px] text-amber-800 font-medium">
-            Multi-item quote requests
+          <div className="mt-1 text-[11px] text-[#6B7280]">
+            International buyer touchpoints
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-700">
-            <span className="text-xs font-semibold uppercase">Top Sourcing Market</span>
-            <Globe className="w-4 h-4 text-blue-600" />
+        <div className="p-4">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Trade Leads / RFQs
           </div>
-          <div className="text-3xl font-black text-slate-900 font-outfit">
-            {topCountry}
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
+              {totalRFQs}
+            </span>
+            <span className="font-mono text-[10px] text-[#6B7280]">leads</span>
           </div>
-          <div className="text-[11px] text-slate-700 font-medium">
-            Leading international buyer origin
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-700">
-            <span className="text-xs font-semibold uppercase">Demand Volume</span>
-            <TrendingUp className="w-4 h-4 text-purple-600" />
-          </div>
-          <div className="text-3xl font-black text-slate-900 font-outfit">
-            {(totalVolume / 1000).toFixed(0)}k <span className="text-sm font-semibold text-slate-700">pcs</span>
-          </div>
-          <div className="text-[11px] text-purple-800 font-medium">
-            Requested production units
-          </div>
-        </div>
-      </div>
-
-      {/* Country Distribution & Category Demand Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Country Breakdown */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-600" />
-                Top Sourcing Markets by Intent
-              </h3>
-              <p className="text-xs text-slate-700 mt-0.5">
-                Combined profile page views and dispatched RFQs by buyer country.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            {countryStats.map((item) => {
-              const percent = Math.round((item.views / maxViews) * 100);
-              return (
-                <div key={item.countryCode} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-800">{item.countryCode}</span>
-                    <span className="text-slate-700 font-mono">
-                      {item.views} views • {item.rfqs} RFQs
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
-                    <div
-                      className="bg-emerald-600 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+          <div className="mt-1 text-[11px] text-[#6B7280]">
+            Dispatched buyer baskets
           </div>
         </div>
 
-        {/* Top Queried Categories */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Package className="w-4 h-4 text-emerald-600" />
-                Garment Category Demand
-              </h3>
-              <p className="text-xs text-slate-700 mt-0.5">
-                Aggregate order quantities requested in incoming RFQ baskets.
-              </p>
-            </div>
+        <div className="p-4">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Top Sourcing Corridor
           </div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
+              {topCountry}
+            </span>
+            <span className="font-mono text-[10px] text-[#6B7280]">market</span>
+          </div>
+          <div className="mt-1 text-[11px] text-[#6B7280]">
+            Highest inquiry density
+          </div>
+        </div>
 
-          <div className="space-y-3 pt-2">
-            {topCategories.length === 0 ? (
-              <p className="text-xs text-slate-700 italic py-4">No category quote data yet.</p>
-            ) : (
-              topCategories.map((cat) => {
-                const maxVol = Math.max(...topCategories.map((c) => c.volume), 1);
-                const percent = Math.round((cat.volume / maxVol) * 100);
-                return (
-                  <div key={cat.name} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-800">{cat.name}</span>
-                      <span className="text-slate-700 font-mono font-semibold">
-                        {cat.volume.toLocaleString()} pcs ({cat.count} inquiries)
-                      </span>
-                    </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
-                      <div
-                        className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })
-            )}
+        <div className="p-4">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Aggregate Demand
+          </div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
+              {(totalVolume / 1000).toFixed(0)}k
+            </span>
+            <span className="font-mono text-[10px] text-[#6B7280]">pcs</span>
+          </div>
+          <div className="mt-1 text-[11px] text-[#6B7280]">
+            Requested apparel units
           </div>
         </div>
       </div>
 
-      {/* Member Enterprise Engagement & Event Stream */}
+      {/* Row 2: Country Sourcing Corridors & Garment Category Demand */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Most Viewed Factories */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-emerald-600" />
-            Most Viewed Member Enterprises
-          </h3>
-
-          <div className="divide-y divide-slate-100">
-            {topEnterprises.map((factory, idx) => (
-              <div
-                key={factory.id}
-                className="py-3 flex items-center justify-between text-xs"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 font-mono font-bold flex items-center justify-center text-[11px]">
-                    #{idx + 1}
-                  </span>
-                  <div>
-                    <div className="font-bold text-slate-900">{factory.name}</div>
-                    <div className="text-slate-700 text-[11px]">{factory.city}, Nepal</div>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className="font-bold text-emerald-800 font-mono">
-                    {factory._count.pageViews} views
-                  </div>
-                  <div className="text-[11px] text-amber-800 font-medium">
-                    {factory._count.inquiries} leads received
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Live Event Stream */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-emerald-600" />
-              Real-Time Platform Event Stream
+        {/* Country Breakdown Table */}
+        <div className="border border-[#E1E4E7] bg-white">
+          <div className="p-4 border-b border-[#E1E4E7]">
+            <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
+              Sourcing Markets by Intent & Inquiries
             </h3>
+            <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
+              Profile views and purchase requisitions logged by buyer jurisdiction
+            </p>
+          </div>
 
-            <div className="flex items-center space-x-1 text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs table-ledger">
+              <thead>
+                <tr>
+                  <th>Jurisdiction</th>
+                  <th className="text-right">Catalog Views</th>
+                  <th className="text-right">RFQs Issued</th>
+                  <th className="w-28 text-right">Traffic Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {countryStats.map((item) => {
+                  const percent = Math.round((item.views / maxViews) * 100);
+                  return (
+                    <tr key={item.countryCode}>
+                      <td>
+                        <span className="font-mono font-bold text-[#0D0D0D]">
+                          {item.countryCode}
+                        </span>
+                      </td>
+                      <td className="text-right font-mono font-semibold text-[#0D0D0D]">
+                        {item.views}
+                      </td>
+                      <td className="text-right font-mono font-bold text-[#1E3A52]">
+                        {item.rfqs}
+                      </td>
+                      <td className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="font-mono text-[10px] text-[#6B7280]">{percent}%</span>
+                          <div className="w-12 h-1.5 bg-[#E1E4E7] overflow-hidden">
+                            <div
+                              className="bg-[#0D0D0D] h-full"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Category Demand Table */}
+        <div className="border border-[#E1E4E7] bg-white">
+          <div className="p-4 border-b border-[#E1E4E7]">
+            <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
+              Garment Category Demand Breakdown
+            </h3>
+            <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
+              Aggregated procurement quantities requested across apparel classifications
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs table-ledger">
+              <thead>
+                <tr>
+                  <th>Apparel Category</th>
+                  <th className="text-right">Inquiries</th>
+                  <th className="text-right">Requested Volume</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topCategories.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="py-8 text-center text-[#6B7280]">
+                      No category procurement data recorded in active cycle.
+                    </td>
+                  </tr>
+                ) : (
+                  topCategories.map((cat) => (
+                    <tr key={cat.name}>
+                      <td className="font-medium text-[#0D0D0D]">
+                        {cat.name}
+                      </td>
+                      <td className="text-right font-mono text-[#6B7280]">
+                        {cat.count} RFQs
+                      </td>
+                      <td className="text-right font-mono font-bold text-[#0D0D0D]">
+                        {cat.volume.toLocaleString()} pcs
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 3: Member Enterprise Engagement & Telemetry Stream */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Most Viewed Member Enterprises */}
+        <div className="border border-[#E1E4E7] bg-white">
+          <div className="p-4 border-b border-[#E1E4E7]">
+            <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
+              Member Mill Buyer Engagement
+            </h3>
+            <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
+              Audited facilities receiving the highest export buyer inquiry volume
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs table-ledger">
+              <thead>
+                <tr>
+                  <th>Mill / Enterprise</th>
+                  <th>Location</th>
+                  <th className="text-right">Showroom Views</th>
+                  <th className="text-right">Dispatched RFQs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topEnterprises.map((factory) => (
+                  <tr key={factory.id}>
+                    <td className="font-medium text-[#0D0D0D]">
+                      {factory.name}
+                    </td>
+                    <td className="font-mono text-[10px] text-[#6B7280]">
+                      {factory.city}
+                    </td>
+                    <td className="text-right font-mono text-[#0D0D0D]">
+                      {factory._count.pageViews}
+                    </td>
+                    <td className="text-right font-mono font-bold text-[#1E3A52]">
+                      {factory._count.inquiries}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Real-time Telemetry Dispatch Stream */}
+        <div className="border border-[#E1E4E7] bg-white flex flex-col">
+          <div className="p-4 border-b border-[#E1E4E7] flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
+                Buyer Sourcing Telemetry Log
+              </h3>
+              <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
+                Live international traffic & dispatch events
+              </p>
+            </div>
+
+            <div className="flex items-center border border-[#E1E4E7]">
               {["ALL", "PAGE_VIEW", "RFQ_SENT"].map((ev) => (
                 <button
                   key={ev}
                   onClick={() => setFilterEvent(ev)}
-                  className={`px-2 py-0.5 rounded-lg font-semibold text-[11px] transition-colors ${
+                  className={`px-2 py-0.5 font-mono text-[10px] transition-colors border-r border-[#E1E4E7] last:border-r-0 ${
                     filterEvent === ev
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-[#0D0D0D] text-white font-bold"
+                      : "bg-white text-[#6B7280] hover:text-[#0D0D0D]"
                   }`}
                 >
                   {ev}
@@ -272,39 +314,38 @@ export function AnalyticsDashboard({
             </div>
           </div>
 
-          <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
+          <div className="divide-y divide-[#E1E4E7] flex-1 max-h-72 overflow-y-auto">
             {filteredEvents.length === 0 ? (
-              <p className="text-xs text-slate-700 italic py-4 text-center">
-                No telemetry events logged.
+              <p className="p-6 text-xs text-[#6B7280] italic font-mono text-center">
+                No telemetry events logged for current filter.
               </p>
             ) : (
               filteredEvents.map((event) => (
-                <div key={event.id} className="py-2.5 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-2">
+                <div key={event.id} className="p-3 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      className={
                         event.eventType === "RFQ_SENT"
-                          ? "bg-amber-100 text-amber-800"
-                          : event.eventType === "CATALOG_DOWNLOAD"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
+                          ? "tag-pending"
+                          : "tag-neutral"
+                      }
                     >
                       {event.eventType}
                     </span>
-                    <span className="font-semibold text-slate-800 truncate max-w-xs">
+                    <span className="font-medium text-[#0D0D0D] truncate max-w-xs">
                       {event.enterpriseName}
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-2 text-slate-700 text-[11px] shrink-0 font-mono">
-                    <span className="bg-slate-100 px-1.5 py-0.5 rounded font-bold text-slate-700">
+                  <div className="flex items-center gap-2 font-mono text-[10px] text-[#6B7280]">
+                    <span className="font-bold text-[#0D0D0D]">
                       {event.countryCode}
                     </span>
                     <span>
                       {new Date(event.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
+                        second: "2-digit",
                       })}
                     </span>
                   </div>
@@ -317,3 +358,4 @@ export function AnalyticsDashboard({
     </div>
   );
 }
+

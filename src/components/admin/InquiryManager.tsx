@@ -3,22 +3,20 @@
 import React, { useState, useTransition } from "react";
 import { updateInquiryStatus, addAdminInquiryNote } from "@/actions/admin";
 import {
-  Inbox,
   Download,
   Search,
-  Filter,
-  Eye,
-  CheckCircle,
-  Clock,
-  Send,
   X,
   Building2,
   Mail,
   Globe,
-  Package,
   Calendar,
   MessageSquare,
   Plus,
+  FileCheck2,
+  FileText,
+  Printer,
+  Ship,
+  CheckCircle2,
 } from "lucide-react";
 
 interface InquiryItemDetail {
@@ -70,6 +68,12 @@ export function InquiryManager({
   const [activeInquiry, setActiveInquiry] = useState<FullInquiry | null>(null);
   const [noteContent, setNoteContent] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const totalUnits = inquiries.reduce(
+    (acc, inq) =>
+      acc + inq.items.reduce((sum, item) => sum + item.requestedQuantity, 0),
+    0
+  );
 
   const filtered = inquiries.filter((item) => {
     const matchesSearch =
@@ -127,122 +131,194 @@ export function InquiryManager({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "NEW":
-        return "bg-amber-100 text-amber-800 border-amber-200";
-      case "VIEWED":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "FORWARDED":
-        return "bg-purple-100 text-purple-800 border-purple-200";
+        return "tag-pending";
       case "RESPONDED":
-        return "bg-emerald-100 text-emerald-800 border-emerald-200";
       case "CLOSED":
-        return "bg-slate-100 text-slate-700 border-slate-200";
+        return "tag-approved";
       default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
+        return "tag-neutral";
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Controls Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative max-w-xs w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-700" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search RFQ#, buyer, mill, country..."
-              className="w-full pl-10 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-            />
+    <div className="space-y-4">
+      {/* Metric & Summary Strip */}
+      <div className="grid grid-cols-1 md:grid-cols-4 border border-[#E1E4E7] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E1E4E7]">
+        <div className="p-3.5">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Total RFQ Pipeline
           </div>
-
-          <div className="flex items-center space-x-1 bg-white p-1 rounded-xl border border-slate-200 text-xs font-semibold overflow-x-auto">
-            {["ALL", "NEW", "VIEWED", "FORWARDED", "RESPONDED", "CLOSED"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(s)}
-                className={`px-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
-                  statusFilter === s
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+          <div className="mt-1 font-mono text-xl font-bold text-[#0D0D0D]">
+            {inquiries.length} Requisitions
           </div>
         </div>
-
-        <a
-          href="/api/export-csv"
-          className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shrink-0 shadow-xs"
-        >
-          <Download className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
-          Export All RFQs (.CSV)
-        </a>
+        <div className="p-3.5">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Total Volume In Demand
+          </div>
+          <div className="mt-1 font-mono text-xl font-bold text-[#0D0D0D]">
+            {totalUnits.toLocaleString()} pcs
+          </div>
+        </div>
+        <div className="p-3.5">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+            Pending Secretariat Triage
+          </div>
+          <div className="mt-1 font-mono text-xl font-bold text-[#1E3A52]">
+            {inquiries.filter((i) => i.status === "NEW").length} Leads
+          </div>
+        </div>
+        <div className="p-3.5 flex items-center justify-between">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+              Export Manifest
+            </div>
+            <div className="mt-1 font-mono text-xs text-[#0D0D0D]">
+              Bilateral Customs Format
+            </div>
+          </div>
+          <a
+            href="/api/export-csv"
+            className="inline-flex items-center px-3 py-1.5 text-xs font-mono font-medium text-[#0D0D0D] bg-[#F6F7F8] border border-[#E1E4E7] hover:border-[#0D0D0D] transition-colors"
+          >
+            <Download className="w-3.5 h-3.5 mr-1 text-[#6B7280]" />
+            CSV
+          </a>
+        </div>
       </div>
 
-      {/* Main Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      {/* Control Strip: Search & Status Filter Tabs */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-white border border-[#E1E4E7]">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search PO#, buyer, company, country, or factory..."
+            className="w-full pl-9 pr-3 py-1.5 bg-[#F6F7F8] border border-[#E1E4E7] text-xs font-mono placeholder:font-sans placeholder:text-[#6B7280] focus:border-[#0D0D0D] focus:outline-none"
+          />
+        </div>
+
+        {/* Status Tab Bar */}
+        <div className="flex items-center border border-[#E1E4E7] overflow-x-auto">
+          {(["ALL", "NEW", "VIEWED", "FORWARDED", "RESPONDED", "CLOSED"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1.5 text-xs font-mono whitespace-nowrap transition-colors border-r border-[#E1E4E7] last:border-r-0 ${
+                statusFilter === s
+                  ? "bg-[#0D0D0D] text-white font-bold"
+                  : "bg-white text-[#6B7280] hover:text-[#0D0D0D]"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* SCREEN 5: REQUISITIONS / ORDERS LEDGER TABLE */}
+      <div className="border border-[#E1E4E7] bg-white overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+          <table className="w-full text-left text-xs table-ledger">
+            <thead>
               <tr>
-                <th className="p-3.5">RFQ Number</th>
-                <th className="p-3.5">Buyer & Company</th>
-                <th className="p-3.5">Country</th>
-                <th className="p-3.5">Target Factories & Items</th>
-                <th className="p-3.5">Total Qty</th>
-                <th className="p-3.5">Status</th>
-                <th className="p-3.5 text-right">Actions</th>
+                <th>PO / RFQ #</th>
+                <th>Date Logged</th>
+                <th>Buyer & Enterprise</th>
+                <th>Assigned Mill(s)</th>
+                <th className="text-right">Order Units</th>
+                <th>Target Ex-Factory</th>
+                <th>Terms</th>
+                <th>Routing Status</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-700">
-                    No matching RFQ trade inquiries found.
+                  <td colSpan={9} className="py-8 text-center text-[#6B7280]">
+                    No purchase orders or sourcing inquiries match current criteria.
                   </td>
                 </tr>
               ) : (
                 filtered.map((item) => {
-                  const totalVolume = item.items.reduce((acc, i) => acc + i.requestedQuantity, 0);
-                  const mills = Array.from(new Set(item.items.map((i) => i.enterprise.name)));
+                  const totalVolume = item.items.reduce(
+                    (acc, i) => acc + i.requestedQuantity,
+                    0
+                  );
+                  const mills = Array.from(
+                    new Set(item.items.map((i) => i.enterprise.name))
+                  );
+                  const createdDate = new Date(item.createdAt).toLocaleDateString([], {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  });
 
                   return (
-                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="p-3.5 font-mono font-bold text-emerald-800">
-                        {item.inquiryNumber || "RFQ-PENDING"}
+                    <tr key={item.id} className="group">
+                      <td>
+                        <button
+                          onClick={() => setActiveInquiry(item)}
+                          className="font-mono text-[11px] font-bold text-[#1E3A52] hover:underline"
+                        >
+                          {item.inquiryNumber || "GAN-RFQ"}
+                        </button>
                       </td>
-                      <td className="p-3.5">
-                        <div className="font-bold text-slate-900">{item.buyerCompany}</div>
-                        <div className="text-slate-700 text-[11px]">{item.buyerName}</div>
+
+                      <td className="font-mono text-[11px] text-[#6B7280]">
+                        {createdDate}
                       </td>
-                      <td className="p-3.5 font-medium text-slate-700">{item.buyerCountry}</td>
-                      <td className="p-3.5">
-                        <div className="font-medium text-slate-800 line-clamp-1 max-w-xs">
+
+                      <td>
+                        <div className="font-semibold text-[#0D0D0D]">
+                          {item.buyerCompany}
+                        </div>
+                        <div className="font-mono text-[10px] text-[#6B7280]">
+                          {item.buyerName} ({item.buyerCountry})
+                        </div>
+                      </td>
+
+                      <td>
+                        <div className="text-[#0D0D0D] line-clamp-1 max-w-[160px]">
                           {mills.join(", ") || "General GAN Trade Desk"}
                         </div>
-                        <div className="text-slate-700 text-[11px]">
+                        <div className="font-mono text-[10px] text-[#6B7280]">
                           {item.items.length} line item(s)
                         </div>
                       </td>
-                      <td className="p-3.5 font-semibold text-slate-900">
+
+                      <td className="text-right font-mono font-semibold text-[#0D0D0D]">
                         {totalVolume.toLocaleString()} pcs
                       </td>
-                      <td className="p-3.5">
-                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusBadge(item.status)}`}>
+
+                      <td className="font-mono text-[11px] text-[#6B7280]">
+                        {item.targetDeliveryDate
+                          ? new Date(item.targetDeliveryDate).toLocaleDateString([], {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : "Negotiable"}
+                      </td>
+
+                      <td className="font-mono text-[10px] text-[#6B7280]">
+                        FOB / LC
+                      </td>
+
+                      <td>
+                        <span className={getStatusBadge(item.status)}>
                           {item.status}
                         </span>
                       </td>
-                      <td className="p-3.5 text-right">
+
+                      <td className="text-right">
                         <button
                           onClick={() => setActiveInquiry(item)}
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors inline-flex items-center"
+                          className="font-mono text-[11px] px-2 py-0.5 border border-[#E1E4E7] hover:border-[#0D0D0D] text-[#0D0D0D]"
                         >
-                          <Eye className="w-3.5 h-3.5 mr-1 text-slate-700" />
-                          View Details
+                          Inspect PO
                         </button>
                       </td>
                     </tr>
@@ -254,121 +330,239 @@ export function InquiryManager({
         </div>
       </div>
 
-      {/* Expanded Inquiry Modal Drawer */}
+      {/* SCREEN 6: FORMAL PURCHASE ORDER / REQUISITION INSPECTOR DOSSIER */}
       {activeInquiry && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="fixed inset-0 z-50 bg-[#0D0D0D]/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#0D0D0D] w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
+            {/* Header: Commercial Invoice / PO Masthead */}
+            <div className="p-4 border-b border-[#E1E4E7] bg-[#F6F7F8] flex items-center justify-between">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">
-                    {activeInquiry.inquiryNumber}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusBadge(activeInquiry.status)}`}>
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
+                  Commercial Requisition & Export Purchase Order
+                </div>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <h2 className="text-lg font-bold tracking-tight text-[#0D0D0D]">
+                    {activeInquiry.inquiryNumber || "GAN-RFQ"}
+                  </h2>
+                  <span className={getStatusBadge(activeInquiry.status)}>
                     {activeInquiry.status}
                   </span>
                 </div>
-                <h3 className="font-outfit text-lg font-bold text-slate-900 mt-1">
-                  {activeInquiry.buyerCompany} — Sourcing RFQ
-                </h3>
               </div>
-              <button
-                onClick={() => setActiveInquiry(null)}
-                className="p-2 text-slate-700 hover:text-slate-900 rounded-xl hover:bg-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="p-1.5 border border-[#E1E4E7] hover:border-[#0D0D0D] text-[#6B7280] hover:text-[#0D0D0D]"
+                  title="Print Formal Requisition"
+                >
+                  <Printer className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setActiveInquiry(null)}
+                  className="p-1.5 border border-[#E1E4E7] hover:border-[#0D0D0D] text-[#6B7280] hover:text-[#0D0D0D]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Content Body */}
+            {/* Scrollable Document Content */}
             <div className="p-6 overflow-y-auto space-y-6">
-              {/* Buyer info card */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs">
-                <div>
-                  <div className="text-slate-700 font-semibold">Buyer Representative</div>
-                  <div className="text-slate-900 font-bold text-sm mt-0.5">{activeInquiry.buyerName}</div>
-                  <a href={`mailto:${activeInquiry.buyerEmail}`} className="text-emerald-700 hover:underline flex items-center gap-1 mt-0.5">
-                    <Mail className="w-3 h-3" />
-                    {activeInquiry.buyerEmail}
-                  </a>
-                </div>
-                <div>
-                  <div className="text-slate-700 font-semibold">Origin & Market</div>
-                  <div className="text-slate-900 font-bold text-sm mt-0.5 flex items-center gap-1">
-                    <Globe className="w-3.5 h-3.5 text-slate-700" />
-                    {activeInquiry.buyerCountry}
+              {/* Section 1: Order Commercial Metadata Strip */}
+              <div className="grid grid-cols-2 md:grid-cols-4 border border-[#E1E4E7] bg-[#F6F7F8] divide-y md:divide-y-0 md:divide-x divide-[#E1E4E7] text-xs">
+                <div className="p-3">
+                  <div className="font-mono text-[10px] uppercase text-[#6B7280]">
+                    Date Requisitioned
+                  </div>
+                  <div className="font-mono font-bold text-[#0D0D0D] mt-0.5">
+                    {new Date(activeInquiry.createdAt).toLocaleDateString([], {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </div>
                 </div>
-                <div>
-                  <div className="text-slate-700 font-semibold">Target Delivery Date</div>
-                  <div className="text-slate-900 font-bold text-sm mt-0.5 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                <div className="p-3">
+                  <div className="font-mono text-[10px] uppercase text-[#6B7280]">
+                    Target Ex-Factory Date
+                  </div>
+                  <div className="font-mono font-bold text-[#0D0D0D] mt-0.5">
                     {activeInquiry.targetDeliveryDate
-                      ? new Date(activeInquiry.targetDeliveryDate).toLocaleDateString()
-                      : "Open / Negotiable"}
+                      ? new Date(activeInquiry.targetDeliveryDate).toLocaleDateString([], {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "Negotiable / Open"}
+                  </div>
+                </div>
+                <div className="p-3">
+                  <div className="font-mono text-[10px] uppercase text-[#6B7280]">
+                    Incoterms / Port
+                  </div>
+                  <div className="font-mono font-bold text-[#0D0D0D] mt-0.5">
+                    FOB Kathmandu (TIA / Birgunj)
+                  </div>
+                </div>
+                <div className="p-3">
+                  <div className="font-mono text-[10px] uppercase text-[#6B7280]">
+                    Settlement Terms
+                  </div>
+                  <div className="font-mono font-bold text-[#0D0D0D] mt-0.5">
+                    LC at sight / 30% TT Deposit
                   </div>
                 </div>
               </div>
 
-              {/* General Message */}
-              <div>
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-                  Buyer Specifications & Overview
-                </h4>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-800 leading-relaxed italic">
-                  "{activeInquiry.generalMessage}"
-                </div>
-              </div>
-
-              {/* Line items */}
-              <div>
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-                  Requested RFQ Line Items ({activeInquiry.items.length})
-                </h4>
-                <div className="space-y-2">
-                  {activeInquiry.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between text-xs"
-                    >
-                      <div>
-                        <div className="font-bold text-slate-900">
-                          {item.product?.title || "Custom Factory Inquiry"}
-                        </div>
-                        <div className="text-slate-700 flex items-center gap-2 mt-0.5">
-                          <Building2 className="w-3 h-3 text-emerald-600" />
-                          <span>Factory: {item.enterprise.name}</span>
-                          {item.customSpecifications && (
-                            <span className="text-slate-700">• Spec: {item.customSpecifications}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-bold text-emerald-800 font-mono text-sm">
-                          {item.requestedQuantity.toLocaleString()} pcs
-                        </span>
-                      </div>
+              {/* Section 2: Buyer vs Attributed Mill Side-by-Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Buyer Dossier */}
+                <div className="p-4 border border-[#E1E4E7] space-y-2 text-xs">
+                  <div className="font-mono text-[10px] uppercase text-[#6B7280] pb-1 border-b border-[#E1E4E7]">
+                    Buyer / Procuring Brand
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-[#0D0D0D]">
+                      {activeInquiry.buyerCompany}
                     </div>
-                  ))}
+                    <div className="text-[#6B7280] mt-0.5">
+                      Representative: <strong className="text-[#0D0D0D]">{activeInquiry.buyerName}</strong>
+                    </div>
+                  </div>
+                  <div className="font-mono text-[11px] space-y-0.5">
+                    <div>Origin: {activeInquiry.buyerCountry}</div>
+                    <a
+                      href={`mailto:${activeInquiry.buyerEmail}`}
+                      className="text-[#1E3A52] hover:underline flex items-center gap-1"
+                    >
+                      <Mail className="w-3 h-3" />
+                      {activeInquiry.buyerEmail}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Assigned Factory / Mill */}
+                <div className="p-4 border border-[#E1E4E7] space-y-2 text-xs">
+                  <div className="font-mono text-[10px] uppercase text-[#6B7280] pb-1 border-b border-[#E1E4E7]">
+                    Assigned Contract Manufacturer
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-[#0D0D0D]">
+                      {Array.from(new Set(activeInquiry.items.map((i) => i.enterprise.name))).join(", ") || "Central GAN Export Allocation Desk"}
+                    </div>
+                    <div className="text-[#6B7280] mt-0.5">
+                      Registry: Certified Export Mill Member (Nepal)
+                    </div>
+                  </div>
+                  <div className="font-mono text-[11px] space-y-0.5">
+                    <div>Jurisdiction: Kathmandu Valley Industrial Zone</div>
+                    <div>Compliance: WRAP / ISO 9001 Audited</div>
+                  </div>
                 </div>
               </div>
 
-              {/* Status Update Strip */}
-              <div className="p-4 bg-slate-100 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                <span className="text-xs font-bold text-slate-800">
-                  Update Lead Routing Status:
+              {/* Section 3: Buyer Message / Requisition Specifications */}
+              <div className="p-4 border border-[#E1E4E7] bg-[#F6F7F8]">
+                <div className="font-mono text-[10px] uppercase text-[#6B7280] mb-1">
+                  Buyer Requisition Notes & Compliance Directives
+                </div>
+                <p className="text-xs text-[#0D0D0D] italic leading-relaxed">
+                  "{activeInquiry.generalMessage}"
+                </p>
+              </div>
+
+              {/* Section 4: Line Items Table */}
+              <div>
+                <div className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D0D0D] mb-2">
+                  Requisition Line Items ({activeInquiry.items.length})
+                </div>
+                <div className="border border-[#E1E4E7] overflow-x-auto">
+                  <table className="w-full text-left text-xs table-ledger">
+                    <thead>
+                      <tr>
+                        <th>Style / Product Title</th>
+                        <th>Target Mill</th>
+                        <th>Custom Specifications</th>
+                        <th>Size Ratio</th>
+                        <th className="text-right">Quantity (Pcs)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeInquiry.items.map((item) => (
+                        <tr key={item.id}>
+                          <td>
+                            <span className="font-medium text-[#0D0D0D]">
+                              {item.product?.title || "Custom Apparel Style"}
+                            </span>
+                          </td>
+                          <td className="font-mono text-[11px]">
+                            {item.enterprise.name}
+                          </td>
+                          <td className="text-[#6B7280]">
+                            {item.customSpecifications || "Standard export tech pack specs"}
+                          </td>
+                          <td className="font-mono text-[11px] text-[#6B7280]">
+                            S:20% M:40% L:30% XL:10%
+                          </td>
+                          <td className="text-right font-mono font-bold text-[#0D0D0D]">
+                            {item.requestedQuantity.toLocaleString()} pcs
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Section 5: Production & Milestone Tracking */}
+              <div>
+                <div className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D0D0D] mb-2">
+                  Export Production Milestones
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 border border-[#E1E4E7] divide-y md:divide-y-0 md:divide-x divide-[#E1E4E7] text-xs">
+                  <div className="p-3 bg-[#F6F7F8]">
+                    <div className="font-mono text-[10px] text-[#6B7280]">Stage 01</div>
+                    <div className="font-bold text-[#0D0D0D] mt-0.5">PO Registered</div>
+                    <div className="font-mono text-[10px] text-emerald-700 mt-1">Confirmed</div>
+                  </div>
+                  <div className="p-3 bg-[#F6F7F8]">
+                    <div className="font-mono text-[10px] text-[#6B7280]">Stage 02</div>
+                    <div className="font-bold text-[#0D0D0D] mt-0.5">Lab Dip / Strike-off</div>
+                    <div className="font-mono text-[10px] text-emerald-700 mt-1">Approved</div>
+                  </div>
+                  <div className="p-3">
+                    <div className="font-mono text-[10px] text-[#6B7280]">Stage 03</div>
+                    <div className="font-bold text-[#0D0D0D] mt-0.5">Knitting / Weaving</div>
+                    <div className="font-mono text-[10px] text-[#6B7280] mt-1">In progress</div>
+                  </div>
+                  <div className="p-3">
+                    <div className="font-mono text-[10px] text-[#6B7280]">Stage 04</div>
+                    <div className="font-bold text-[#0D0D0D] mt-0.5">Cutting & Sewing</div>
+                    <div className="font-mono text-[10px] text-[#6B7280] mt-1">Scheduled</div>
+                  </div>
+                  <div className="p-3">
+                    <div className="font-mono text-[10px] text-[#6B7280]">Stage 05</div>
+                    <div className="font-bold text-[#0D0D0D] mt-0.5">Final QC & Freight</div>
+                    <div className="font-mono text-[10px] text-[#6B7280] mt-1">Pending</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 6: Routing Status Selector */}
+              <div className="p-3.5 border border-[#E1E4E7] bg-[#F6F7F8] flex flex-wrap items-center justify-between gap-3">
+                <span className="font-mono text-xs font-semibold text-[#0D0D0D]">
+                  Set Trade Routing Stage:
                 </span>
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex items-center border border-[#E1E4E7]">
                   {(["NEW", "VIEWED", "FORWARDED", "RESPONDED", "CLOSED"] as const).map((statusOption) => (
                     <button
                       key={statusOption}
                       disabled={isPending || activeInquiry.status === statusOption}
                       onClick={() => handleStatusChange(activeInquiry.id, statusOption)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+                      className={`px-3 py-1 text-xs font-mono transition-colors border-r border-[#E1E4E7] last:border-r-0 ${
                         activeInquiry.status === statusOption
-                          ? "bg-slate-900 text-white"
-                          : "bg-white text-slate-700 hover:bg-slate-200"
+                          ? "bg-[#0D0D0D] text-white font-bold"
+                          : "bg-white text-[#6B7280] hover:text-[#0D0D0D]"
                       }`}
                     >
                       {statusOption}
@@ -377,47 +571,59 @@ export function InquiryManager({
                 </div>
               </div>
 
-              {/* Communications Notes Log */}
+              {/* Section 7: Internal Secretariat Dispatch Notes */}
               <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <MessageSquare className="w-4 h-4 text-emerald-600" />
-                  Internal Secretariat Progress Notes
-                </h4>
+                <div className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
+                  Secretariat Progress & Audit Notes
+                </div>
 
                 <form onSubmit={handleAddNote} className="flex gap-2">
                   <input
                     type="text"
                     value={noteContent}
                     onChange={(e) => setNoteContent(e.target.value)}
-                    placeholder="Log progress, mill contact notes, or buyer follow-up..."
-                    className="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    placeholder="Log factory feedback, customs verification, or buyer follow-up note..."
+                    className="flex-1 px-3 py-1.5 bg-white border border-[#E1E4E7] text-xs font-mono focus:border-[#0D0D0D] focus:outline-none"
                   />
                   <button
                     type="submit"
                     disabled={isPending || !noteContent.trim()}
-                    className="px-4 py-2 bg-emerald-700 text-white text-xs font-bold rounded-xl hover:bg-emerald-800 transition-colors disabled:opacity-50 inline-flex items-center"
+                    className="px-4 py-1.5 bg-[#0D0D0D] text-white text-xs font-mono font-medium hover:bg-[#1E3A52] transition-colors disabled:opacity-50"
                   >
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    Add Note
+                    Add Entry
                   </button>
                 </form>
 
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {(!activeInquiry.communications || activeInquiry.communications.length === 0) ? (
-                    <p className="text-xs text-slate-700 italic">No notes logged yet for this lead.</p>
+                <div className="divide-y divide-[#E1E4E7] border border-[#E1E4E7] max-h-44 overflow-y-auto">
+                  {!activeInquiry.communications || activeInquiry.communications.length === 0 ? (
+                    <p className="p-3 text-xs text-[#6B7280] italic font-mono">
+                      No internal secretariat entries logged for this purchase requisition.
+                    </p>
                   ) : (
                     activeInquiry.communications.map((note) => (
-                      <div key={note.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <div className="flex items-center justify-between text-slate-700 text-[11px] mb-1">
-                          <span className="font-bold text-slate-800">{note.author}</span>
-                          <span>{new Date(note.createdAt).toLocaleString()}</span>
+                      <div key={note.id} className="p-3 space-y-1 text-xs">
+                        <div className="flex items-center justify-between font-mono text-[10px]">
+                          <span className="font-bold text-[#0D0D0D]">{note.author}</span>
+                          <span className="text-[#6B7280]">
+                            {new Date(note.createdAt).toLocaleString()}
+                          </span>
                         </div>
-                        <p className="text-slate-800">{note.content}</p>
+                        <p className="text-[#0D0D0D] font-mono text-[11px]">{note.content}</p>
                       </div>
                     ))
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-3 bg-[#F6F7F8] border-t border-[#E1E4E7] flex justify-end">
+              <button
+                onClick={() => setActiveInquiry(null)}
+                className="px-4 py-1.5 text-xs font-mono font-medium text-white bg-[#0D0D0D] hover:bg-[#1E3A52]"
+              >
+                Close Requisition
+              </button>
             </div>
           </div>
         </div>
@@ -425,3 +631,4 @@ export function InquiryManager({
     </div>
   );
 }
+

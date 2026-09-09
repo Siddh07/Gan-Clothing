@@ -12,7 +12,6 @@ import {
   AlertCircle,
   CheckCircle2,
   AlertTriangle,
-  ArrowRight,
   RefreshCw,
   Building2,
   FileText,
@@ -55,7 +54,6 @@ export function BulkImportManager() {
     reader.onload = (event) => {
       const content = event.target?.result as string;
       setFileContent(content);
-      // Auto-validate on select
       validateContent(content);
     };
     reader.readAsText(file);
@@ -107,54 +105,52 @@ export function BulkImportManager() {
   return (
     <div className="space-y-6">
       {/* Top Banner & Sample Download */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="border border-[#E1E4E7] bg-white p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
-            Standard GAN Member Directory Schema
+          <h2 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
+            Standard Trade Directory Schema Specification
           </h2>
-          <p className="text-xs text-slate-700 mt-1 max-w-2xl">
-            Upload a CSV formatted file with enterprise profiles, PAN tax registrations, monthly capacity in pieces, and export market designations.
+          <p className="font-mono text-[11px] text-[#6B7280] mt-0.5 max-w-2xl">
+            Accepts UTF-8 encoded comma-separated files containing legal mill profiles, PAN tax registrations, and capacity figures.
           </p>
         </div>
 
         <button
           onClick={handleDownloadSample}
-          className="inline-flex items-center px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shrink-0"
+          className="inline-flex items-center px-3.5 py-1.5 border border-[#E1E4E7] hover:border-[#0D0D0D] text-xs font-mono font-medium text-[#0D0D0D] bg-[#F6F7F8] transition-colors shrink-0"
         >
-          <Download className="w-4 h-4 mr-2 text-emerald-600" />
-          Download Sample Template (.CSV)
+          <Download className="w-3.5 h-3.5 mr-1.5 text-[#6B7280]" />
+          Download Template (.CSV)
         </button>
       </div>
 
       {/* Success banner if completed */}
       {importCompleted && (
-        <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
+        <div className="border border-[#1E3A52] bg-[#F6F7F8] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <div className="font-mono text-[10px] font-bold text-[#1E3A52] uppercase">
+              TRANSACTION COMMITTED
             </div>
-            <div>
-              <h3 className="text-sm font-bold">Import Executed Successfully</h3>
-              <p className="text-xs text-emerald-700 mt-0.5">
-                Successfully ingested <strong>{importCount}</strong> garment manufacturing enterprises into the live directory.
-              </p>
+            <div className="font-bold text-sm text-[#0D0D0D]">
+              Successfully Ingested {importCount} Garment Manufacturing Plants
+            </div>
+            <div className="font-mono text-xs text-[#6B7280]">
+              Entities have been provisioned in the live directory with status `APPROVED`.
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2 font-mono text-xs">
             <button
               onClick={resetAll}
-              className="px-4 py-2 rounded-xl bg-white border border-emerald-200 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
+              className="px-3 py-1.5 border border-[#E1E4E7] bg-white hover:border-[#0D0D0D] text-[#0D0D0D]"
             >
               Upload Another
             </button>
             <Link
               href="/admin/enterprises"
-              className="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 transition-colors inline-flex items-center"
+              className="px-3.5 py-1.5 bg-[#0D0D0D] hover:bg-[#1E3A52] text-white font-medium"
             >
-              View Members
-              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              Inspect Directory
             </Link>
           </div>
         </div>
@@ -162,7 +158,7 @@ export function BulkImportManager() {
 
       {/* File Upload Area */}
       {!importCompleted && (
-        <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 hover:border-emerald-500 transition-colors p-8 text-center">
+        <div className="border border-dashed border-[#E1E4E7] hover:border-[#0D0D0D] bg-white p-8 text-center transition-colors">
           <input
             type="file"
             id="csv-upload"
@@ -172,17 +168,15 @@ export function BulkImportManager() {
           />
           <label
             htmlFor="csv-upload"
-            className="cursor-pointer flex flex-col items-center justify-center space-y-3"
+            className="cursor-pointer flex flex-col items-center justify-center space-y-2"
           >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Upload className="w-6 h-6" />
-            </div>
+            <Upload className="w-6 h-6 text-[#0D0D0D]" />
             <div>
-              <span className="text-sm font-bold text-slate-800">
-                {fileName ? fileName : "Click to select or drop CSV file"}
+              <span className="font-mono text-xs font-bold text-[#0D0D0D]">
+                {fileName ? fileName : "Select or drop CSV manifest file"}
               </span>
-              <p className="text-xs text-slate-700 mt-1">
-                Supports standard comma-separated `.csv` exports from Excel, Google Sheets, or internal ERPs.
+              <p className="font-mono text-[11px] text-[#6B7280] mt-1">
+                Standard comma-separated `.csv` exports from ERP, Excel, or customs filings.
               </p>
             </div>
           </label>
@@ -192,31 +186,29 @@ export function BulkImportManager() {
       {/* Validation & Ingestion Controls */}
       {validationResult && !importCompleted && (
         <div className="space-y-6">
-          {/* Summary Matrix Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <span className="text-xs font-semibold text-slate-700 uppercase">Total Rows</span>
-              <div className="text-2xl font-black text-slate-900 mt-1">
+          {/* Summary Matrix Strip */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#E1E4E7] bg-white divide-y sm:divide-y-0 sm:divide-x divide-[#E1E4E7]">
+            <div className="p-4">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Total Parsed Rows</span>
+              <div className="font-mono text-2xl font-bold text-[#0D0D0D] mt-1">
                 {validationResult.totalRows}
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-xs">
-              <span className="text-xs font-semibold text-emerald-700 uppercase flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Valid Records
+            <div className="p-4">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-800">
+                Verified Records
               </span>
-              <div className="text-2xl font-black text-emerald-800 mt-1">
+              <div className="font-mono text-2xl font-bold text-emerald-800 mt-1">
                 {validationResult.validCount}
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-red-100 shadow-xs">
-              <span className="text-xs font-semibold text-red-700 uppercase flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4 text-red-600" />
-                Invalid / Flagged Rows
+            <div className="p-4">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-red-700">
+                Flagged / Deficient Rows
               </span>
-              <div className="text-2xl font-black text-red-700 mt-1">
+              <div className="font-mono text-2xl font-bold text-red-700 mt-1">
                 {validationResult.invalidCount}
               </div>
             </div>
@@ -224,29 +216,27 @@ export function BulkImportManager() {
 
           {/* Error Diagnostics Matrix */}
           {validationResult.errors.length > 0 && (
-            <div className="bg-red-50/80 border border-red-200 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center space-x-2 text-red-800 font-bold text-sm">
-                <AlertTriangle className="w-4 h-4" />
-                <span>Validation Errors Detected ({validationResult.errors.length})</span>
+            <div className="border border-red-200 bg-red-50/50 p-4 space-y-2 text-xs">
+              <div className="font-mono font-bold text-red-800 uppercase tracking-tight flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Validation Deficiencies Identified ({validationResult.errors.length})</span>
               </div>
-              <p className="text-xs text-red-700">
-                The following issues were identified. Invalid rows will be skipped during database ingestion.
+              <p className="text-[#6B7280]">
+                Deficient rows will be skipped during database ingestion. Correct source CSV or proceed with verified rows.
               </p>
-              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-2">
+              <div className="max-h-40 overflow-y-auto space-y-1 font-mono text-[11px] pt-1">
                 {validationResult.errors.map((err, idx) => (
                   <div
                     key={idx}
-                    className="text-xs bg-white/90 border border-red-200/80 rounded-lg p-2.5 flex items-start justify-between text-slate-800"
+                    className="p-1.5 bg-white border border-red-200 text-[#0D0D0D]"
                   >
-                    <div>
-                      <span className="font-bold text-red-700 mr-2">
-                        Row #{err.row}:
-                      </span>
-                      <span className="font-semibold text-slate-900 mr-1.5">
-                        [{err.field}]
-                      </span>
-                      {err.message}
-                    </div>
+                    <span className="font-bold text-red-700 mr-2">
+                      Row #{err.row}:
+                    </span>
+                    <span className="text-[#6B7280] mr-1.5">
+                      [{err.field}]
+                    </span>
+                    {err.message}
                   </div>
                 ))}
               </div>
@@ -254,20 +244,20 @@ export function BulkImportManager() {
           )}
 
           {/* Action Trigger Bar */}
-          <div className="bg-slate-900 text-white rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="border border-[#E1E4E7] bg-[#F6F7F8] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs">
             <div>
-              <div className="font-bold text-sm">Ready for Transactional Ingestion</div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {validationResult.validCount} valid factory profiles will be created with status `APPROVED`.
-              </p>
+              <div className="font-bold text-[#0D0D0D]">Ready for Transaction Ingestion</div>
+              <div className="text-[11px] text-[#6B7280]">
+                {validationResult.validCount} verified mill profiles will be committed to the database.
+              </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={resetAll}
                 disabled={isPending}
-                className="px-4 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                className="px-3 py-1.5 border border-[#E1E4E7] bg-white hover:border-[#0D0D0D] text-[#0D0D0D]"
               >
                 Cancel
               </button>
@@ -275,17 +265,16 @@ export function BulkImportManager() {
                 type="button"
                 onClick={handleExecuteImport}
                 disabled={isPending || validationResult.validCount === 0}
-                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors disabled:opacity-50 inline-flex items-center"
+                className="px-4 py-1.5 bg-[#0D0D0D] hover:bg-[#1E3A52] text-white font-medium transition-colors disabled:opacity-50 inline-flex items-center"
               >
                 {isPending ? (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Ingesting Records...
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    Committing Records...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Import {validationResult.validCount} Valid Records
+                    Import {validationResult.validCount} Valid Mills
                   </>
                 )}
               </button>
@@ -293,56 +282,48 @@ export function BulkImportManager() {
           </div>
 
           {/* Preview Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                In-Memory Parsed Data Preview
+          <div className="border border-[#E1E4E7] bg-white overflow-hidden">
+            <div className="p-3 border-b border-[#E1E4E7] flex items-center justify-between font-mono text-xs">
+              <h3 className="font-bold uppercase tracking-wider text-[#0D0D0D]">
+                Parsed Data Preview
               </h3>
-              <span className="text-xs text-slate-700">
-                Showing all {validationResult.parsedData.length} records
+              <span className="text-[#6B7280]">
+                {validationResult.parsedData.length} total records
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+              <table className="w-full text-left text-xs table-ledger">
+                <thead>
                   <tr>
-                    <th className="p-3">Status</th>
-                    <th className="p-3">Row #</th>
-                    <th className="p-3">Factory Name</th>
-                    <th className="p-3">PAN</th>
-                    <th className="p-3">Location</th>
-                    <th className="p-3">Capacity (pcs/mo)</th>
-                    <th className="p-3">Contact Email</th>
+                    <th>Status</th>
+                    <th>Row</th>
+                    <th>Mill Name</th>
+                    <th>PAN</th>
+                    <th>Location</th>
+                    <th className="text-right">Monthly Capacity</th>
+                    <th>Contact</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {validationResult.parsedData.map((row) => (
                     <tr
                       key={row.rowNumber}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        !row.isValid ? "bg-red-50/40" : ""
-                      }`}
+                      className={!row.isValid ? "bg-red-50/40" : ""}
                     >
-                      <td className="p-3">
-                        {row.isValid ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                            Valid
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
-                            Flagged
-                          </span>
-                        )}
+                      <td>
+                        <span className={row.isValid ? "tag-approved" : "tag-pending"}>
+                          {row.isValid ? "VALID" : "FLAGGED"}
+                        </span>
                       </td>
-                      <td className="p-3 font-mono text-slate-700">#{row.rowNumber}</td>
-                      <td className="p-3 font-semibold text-slate-900">{row.name || "-"}</td>
-                      <td className="p-3 font-mono text-slate-700">{row.panNumber || "-"}</td>
-                      <td className="p-3 text-slate-700">{row.city || "-"}</td>
-                      <td className="p-3 text-slate-700 font-medium">
-                        {row.monthlyCapacityPcs.toLocaleString()}
+                      <td className="font-mono text-[#6B7280]">#{row.rowNumber}</td>
+                      <td className="font-medium text-[#0D0D0D]">{row.name || "—"}</td>
+                      <td className="font-mono text-[#6B7280]">{row.panNumber || "—"}</td>
+                      <td className="text-[#0D0D0D]">{row.city || "—"}</td>
+                      <td className="text-right font-mono font-semibold text-[#0D0D0D]">
+                        {row.monthlyCapacityPcs.toLocaleString()} pcs
                       </td>
-                      <td className="p-3 text-slate-700">{row.contactEmail || "-"}</td>
+                      <td className="font-mono text-[11px] text-[#6B7280]">{row.contactEmail || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -354,3 +335,4 @@ export function BulkImportManager() {
     </div>
   );
 }
+
