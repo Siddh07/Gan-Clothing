@@ -88,6 +88,10 @@ export async function createEnterprise(data: {
         create: data.certifications || [],
       },
     },
+    include: {
+      certifications: { select: { id: true, name: true } },
+      _count: { select: { products: true } },
+    },
   });
 
   await logAuditAction({
@@ -182,6 +186,10 @@ export async function createProduct(data: {
       description: data.description,
       images: JSON.stringify(data.images.length > 0 ? data.images : ["https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800"]),
       isFeatured: Boolean(data.isFeatured),
+    },
+    include: {
+      enterprise: { select: { id: true, name: true, slug: true } },
+      category: { select: { id: true, name: true } },
     },
   });
 

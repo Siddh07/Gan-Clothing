@@ -28,11 +28,11 @@ export function PortalNav({ enterpriseSlug }: { enterpriseSlug?: string }) {
             href={item.href}
             className={`flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors ${
               active
-                ? "bg-[#EEF2FF] text-[#3B5BDB] font-medium border-l-2 border-[#3B5BDB] -ml-px pl-[11px]"
-                : "text-[#6B7280] hover:text-[#1A1A1A] hover:bg-[#F3F4F6]"
+                ? "bg-[#EFF4FF] text-[#2D5BE3] font-medium border-l-2 border-[#2D5BE3] -ml-px pl-[11px]"
+                : "text-[#71717A] hover:text-[#18181B] hover:bg-[#F0F0F2]"
             }`}
           >
-            <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#3B5BDB]" : "text-[#9CA3AF]"}`} />
+            <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#2D5BE3]" : "text-[#A1A1AA]"}`} />
             <span>{item.label}</span>
           </Link>
         );

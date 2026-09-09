@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   toggleProductFeatured,
   createProduct,
@@ -17,6 +18,7 @@ import {
   LayoutGrid,
   FileSpreadsheet,
   SlidersHorizontal,
+  AlertCircle,
 } from "lucide-react";
 
 interface ProductItem {
@@ -46,6 +48,8 @@ export function ProductManager({
   enterprises: EnterpriseOption[];
   categories: CategoryOption[];
 }) {
+  const router = useRouter();
+  const [products, setProducts] = useState<ProductItem[]>(initialProducts);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [genderFilter, setGenderFilter] = useState("ALL");
@@ -53,7 +57,12 @@ export function ProductManager({
   const [viewMode, setViewMode] = useState<"LIST" | "GRID">("LIST");
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -68,7 +77,7 @@ export function ProductManager({
     isFeatured: true,
   });
 
-  const filteredProducts = initialProducts.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     const matchesSearch =
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.fabricType.toLowerCase().includes(search.toLowerCase()) ||
@@ -82,20 +91,70 @@ export function ProductManager({
   });
 
   const handleToggleFeatured = (id: string, currentStatus: boolean) => {
-    startTransition(async () => { await toggleProductFeatured(id, currentStatus); });
+    const nextStatus = !currentStatus;
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isFeatured: nextStatus } : p))
+    );
+    startTransition(async () => {
+      try {
+        const res = await toggleProductFeatured(id, currentStatus);
+        if (res.success) {
+          router.refresh();
+        }
+      } catch (err: any) {
+        // Revert on failure
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, isFeatured: currentStatus } : p))
+        );
+        alert(err?.message || "Failed to update product status. Please ensure you are logged in as admin.");
+      }
+    });
   };
 
   const handleDelete = (id: string, title: string) => {
     if (confirm(`Delete product "${title}"? This cannot be undone.`)) {
-      startTransition(async () => { await deleteProduct(id); });
+      startTransition(async () => {
+        try {
+          const res = await deleteProduct(id);
+          if (res.success) {
+            setProducts((prev) => prev.filter((p) => p.id !== id));
+            router.refresh();
+          }
+        } catch (err: any) {
+          alert(err?.message || "Failed to delete product. Please ensure you are logged in as admin.");
+        }
+      });
     }
   };
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     startTransition(async () => {
-      await createProduct({ ...formData, images: [formData.imageUrl] });
-      setIsCreateOpen(false);
+      try {
+        const res = await createProduct({ ...formData, images: [formData.imageUrl] });
+        if (res.success && res.product) {
+          setProducts((prev) => [res.product as ProductItem, ...prev]);
+          setIsCreateOpen(false);
+          setFormData({
+            title: "",
+            enterpriseId: enterprises[0]?.id || "",
+            categoryId: categories[0]?.id || "",
+            fabricType: "100% Himalayan Cashmere (12 GG)",
+            gsmWeight: 260,
+            moq: 300,
+            targetGender: "Unisex",
+            description: "Export quality apparel sample manufactured in Nepal.",
+            imageUrl: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800",
+            isFeatured: true,
+          });
+          router.refresh();
+        } else {
+          setFormError("Failed to create product. Please try again.");
+        }
+      } catch (err: any) {
+        setFormError(err?.message || "Failed to create product. Check that you are signed in.");
+      }
     });
   };
 
@@ -473,6 +532,12 @@ export function ProductManager({
             </div>
 
             <form onSubmit={handleCreateSubmit} className="p-6 space-y-4">
+              {formError && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded text-sm text-[#DC2626] flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className={labelCls}>Product title *</label>
                 <input

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toggleEnterpriseVerification, createEnterprise, deleteEnterprise } from "@/actions/admin";
-import { Building2, ShieldCheck, ShieldAlert, Plus, Trash2, ExternalLink, Search, X, FileSpreadsheet } from "lucide-react";
+import { Building2, ShieldCheck, ShieldAlert, Plus, Trash2, ExternalLink, Search, X, FileSpreadsheet, AlertCircle } from "lucide-react";
 
 interface EnterpriseItem {
   id: string;
@@ -29,7 +30,7 @@ interface EnterpriseItem {
 const EMPTY_FORM = {
   name: "", registrationNumber: "", panNumber: "", description: "",
   yearEstablished: 2000, employeeCount: 150, monthlyCapacityPcs: 50000,
-  address: "", city: "Kathmandu", contactEmail: "", contactPhone: "+977-1-",
+  address: "Industrial Area", city: "Kathmandu", contactEmail: "", contactPhone: "+977-1-",
   websiteUrl: "", exportMarkets: "USA, Germany, United Kingdom, Japan",
   coverImageUrl: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800",
   isVerified: true,
@@ -39,13 +40,20 @@ const inputCls = "w-full px-3 py-2 border border-[#D1D5DB] rounded text-sm text-
 const labelCls = "block text-sm font-medium text-[#1A1A1A] mb-1.5";
 
 export function EnterpriseManager({ initialEnterprises }: { initialEnterprises: EnterpriseItem[] }) {
+  const router = useRouter();
+  const [enterprises, setEnterprises] = useState<EnterpriseItem[]>(initialEnterprises);
   const [search, setSearch] = useState("");
   const [selectedMill, setSelectedMill] = useState<EnterpriseItem | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [formData, setFormData] = useState(EMPTY_FORM);
 
-  const filtered = initialEnterprises.filter(
+  useEffect(() => {
+    setEnterprises(initialEnterprises);
+  }, [initialEnterprises]);
+
+  const filtered = enterprises.filter(
     (e) =>
       e.name.toLowerCase().includes(search.toLowerCase()) ||
       e.city.toLowerCase().includes(search.toLowerCase()) ||
@@ -53,24 +61,71 @@ export function EnterpriseManager({ initialEnterprises }: { initialEnterprises: 
       e.registrationNumber.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalCapacity = initialEnterprises.reduce((acc, e) => acc + (e.monthlyCapacityPcs || 0), 0);
-  const verifiedCount = initialEnterprises.filter((e) => e.isVerified).length;
+  const totalCapacity = enterprises.reduce((acc, e) => acc + (e.monthlyCapacityPcs || 0), 0);
+  const verifiedCount = enterprises.filter((e) => e.isVerified).length;
 
   const handleToggleVerification = (id: string, currentStatus: boolean) => {
-    startTransition(async () => { await toggleEnterpriseVerification(id, currentStatus); });
+    const nextStatus = !currentStatus;
+    setEnterprises((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, isVerified: nextStatus } : e))
+    );
+    if (selectedMill?.id === id) {
+      setSelectedMill((prev) => (prev ? { ...prev, isVerified: nextStatus } : null));
+    }
+
+    startTransition(async () => {
+      try {
+        const res = await toggleEnterpriseVerification(id, currentStatus);
+        if (res.success) {
+          router.refresh();
+        }
+      } catch (err: any) {
+        // Revert on error
+        setEnterprises((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, isVerified: currentStatus } : e))
+        );
+        if (selectedMill?.id === id) {
+          setSelectedMill((prev) => (prev ? { ...prev, isVerified: currentStatus } : null));
+        }
+        alert(err?.message || "Failed to toggle verification. Please ensure you are logged in as admin.");
+      }
+    });
   };
 
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Delete mill "${name}" from the directory? This cannot be undone.`)) {
-      startTransition(async () => { await deleteEnterprise(id); });
+      startTransition(async () => {
+        try {
+          const res = await deleteEnterprise(id);
+          if (res.success) {
+            setEnterprises((prev) => prev.filter((e) => e.id !== id));
+            if (selectedMill?.id === id) setSelectedMill(null);
+            router.refresh();
+          }
+        } catch (err: any) {
+          alert(err?.message || "Failed to delete mill. Please ensure you are logged in as admin.");
+        }
+      });
     }
   };
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     startTransition(async () => {
-      await createEnterprise(formData as any);
-      setIsCreateOpen(false);
+      try {
+        const res = await createEnterprise(formData as any);
+        if (res.success && res.enterprise) {
+          setEnterprises((prev) => [res.enterprise as any, ...prev]);
+          setIsCreateOpen(false);
+          setFormData(EMPTY_FORM);
+          router.refresh();
+        } else {
+          setFormError("Failed to add mill. Please check the submitted fields.");
+        }
+      } catch (err: any) {
+        setFormError(err?.message || "Failed to add mill. Please check that you are signed in.");
+      }
     });
   };
 
@@ -328,6 +383,12 @@ export function EnterpriseManager({ initialEnterprises }: { initialEnterprises: 
             </div>
 
             <form onSubmit={handleCreateSubmit} className="p-6 space-y-4">
+              {formError && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded text-sm text-[#DC2626] flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className={labelCls}>Mill name *</label>
                 <input type="text" required value={formData.name} onChange={(e) => setF("name", e.target.value)} className={inputCls} />

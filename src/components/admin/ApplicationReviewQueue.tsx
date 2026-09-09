@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { approveFactoryApplication, rejectFactoryApplication } from "@/actions/apply";
 import { Search, ShieldCheck, ShieldAlert, FileText } from "lucide-react";
 
@@ -27,10 +28,16 @@ export function ApplicationReviewQueue({
 }: {
   initialApplications: PendingEnterprise[];
 }) {
+  const router = useRouter();
+  const [applications, setApplications] = useState<PendingEnterprise[]>(initialApplications);
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const filtered = initialApplications.filter(
+  useEffect(() => {
+    setApplications(initialApplications);
+  }, [initialApplications]);
+
+  const filtered = applications.filter(
     (app) =>
       app.name.toLowerCase().includes(search.toLowerCase()) ||
       app.panNumber.includes(search) ||
@@ -39,14 +46,38 @@ export function ApplicationReviewQueue({
 
   const handleApprove = (id: string) => {
     if (confirm("Approve this mill and add to the verified directory?")) {
-      startTransition(async () => { await approveFactoryApplication(id); });
+      const removed = applications.find((a) => a.id === id);
+      setApplications((prev) => prev.filter((a) => a.id !== id));
+      startTransition(async () => {
+        try {
+          const res = await approveFactoryApplication(id);
+          if (res.success) {
+            router.refresh();
+          }
+        } catch (err: any) {
+          if (removed) setApplications((prev) => [removed, ...prev]);
+          alert(err?.message || "Failed to approve application. Please ensure you are logged in as admin.");
+        }
+      });
     }
   };
 
   const handleReject = (id: string) => {
     const reason = prompt("Reason for rejection (will be logged):");
     if (reason !== null) {
-      startTransition(async () => { await rejectFactoryApplication(id, reason); });
+      const removed = applications.find((a) => a.id === id);
+      setApplications((prev) => prev.filter((a) => a.id !== id));
+      startTransition(async () => {
+        try {
+          const res = await rejectFactoryApplication(id, reason);
+          if (res.success) {
+            router.refresh();
+          }
+        } catch (err: any) {
+          if (removed) setApplications((prev) => [removed, ...prev]);
+          alert(err?.message || "Failed to reject application. Please ensure you are logged in as admin.");
+        }
+      });
     }
   };
 
@@ -55,7 +86,7 @@ export function ApplicationReviewQueue({
       {/* Summary */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="badge badge-warning">{initialApplications.length} pending</span>
+          <span className="badge badge-warning">{applications.length} pending</span>
           <span className="text-sm text-[#6B7280]">applications awaiting review</span>
         </div>
         <div className="relative">

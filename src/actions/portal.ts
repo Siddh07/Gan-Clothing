@@ -108,6 +108,9 @@ export async function addFactoryProduct(data: {
       images: JSON.stringify([data.imageUrl]),
       isFeatured: Boolean(data.isFeatured),
     },
+    include: {
+      category: { select: { name: true } },
+    },
   });
 
   await logAuditAction({

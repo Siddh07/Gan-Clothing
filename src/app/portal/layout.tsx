@@ -30,12 +30,12 @@ export default async function PortalLayout({ children }: { children: React.React
     : "FR";
 
   return (
-    <div className="min-h-screen bg-[#F8F8F6] flex">
+    <div className="min-h-screen bg-[#F7F8FA] flex">
       {/* Sidebar */}
-      <aside className="w-60 shrink-0 bg-[#F8F8F6] border-r border-[#D1D5DB] flex flex-col fixed inset-y-0 left-0">
+      <aside className="w-60 shrink-0 bg-[#F7F8FA] border-r border-[#E4E4E7] flex flex-col fixed inset-y-0 left-0">
         {/* Brand zone */}
-        <div className="h-14 flex items-center gap-2.5 px-4 border-b border-[#D1D5DB] bg-white shrink-0">
-          <div className="w-6 h-6 bg-[#3B5BDB] rounded flex items-center justify-center shrink-0">
+        <div className="h-14 flex items-center gap-2.5 px-4 border-b border-[#E4E4E7] bg-white shrink-0">
+          <div className="w-6 h-6 bg-[#2D5BE3] rounded flex items-center justify-center shrink-0">
             <span className="text-white text-[10px] font-semibold">G</span>
           </div>
           <div className="min-w-0">
@@ -53,14 +53,12 @@ export default async function PortalLayout({ children }: { children: React.React
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
-          <div className="px-3 mb-1 text-[11px] font-medium text-[#9CA3AF] uppercase tracking-wider">
-            Facility
-          </div>
+          <div className="px-3 mb-1 text-[11px] font-medium text-[#71717A]">Facility</div>
           <PortalNav enterpriseSlug={enterprise?.slug} />
         </nav>
 
         {/* User zone */}
-        <div className="border-t border-[#D1D5DB] p-4 space-y-2 shrink-0">
+        <div className="border-t border-[#E4E4E7] p-4 space-y-2 shrink-0">
           {enterprise?.slug && (
             <Link
               href={`/directory/${enterprise.slug}`}
@@ -72,7 +70,7 @@ export default async function PortalLayout({ children }: { children: React.React
             </Link>
           )}
           <div className="flex items-center gap-2.5 pt-1">
-            <div className="w-7 h-7 rounded-full bg-[#3B5BDB] flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-full bg-[#2D5BE3] flex items-center justify-center shrink-0">
               <span className="text-white text-[11px] font-semibold">{userInitials}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -90,8 +88,7 @@ export default async function PortalLayout({ children }: { children: React.React
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 ml-60 min-w-0 overflow-y-auto">
+        <div className="flex-1 ml-60 min-w-0 overflow-y-auto">
         <main className="max-w-[1280px] w-full mx-auto px-6 py-6">{children}</main>
       </div>
     </div>

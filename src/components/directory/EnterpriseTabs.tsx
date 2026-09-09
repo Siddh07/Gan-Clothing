@@ -10,7 +10,6 @@ import {
   Send,
   ExternalLink,
   Award,
-  CheckCircle2,
 } from "lucide-react";
 import { QuoteModal } from "@/components/public/QuoteModal";
 
@@ -34,9 +33,7 @@ interface Product {
   targetGender?: string | null;
   description: string;
   images: string;
-  category: {
-    name: string;
-  };
+  category: { name: string };
 }
 
 interface EnterpriseTabsProps {
@@ -74,25 +71,42 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
   } | null>(null);
 
   const tabs = [
-    { id: "overview", label: "Mill Overview", icon: Building2 },
-    { id: "machinery", label: "Machinery & Technical Specifications", icon: Cpu },
+    { id: "overview", label: "Overview", icon: Building2 },
+    { id: "machinery", label: "Machinery & specs", icon: Cpu },
     {
       id: "certifications",
-      label: `Accreditations (${enterprise.certifications.length})`,
+      label: `Certifications (${enterprise.certifications.length})`,
       icon: ShieldCheck,
     },
     {
       id: "products",
-      label: `Export Catalog (${enterprise.products.length})`,
+      label: `Products (${enterprise.products.length})`,
       icon: Package,
     },
-    { id: "rfq", label: "Direct Sourcing RFQ", icon: Send },
+    { id: "rfq", label: "Request quote", icon: Send },
   ];
 
+  const getCertStatus = (expiryDate?: Date | string | null) => {
+    if (!expiryDate) return { label: "Active", type: "success" as const };
+    const daysLeft = Math.ceil(
+      (new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+    if (daysLeft < 0) return { label: "Expired", type: "error" as const };
+    if (daysLeft <= 30) return { label: `Expires in ${daysLeft}d`, type: "warning" as const };
+    return { label: "Active", type: "success" as const };
+  };
+
+  const badgeClass = (type: "success" | "warning" | "error") =>
+    type === "success"
+      ? "badge badge-success"
+      : type === "warning"
+      ? "badge badge-warning"
+      : "badge badge-error";
+
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="bg-white border border-[#E1E4E7] p-1 flex flex-wrap gap-1 font-mono text-xs">
+    <div className="space-y-0">
+      {/* Tab nav — underline style */}
+      <div className="bg-white border border-[#E4E4E7] border-b-0 px-1 flex overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -100,369 +114,368 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 min-w-[150px] py-2.5 px-3 rounded-none uppercase tracking-wider text-xs font-bold transition-colors flex items-center justify-center space-x-2 ${
+              className={`flex items-center gap-2 px-4 py-3.5 text-sm whitespace-nowrap border-b-2 transition-colors cursor-pointer ${
                 isActive
-                  ? "bg-[#0D0D0D] text-white"
-                  : "text-[#6B7280] hover:text-[#0D0D0D] hover:bg-[#F6F7F8]"
+                  ? "border-[#2D5BE3] text-[#2D5BE3] font-medium"
+                  : "border-transparent text-[#71717A] hover:text-[#18181B] hover:border-[#E4E4E7]"
               }`}
             >
-              <Icon className="w-3.5 h-3.5 shrink-0" />
+              <Icon className="w-4 h-4 shrink-0" />
               <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Tab 1: Company Overview */}
-      {activeTab === "overview" && (
-        <div className="bg-white border border-[#E1E4E7] p-8 space-y-8 animate-in fade-in duration-150">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
-              Operational Profile // Mill Overview
-            </div>
-            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1 mb-4">
-              About {enterprise.name}
-            </h3>
-            <p className="text-[#6B7280] leading-relaxed text-sm">
-              {enterprise.description}
-            </p>
-          </div>
+      {/* Tab panels */}
+      <div className="bg-white border border-[#E4E4E7]">
 
-          {/* Plant Vital Signs */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-[#F6F7F8] border border-[#E1E4E7] font-mono">
+        {/* Overview */}
+        {activeTab === "overview" && (
+          <div className="p-8 space-y-8">
             <div>
-              <span className="text-[10px] uppercase text-[#6B7280] block">Inception</span>
-              <span className="text-base font-bold text-[#0D0D0D]">
-                {enterprise.yearEstablished}
-              </span>
+              <h3 className="text-lg font-semibold text-[#18181B] mb-3">
+                About {enterprise.name}
+              </h3>
+              <p className="text-sm text-[#71717A] leading-relaxed max-w-3xl">
+                {enterprise.description}
+              </p>
             </div>
-            <div>
-              <span className="text-[10px] uppercase text-[#6B7280] block">Workforce Headcount</span>
-              <span className="text-base font-bold text-[#0D0D0D]">
-                {enterprise.employeeCount} Operatives
-              </span>
+
+            {/* Key stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#E4E4E7]">
+              {[
+                { label: "Year established", value: String(enterprise.yearEstablished) },
+                { label: "Workforce", value: `${enterprise.employeeCount} workers` },
+                {
+                  label: "Monthly capacity",
+                  value: `${enterprise.monthlyCapacityPcs.toLocaleString()} pcs`,
+                },
+                { label: "Accreditation", value: "GAN verified" },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-[#F7F8FA] px-5 py-4">
+                  <div className="text-xs text-[#71717A] mb-1">{stat.label}</div>
+                  <div className="text-base font-semibold text-[#18181B]">{stat.value}</div>
+                </div>
+              ))}
             </div>
+
+            {/* Export markets */}
             <div>
-              <span className="text-[10px] uppercase text-[#6B7280] block">Monthly Volume Capacity</span>
-              <span className="text-base font-bold text-[#1E3A52]">
-                {enterprise.monthlyCapacityPcs.toLocaleString()} pcs
-              </span>
+              <h4 className="text-sm font-medium text-[#18181B] mb-3">
+                Export destinations
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {enterprise.exportMarkets.split(",").map((market, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 text-sm bg-[#F7F8FA] text-[#18181B] border border-[#E4E4E7] rounded"
+                  >
+                    {market.trim()}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div>
-              <span className="text-[10px] uppercase text-[#6B7280] block">Accreditation</span>
-              <span className="text-base font-bold text-[#0D0D0D]">
-                GAN Verified
-              </span>
+
+            {/* Registration details */}
+            <div className="pt-6 border-t border-[#E4E4E7] grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-[#71717A]">Enterprise registration: </span>
+                <span className="font-medium text-[#18181B]">{enterprise.registrationNumber}</span>
+              </div>
+              <div>
+                <span className="text-[#71717A]">Inland Revenue PAN: </span>
+                <span className="font-medium text-[#18181B]">{enterprise.panNumber}</span>
+              </div>
+              {enterprise.contactEmail && (
+                <div>
+                  <span className="text-[#71717A]">Contact: </span>
+                  <a
+                    href={`mailto:${enterprise.contactEmail}`}
+                    className="text-[#2D5BE3] hover:underline"
+                  >
+                    {enterprise.contactEmail}
+                  </a>
+                </div>
+              )}
+              {enterprise.websiteUrl && (
+                <div>
+                  <span className="text-[#71717A]">Website: </span>
+                  <a
+                    href={enterprise.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#2D5BE3] hover:underline inline-flex items-center gap-1"
+                  >
+                    {enterprise.websiteUrl}
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Global Markets */}
-          <div>
-            <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D0D0D] mb-3">
-              Export Trading Destinations
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {enterprise.exportMarkets.split(",").map((market, idx) => (
-                <span
-                  key={idx}
-                  className="px-2.5 py-1 text-xs font-mono bg-[#F6F7F8] text-[#0D0D0D] border border-[#E1E4E7]"
+        {/* Machinery & specs */}
+        {activeTab === "machinery" && (
+          <div className="p-8 space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-[#18181B] mb-1">
+                Production machinery &amp; technical capabilities
+              </h3>
+              <p className="text-sm text-[#71717A]">
+                Audited production infrastructure deployed at the {enterprise.city} manufacturing plant.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                {
+                  num: "01",
+                  title: "Pattern & cutting suite",
+                  items: [
+                    "CAD digitized pattern grading & marker optimization",
+                    "Automated fabric spreading & high-ply knife cutting",
+                    "End-to-end fabric shrinkage & torque testing baths",
+                  ],
+                },
+                {
+                  num: "02",
+                  title: "Assembly & knitting lines",
+                  items: [
+                    "Direct-drive programmable lockstitch & 5-thread overlockers",
+                    "Computerized multi-gauge Shima Seiki / Stoll flatbed knitters",
+                    "Laser contour cutting & ultrasonic seam-bonding lines",
+                  ],
+                },
+                {
+                  num: "03",
+                  title: "Finishing & quality assurance",
+                  items: [
+                    "Suction vacuum pressing boards & garment steamers",
+                    "Hasima dual-sensor conveyor needle detection stations",
+                    "AQL 1.5 / 2.5 standard pre-dispatch inspection protocols",
+                  ],
+                },
+              ].map((suite) => (
+                <div
+                  key={suite.num}
+                  className="p-5 bg-[#F7F8FA] border border-[#E4E4E7] rounded-md space-y-3"
                 >
-                  {market.trim()}
-                </span>
+                  <div className="text-xs text-[#2D5BE3] font-medium">Suite {suite.num}</div>
+                  <h4 className="text-sm font-semibold text-[#18181B]">{suite.title}</h4>
+                  <ul className="space-y-1.5">
+                    {suite.items.map((item, i) => (
+                      <li key={i} className="text-sm text-[#71717A] flex items-start gap-2">
+                        <span className="text-[#E4E4E7] mt-0.5">—</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
           </div>
+        )}
 
-          {/* Statutory Registration Details */}
-          <div className="pt-6 border-t border-[#E1E4E7] grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs text-[#6B7280]">
+        {/* Certifications */}
+        {activeTab === "certifications" && (
+          <div className="p-8 space-y-6">
             <div>
-              <strong className="text-[#0D0D0D]">Enterprise Reg ID:</strong> {enterprise.registrationNumber}
-            </div>
-            <div>
-              <strong className="text-[#0D0D0D]">Inland Revenue PAN:</strong> {enterprise.panNumber}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 2: Machinery & Production Specs */}
-      {activeTab === "machinery" && (
-        <div className="bg-white border border-[#E1E4E7] p-8 space-y-8 animate-in fade-in duration-150">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
-              Facility Equipment Telemetry
-            </div>
-            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1 mb-2">
-              Production Machinery & Technical Capabilities
-            </h3>
-            <p className="text-[#6B7280] text-xs font-mono">
-              Audited production infrastructure deployed at the {enterprise.city} manufacturing plant.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-5 bg-[#F6F7F8] border border-[#E1E4E7] space-y-3 font-mono">
-              <div className="text-xs font-bold text-[#1E3A52]">
-                [SUITE 01]
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
-                Pattern & Cutting Suite
-              </h4>
-              <ul className="text-xs text-[#6B7280] space-y-1.5 font-sans">
-                <li>• CAD Digitized Pattern Grading & Marker Optimization</li>
-                <li>• Automated Fabric Spreading & High-Ply Knife Cutting</li>
-                <li>• End-to-end fabric shrinkage & torque testing baths</li>
-              </ul>
-            </div>
-
-            <div className="p-5 bg-[#F6F7F8] border border-[#E1E4E7] space-y-3 font-mono">
-              <div className="text-xs font-bold text-[#1E3A52]">
-                [SUITE 02]
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
-                Assembly & Knitting Lines
-              </h4>
-              <ul className="text-xs text-[#6B7280] space-y-1.5 font-sans">
-                <li>• Direct-drive programmable lockstitch & 5-thread overlockers</li>
-                <li>• Computerized multi-gauge Shima Seiki / Stoll flatbed knitters</li>
-                <li>• Laser contour cutting & ultrasonic seam-bonding lines</li>
-              </ul>
-            </div>
-
-            <div className="p-5 bg-[#F6F7F8] border border-[#E1E4E7] space-y-3 font-mono">
-              <div className="text-xs font-bold text-[#1E3A52]">
-                [SUITE 03]
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
-                Finishing & Quality Assurance
-              </h4>
-              <ul className="text-xs text-[#6B7280] space-y-1.5 font-sans">
-                <li>• Suction vacuum pressing boards & garment steamers</li>
-                <li>• Hasima dual-sensor conveyor needle detection stations</li>
-                <li>• AQL 1.5 / 2.5 standard pre-dispatch inspection protocols</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Certifications */}
-      {activeTab === "certifications" && (
-        <div className="bg-white border border-[#E1E4E7] p-8 space-y-6 animate-in fade-in duration-150">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
-              Audited Standards & Compliance Register
-            </div>
-            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1 mb-2">
-              Accreditations & Social Audit Records
-            </h3>
-            <p className="text-[#6B7280] text-xs font-mono">
-              Validated against international accreditation databases for environmental safety and fair labor standards.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {enterprise.certifications.map((cert) => {
-              const now = new Date();
-              const expiry = cert.expiryDate ? new Date(cert.expiryDate) : null;
-              const daysRemaining = expiry ? Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
-
-              const isExpired = daysRemaining !== null && daysRemaining <= 0;
-              const isExpiringSoon = daysRemaining !== null && daysRemaining > 0 && daysRemaining <= 30;
-              const isActive = !isExpired && !isExpiringSoon;
-
-              return (
-                <div
-                  key={cert.id}
-                  className="p-4 border border-[#E1E4E7] bg-[#F6F7F8] flex items-start justify-between gap-4 font-mono text-xs"
-                >
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-white border border-[#E1E4E7] text-[#0D0D0D]">
-                      <Award className="w-5 h-5 text-[#1E3A52]" />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-[#0D0D0D] uppercase text-xs">
-                        {cert.name}
-                      </h4>
-                      <p className="text-[11px] text-[#6B7280]">
-                        Issuer: <strong className="text-[#0D0D0D]">{cert.issuer}</strong>
-                        {cert.certificateNumber && ` // Cert #${cert.certificateNumber}`}
-                      </p>
-
-                      {cert.expiryDate && (
-                        <p className="text-[10px] text-[#6B7280]">
-                          Validity: {cert.issueDate ? `${new Date(cert.issueDate).toLocaleDateString()} — ` : ""}
-                          {new Date(cert.expiryDate).toLocaleDateString()}
-                        </p>
-                      )}
-
-                      {/* Status Tag */}
-                      <div className="pt-1">
-                        {isActive && (
-                          <span className="tag-approved text-[10px]">
-                            <CheckCircle2 className="w-3 h-3 inline mr-1" />
-                            AUDITED & ACTIVE
-                          </span>
-                        )}
-                        {isExpiringSoon && (
-                          <span className="tag-pending text-[10px]">
-                            RENEWAL PROTOCOL ({daysRemaining} DAYS REMAINING)
-                          </span>
-                        )}
-                        {isExpired && (
-                          <span className="tag-neutral text-[10px] text-red-600 border-red-200">
-                            EXPIRED // AUDIT REQUIRED
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {cert.certificateFileUrl && (
-                    <a
-                      href={cert.certificateFileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 border border-[#E1E4E7] bg-white text-[#6B7280] hover:text-[#0D0D0D] hover:border-[#0D0D0D] transition-colors"
-                      title="View Certificate PDF"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Tab 4: Product Catalog */}
-      {activeTab === "products" && (
-        <div className="bg-white border border-[#E1E4E7] p-8 space-y-6 animate-in fade-in duration-150">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
-              Sample Registry // Production Runs
-            </div>
-            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1">
-              Specimens Manufactured by {enterprise.name}
-            </h3>
-            <p className="text-[#6B7280] text-xs font-mono">
-              Export specimens configured for tech-pack replication and bulk contract cutting.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {enterprise.products.map((product) => {
-              let images: string[] = [];
-              try {
-                images = JSON.parse(product.images);
-              } catch {
-                images = [product.images];
-              }
-              const displayImage = images[0] || "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600";
-
-              return (
-                <div
-                  key={product.id}
-                  className="border border-[#E1E4E7] bg-white hover:border-[#0D0D0D] transition-colors flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="relative h-44 w-full bg-[#F6F7F8] border-b border-[#E1E4E7]">
-                      <img
-                        src={displayImage}
-                        alt={product.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-2 left-2 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider font-bold bg-[#0D0D0D] text-white">
-                        {product.category.name}
-                      </span>
-                    </div>
-
-                    <div className="p-4 space-y-2">
-                      <Link href={`/products/${product.slug}`} className="block">
-                        <h4 className="font-mono text-xs font-bold uppercase text-[#0D0D0D] hover:text-[#1E3A52] transition-colors truncate">
-                          {product.title}
-                        </h4>
-                      </Link>
-
-                      <div className="font-mono text-[11px] text-[#6B7280] space-y-1">
-                        <div>
-                          <strong>FIBER:</strong> {product.fabricType}
-                        </div>
-                        {product.gsmWeight && (
-                          <div>
-                            <strong>WEIGHT:</strong> {product.gsmWeight} GSM
-                          </div>
-                        )}
-                        <div>
-                          <strong>MOQ:</strong> {product.moq.toLocaleString()} PCS
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 pt-0 flex items-center justify-between gap-2 border-t border-[#E1E4E7] mt-2">
-                    <Link
-                      href={`/products/${product.slug}`}
-                      className="font-mono text-[10px] uppercase tracking-wider font-bold text-[#6B7280] hover:text-[#0D0D0D]"
-                    >
-                      Specifications
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setSelectedProductForQuote({
-                          id: product.id,
-                          title: product.title,
-                          moq: product.moq,
-                        });
-                        setIsQuoteModalOpen(true);
-                      }}
-                      className="px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
-                    >
-                      Quote Specimen
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Tab 5: Direct RFQ section */}
-      {activeTab === "rfq" && (
-        <div id="rfq" className="bg-white border border-[#E1E4E7] p-8 animate-in fade-in duration-150">
-          <div className="max-w-xl mx-auto space-y-6 text-center">
-            <div className="w-12 h-12 border border-[#E1E4E7] text-[#0D0D0D] flex items-center justify-center mx-auto">
-              <Send className="w-5 h-5 text-[#1E3A52]" />
-            </div>
-            <div className="space-y-1 font-mono">
-              <div className="text-[10px] uppercase tracking-widest text-[#6B7280]">
-                Contract Manufacturing Requisition
-              </div>
-              <h3 className="text-xl font-bold uppercase text-[#0D0D0D]">
-                Submit Commercial RFQ to {enterprise.name}
+              <h3 className="text-lg font-semibold text-[#18181B] mb-1">
+                Certifications &amp; compliance records
               </h3>
+              <p className="text-sm text-[#71717A]">
+                Validated against international accreditation databases for environmental safety and fair labor standards.
+              </p>
             </div>
-            <p className="text-[#6B7280] text-xs leading-relaxed font-sans">
-              Your inquiry will be logged with the Garment Association of Nepal trade desk and transmitted directly to the export merchandising team of {enterprise.name}.
-            </p>
-            <div className="pt-2">
+
+            {enterprise.certifications.length === 0 ? (
+              <div className="py-10 text-center text-sm text-[#71717A]">
+                No certifications on record.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {enterprise.certifications.map((cert) => {
+                  const status = getCertStatus(cert.expiryDate);
+                  return (
+                    <div
+                      key={cert.id}
+                      className="p-4 border border-[#E4E4E7] bg-[#F7F8FA] rounded-md flex items-start justify-between gap-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded bg-[#EFF4FF] flex items-center justify-center shrink-0">
+                          <Award className="w-4 h-4 text-[#2D5BE3]" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-sm font-medium text-[#18181B]">
+                            {cert.name}
+                          </div>
+                          <div className="text-xs text-[#71717A]">
+                            Issued by {cert.issuer}
+                            {cert.certificateNumber && ` — ${cert.certificateNumber}`}
+                          </div>
+                          {cert.expiryDate && (
+                            <div className="text-xs text-[#71717A]">
+                              {cert.issueDate
+                                ? `${new Date(cert.issueDate as string).toLocaleDateString("en-US", { month: "short", year: "numeric" })} – `
+                                : ""}
+                              {new Date(cert.expiryDate as string).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </div>
+                          )}
+                          <span className={badgeClass(status.type)}>{status.label}</span>
+                        </div>
+                      </div>
+                      {cert.certificateFileUrl && (
+                        <a
+                          href={cert.certificateFileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-[#2D5BE3] hover:underline inline-flex items-center gap-1 shrink-0"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          PDF
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Products */}
+        {activeTab === "products" && (
+          <div className="p-8 space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-[#18181B] mb-1">
+                Products from {enterprise.name}
+              </h3>
+              <p className="text-sm text-[#71717A]">
+                Garment samples configured for tech-pack replication and bulk contract cutting.
+              </p>
+            </div>
+
+            {enterprise.products.length === 0 ? (
+              <div className="py-10 text-center text-sm text-[#71717A]">
+                No products listed yet.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {enterprise.products.map((product) => {
+                  let images: string[] = [];
+                  try {
+                    images = JSON.parse(product.images);
+                  } catch {
+                    images = [product.images];
+                  }
+                  const displayImage =
+                    images[0] ||
+                    "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600";
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="border border-[#E4E4E7] hover:border-[#2D5BE3] bg-white rounded-md overflow-hidden flex flex-col transition-colors"
+                    >
+                      <div className="relative h-44 bg-[#F7F8FA]">
+                        <img
+                          src={displayImage}
+                          alt={product.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-2 left-2 badge badge-neutral text-xs">
+                          {product.category.name}
+                        </span>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col">
+                        <Link href={`/products/${product.slug}`}>
+                          <h4 className="text-sm font-semibold text-[#18181B] hover:text-[#2D5BE3] line-clamp-1 transition-colors mb-2">
+                            {product.title}
+                          </h4>
+                        </Link>
+
+                        <div className="text-xs text-[#71717A] space-y-0.5 mb-3 flex-1">
+                          <div>
+                            <span className="font-medium">Fabric: </span>
+                            {product.fabricType}
+                          </div>
+                          {product.gsmWeight && (
+                            <div>
+                              <span className="font-medium">Weight: </span>
+                              {product.gsmWeight} GSM
+                            </div>
+                          )}
+                          <div>
+                            <span className="font-medium">MOQ: </span>
+                            {product.moq.toLocaleString()} pcs
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#E4E4E7]">
+                          <Link
+                            href={`/products/${product.slug}`}
+                            className="text-sm text-[#2D5BE3] hover:underline"
+                          >
+                            View specs
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedProductForQuote({
+                                id: product.id,
+                                title: product.title,
+                                moq: product.moq,
+                              });
+                              setIsQuoteModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors cursor-pointer"
+                          >
+                            Request quote
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* RFQ tab */}
+        {activeTab === "rfq" && (
+          <div id="rfq" className="p-8">
+            <div className="max-w-lg mx-auto text-center space-y-4 py-8">
+              <div className="w-12 h-12 rounded-full bg-[#EFF4FF] flex items-center justify-center mx-auto">
+                <Send className="w-5 h-5 text-[#2D5BE3]" />
+              </div>
+              <h3 className="text-lg font-semibold text-[#18181B]">
+                Submit a sourcing request to {enterprise.name}
+              </h3>
+              <p className="text-sm text-[#71717A] leading-relaxed">
+                Your inquiry will be logged with the GAN trade desk and transmitted directly to the export merchandising team at {enterprise.name}.
+              </p>
               <button
                 onClick={() => {
                   setSelectedProductForQuote(null);
                   setIsQuoteModalOpen(true);
                 }}
-                className="px-6 py-3 font-mono text-xs uppercase tracking-widest font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors cursor-pointer"
               >
-                Launch Factory Quotation Form
+                <Send className="w-4 h-4" />
+                Open quote form
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Quote Modal */}
       <QuoteModal
         isOpen={isQuoteModalOpen}
         onClose={() => {

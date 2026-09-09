@@ -159,44 +159,44 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
   const availableCertifications = allCertifications.map((c) => c.name).sort();
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
+    <div className="flex min-h-screen flex-col bg-[#F7F8FA] text-[#18181B]">
       <Navbar />
 
       <main className="flex-1 pb-20">
-        {/* Directory Masthead Strip */}
-        <div className="bg-[#0D0D0D] text-white py-10 border-b border-[#0D0D0D]">
+        {/* Page header */}
+        <div className="bg-white border-b border-[#E4E4E7] py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-2">
-              <div className="inline-flex items-center space-x-2 font-mono text-[10px] uppercase tracking-widest text-[#E1E4E7]">
-                <ShieldCheck className="w-3.5 h-3.5 text-white" />
-                <span>B2B Exporter Accreditation Ledger</span>
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-4 h-4 text-[#2D5BE3]" />
+                <span className="text-sm text-[#71717A]">GAN accreditation registry</span>
               </div>
-              <h1 className="font-mono text-2xl sm:text-3xl font-bold uppercase tracking-tight">
-                Verified Garment Manufacturers of Nepal
+              <h1 className="text-2xl font-semibold text-[#18181B] mb-2">
+                Verified garment manufacturers of Nepal
               </h1>
-              <p className="text-xs text-[#E1E4E7] leading-relaxed font-sans">
+              <p className="text-sm text-[#71717A] leading-relaxed">
                 Accredited export mills verified for WRAP, OEKO-TEX, and GOTS standards. Filter by monthly production volume, apparel specialization, and bilateral export destinations.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Directory Controls & Main Layout */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          {/* Top Search & Global RFQ Trigger */}
+        {/* Controls + layout */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          {/* Search + RFQ */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6">
             <DirectorySearch />
             <Link
               href="/rfq"
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-none text-xs font-mono uppercase tracking-wider font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] border border-[#0D0D0D] transition-colors shrink-0"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors shrink-0"
             >
-              Submit Custom Commercial RFQ
+              Submit sourcing RFQ
             </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-            {/* Left Faceted Filters Sidebar */}
-            <aside className="lg:col-span-1 lg:sticky lg:top-28">
+            {/* Filters sidebar */}
+            <aside className="lg:col-span-1 lg:sticky lg:top-24">
               <DirectoryFilters
                 categories={categories}
                 availableCertifications={availableCertifications}
@@ -204,51 +204,50 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
               />
             </aside>
 
-            {/* Right Factory Results Section */}
-            <div className="lg:col-span-3 space-y-6">
+            {/* Results */}
+            <div className="lg:col-span-3 space-y-4">
               <DirectoryToolbar totalCount={totalCount} />
 
               {factories.length === 0 ? (
-                <div className="bg-white rounded-none border border-[#E1E4E7] p-12 text-center space-y-4">
-                  <div className="w-12 h-12 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
-                    <Building2 className="w-6 h-6" />
+                <div className="bg-white border border-[#E4E4E7] rounded-md p-12 text-center">
+                  <div className="w-10 h-10 rounded-full bg-[#F7F8FA] flex items-center justify-center mx-auto mb-3">
+                    <Building2 className="w-5 h-5 text-[#71717A]" />
                   </div>
-                  <h3 className="font-mono text-sm uppercase font-bold tracking-wider text-[#0D0D0D]">
-                    No Matching Exporters Indexed
+                  <h3 className="text-sm font-semibold text-[#18181B] mb-1">
+                    No matching exporters found
                   </h3>
-                  <p className="text-xs text-[#6B7280] max-w-md mx-auto leading-relaxed">
-                    No manufacturers match your active filter parameters. Clear selected certifications, increase the MOQ threshold, or route an inquiry directly to the secretariat trade desk.
+                  <p className="text-sm text-[#71717A] max-w-md mx-auto leading-relaxed mb-4">
+                    No manufacturers match your current filters. Try clearing certifications, adjusting the MOQ range, or submitting a direct inquiry to the secretariat.
                   </p>
-                  <div className="pt-2 flex justify-center space-x-3">
+                  <div className="flex justify-center gap-3">
                     <Link
                       href="/directory"
-                      className="px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#0D0D0D] border border-[#E1E4E7] hover:bg-[#F6F7F8] transition-colors"
+                      className="px-4 py-2 text-sm text-[#71717A] border border-[#E4E4E7] rounded hover:bg-[#F7F8FA] transition-colors"
                     >
-                      Clear All Filters
+                      Clear filters
                     </Link>
                     <Link
                       href="/rfq"
-                      className="px-4 py-2 text-xs font-mono uppercase tracking-wider text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors"
                     >
-                      Post Trade Desk RFQ
+                      Submit RFQ
                     </Link>
                   </div>
                 </div>
               ) : viewMode === "list" ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {factories.map((factory) => (
                     <FactoryCard key={factory.id} factory={factory} viewMode="list" />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {factories.map((factory) => (
                     <FactoryCard key={factory.id} factory={factory} viewMode="grid" />
                   ))}
                 </div>
               )}
 
-              {/* Pagination Controls */}
               <PaginationControls
                 currentPage={page}
                 totalPages={totalPages}

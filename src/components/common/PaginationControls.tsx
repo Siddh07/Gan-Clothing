@@ -40,7 +40,6 @@ export function PaginationControls({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalCount);
 
-  // Generate visible page numbers
   const pages: number[] = [];
   const maxButtons = 5;
   let startPage = Math.max(1, currentPage - 2);
@@ -48,45 +47,43 @@ export function PaginationControls({
   if (endPage - startPage < maxButtons - 1) {
     startPage = Math.max(1, endPage - maxButtons + 1);
   }
-
   for (let i = startPage; i <= endPage; i++) {
     pages.push(i);
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#E1E4E7] font-mono text-xs">
-      <div className="text-[#6B7280]">
-        INDEXED: <span className="font-bold text-[#0D0D0D]">{startItem}</span> TO{" "}
-        <span className="font-bold text-[#0D0D0D]">{endItem}</span> // TOTAL:{" "}
-        <span className="font-bold text-[#0D0D0D]">{totalCount}</span>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#E4E4E7]">
+      <div className="text-sm text-[#71717A]">
+        Showing{" "}
+        <span className="font-medium text-[#18181B]">{startItem}–{endItem}</span>{" "}
+        of{" "}
+        <span className="font-medium text-[#18181B]">{totalCount}</span>
       </div>
 
-      <div className="flex items-center space-x-1">
-        {/* Previous Button */}
+      <div className="flex items-center gap-1">
         {currentPage > 1 ? (
           <Link
             href={buildPageUrl(currentPage - 1)}
-            className="p-2 border border-[#E1E4E7] bg-white text-[#0D0D0D] hover:bg-[#F6F7F8] transition-colors"
-            title="Previous Page"
+            className="p-2 border border-[#E4E4E7] bg-white text-[#18181B] hover:bg-[#F7F8FA] rounded transition-colors"
+            title="Previous page"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-4 h-4" />
           </Link>
         ) : (
-          <span className="p-2 border border-[#E1E4E7] bg-[#F6F7F8] text-[#6B7280] cursor-not-allowed">
-            <ChevronLeft className="w-3.5 h-3.5" />
+          <span className="p-2 border border-[#E4E4E7] bg-[#F7F8FA] text-[#71717A] rounded cursor-not-allowed">
+            <ChevronLeft className="w-4 h-4" />
           </span>
         )}
 
-        {/* Numbered Page Buttons */}
         {startPage > 1 && (
           <>
             <Link
               href={buildPageUrl(1)}
-              className="px-3 py-1.5 border border-[#E1E4E7] bg-white text-xs text-[#0D0D0D] hover:bg-[#F6F7F8]"
+              className="px-3 py-1.5 border border-[#E4E4E7] bg-white text-sm text-[#18181B] hover:bg-[#F7F8FA] rounded transition-colors"
             >
               1
             </Link>
-            {startPage > 2 && <span className="px-1 text-[#6B7280]">..</span>}
+            {startPage > 2 && <span className="px-1 text-[#71717A] text-sm">…</span>}
           </>
         )}
 
@@ -96,10 +93,10 @@ export function PaginationControls({
             <Link
               key={p}
               href={buildPageUrl(p)}
-              className={`px-3 py-1.5 text-xs font-bold transition-colors ${
+              className={`px-3 py-1.5 text-sm rounded border transition-colors ${
                 isCurrent
-                  ? "bg-[#0D0D0D] text-white border border-[#0D0D0D]"
-                  : "bg-white border border-[#E1E4E7] text-[#0D0D0D] hover:bg-[#F6F7F8]"
+                  ? "bg-[#2D5BE3] text-white border-[#2D5BE3] font-medium"
+                  : "bg-white border-[#E4E4E7] text-[#18181B] hover:bg-[#F7F8FA]"
               }`}
             >
               {p}
@@ -109,28 +106,29 @@ export function PaginationControls({
 
         {endPage < totalPages && (
           <>
-            {endPage < totalPages - 1 && <span className="px-1 text-[#6B7280]">..</span>}
+            {endPage < totalPages - 1 && (
+              <span className="px-1 text-[#71717A] text-sm">…</span>
+            )}
             <Link
               href={buildPageUrl(totalPages)}
-              className="px-3 py-1.5 border border-[#E1E4E7] bg-white text-xs text-[#0D0D0D] hover:bg-[#F6F7F8]"
+              className="px-3 py-1.5 border border-[#E4E4E7] bg-white text-sm text-[#18181B] hover:bg-[#F7F8FA] rounded transition-colors"
             >
               {totalPages}
             </Link>
           </>
         )}
 
-        {/* Next Button */}
         {currentPage < totalPages ? (
           <Link
             href={buildPageUrl(currentPage + 1)}
-            className="p-2 border border-[#E1E4E7] bg-white text-[#0D0D0D] hover:bg-[#F6F7F8] transition-colors"
-            title="Next Page"
+            className="p-2 border border-[#E4E4E7] bg-white text-[#18181B] hover:bg-[#F7F8FA] rounded transition-colors"
+            title="Next page"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-4 h-4" />
           </Link>
         ) : (
-          <span className="p-2 border border-[#E1E4E7] bg-[#F6F7F8] text-[#6B7280] cursor-not-allowed">
-            <ChevronRight className="w-3.5 h-3.5" />
+          <span className="p-2 border border-[#E4E4E7] bg-[#F7F8FA] text-[#71717A] rounded cursor-not-allowed">
+            <ChevronRight className="w-4 h-4" />
           </span>
         )}
       </div>

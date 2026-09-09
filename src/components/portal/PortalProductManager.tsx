@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { addFactoryProduct, deleteFactoryProduct } from "@/actions/portal";
-import { Plus, Trash2, ExternalLink, Package, X, Loader2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Package, X, Loader2, AlertCircle } from "lucide-react";
 
 interface Category {
   id: string;
@@ -30,8 +31,15 @@ export function PortalProductManager({
   initialProducts: Product[];
   categories: Category[];
 }) {
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -47,16 +55,46 @@ export function PortalProductManager({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     startTransition(async () => {
-      await addFactoryProduct(formData);
-      setIsCreateOpen(false);
+      try {
+        const res = await addFactoryProduct(formData);
+        if (res.success && res.product) {
+          setProducts((prev) => [res.product as unknown as Product, ...prev]);
+          setIsCreateOpen(false);
+          setFormData({
+            title: "",
+            categoryId: categories[0]?.id || "",
+            fabricType: "100% Combed Cotton / Himalayan Wool",
+            gsmWeight: 220,
+            moq: 300,
+            targetGender: "Unisex",
+            description: "Export-grade sample garment made with certified Nepalese craftsmanship.",
+            imageUrl: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800",
+            isFeatured: true,
+          });
+          router.refresh();
+        } else {
+          setFormError("Failed to enroll sample. Please check your inputs.");
+        }
+      } catch (err: any) {
+        setFormError(err?.message || "Failed to create product. Check that your account is linked to a factory.");
+      }
     });
   };
 
   const handleDelete = (id: string, title: string) => {
     if (confirm(`Remove "${title}" from your product showroom?`)) {
       startTransition(async () => {
-        await deleteFactoryProduct(id);
+        try {
+          const res = await deleteFactoryProduct(id);
+          if (res.success) {
+            setProducts((prev) => prev.filter((p) => p.id !== id));
+            router.refresh();
+          }
+        } catch (err: any) {
+          alert(err?.message || "Failed to remove product.");
+        }
       });
     }
   };
@@ -65,7 +103,7 @@ export function PortalProductManager({
     <div className="space-y-4">
       <div className="flex justify-between items-center bg-white border border-[#E1E4E7] p-3">
         <p className="text-xs font-mono text-[#6B7280]">
-          EXHIBITION REGISTER: {initialProducts.length} SAMPLE SPECIMEN{initialProducts.length === 1 ? "" : "S"}
+          EXHIBITION REGISTER: {products.length} SAMPLE SPECIMEN{products.length === 1 ? "" : "S"}
         </p>
         <button
           onClick={() => setIsCreateOpen(true)}
@@ -76,7 +114,7 @@ export function PortalProductManager({
         </button>
       </div>
 
-      {initialProducts.length === 0 ? (
+      {products.length === 0 ? (
         <div className="bg-white border border-[#E1E4E7] p-12 text-center space-y-3">
           <div className="w-10 h-10 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
             <Package className="w-5 h-5" />
@@ -102,12 +140,12 @@ export function PortalProductManager({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E1E4E7] font-mono text-xs">
-                {initialProducts.map((prod) => {
+                {products.map((prod) => {
                   let img = "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=200";
                   try {
                     const parsed = JSON.parse(prod.images);
                     if (Array.isArray(parsed) && parsed[0]) img = parsed[0];
-                  } catch {}
+                  } catch { }
 
                   return (
                     <tr key={prod.id} className="hover:bg-[#F6F7F8] transition-colors">
@@ -192,6 +230,12 @@ export function PortalProductManager({
             </div>
 
             <form onSubmit={handleCreate} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {formError && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded text-xs text-[#DC2626] flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
                   Garment Style Title *

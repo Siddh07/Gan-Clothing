@@ -22,23 +22,23 @@ export default async function RFQPage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
+    <div className="flex min-h-screen flex-col bg-[#F7F8FA] text-[#18181B]">
       <Navbar />
 
       <main className="flex-1 pb-20">
-        {/* Banner */}
-        <div className="bg-[#0D0D0D] text-white py-10 border-b border-[#0D0D0D]">
+        {/* Page header */}
+        <div className="bg-white border-b border-[#E4E4E7] py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-2">
-              <div className="inline-flex items-center space-x-2 font-mono text-[10px] uppercase tracking-widest text-[#E1E4E7]">
-                <Globe2 className="w-3.5 h-3.5 text-white" />
-                <span>Centralized Multi-Item Sourcing Desk</span>
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <Globe2 className="w-4 h-4 text-[#2D5BE3]" />
+                <span className="text-sm text-[#71717A]">Multi-item sourcing desk</span>
               </div>
-              <h1 className="font-mono text-2xl sm:text-3xl font-bold uppercase tracking-tight">
-                Unified Request for Quotation (B2B RFQ)
+              <h1 className="text-2xl font-semibold text-[#18181B] mb-2">
+                Submit a sourcing request
               </h1>
-              <p className="text-xs text-[#E1E4E7] leading-relaxed font-sans">
-                Source directly from accredited Nepalese manufacturers. Review line items, configure bespoke technical specifications, and submit for direct FOB/CIF quotations.
+              <p className="text-sm text-[#71717A] leading-relaxed">
+                Source directly from accredited Nepalese manufacturers. Configure line items and specifications, then submit for direct FOB/CIF quotations from the GAN trade desk.
               </p>
             </div>
           </div>

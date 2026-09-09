@@ -12,12 +12,10 @@ export function DirectorySearch() {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [isPending, startTransition] = useTransition();
 
-  // Sync state if URL changes externally
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
   }, [searchParams]);
 
-  // Debounce updating the URL search param
   useEffect(() => {
     const timer = setTimeout(() => {
       const currentParam = searchParams.get("search") || "";
@@ -29,13 +27,11 @@ export function DirectorySearch() {
           params.delete("search");
         }
         params.delete("page");
-
         startTransition(() => {
           router.push(`${pathname}?${params.toString()}`, { scroll: false });
         });
       }
     }, 350);
-
     return () => clearTimeout(timer);
   }, [searchTerm, pathname, router, searchParams]);
 
@@ -50,9 +46,9 @@ export function DirectorySearch() {
 
   return (
     <div className="relative w-full max-w-lg">
-      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6B7280]">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#71717A]">
         {isPending ? (
-          <Loader2 className="w-4 h-4 animate-spin text-[#1E3A52]" />
+          <Loader2 className="w-4 h-4 animate-spin text-[#2D5BE3]" />
         ) : (
           <Search className="w-4 h-4" />
         )}
@@ -61,13 +57,13 @@ export function DirectorySearch() {
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="SEARCH BY MILL NAME, CITY, FIBER, OR SPECIALIZATION..."
-        className="w-full pl-10 pr-9 py-2.5 rounded-none border border-[#E1E4E7] bg-white text-xs font-mono text-[#0D0D0D] placeholder:text-[#6B7280] focus:outline-none focus:border-[#0D0D0D]"
+        placeholder="Search by mill name, city, fiber, or specialization..."
+        className="w-full pl-9 pr-9 py-2.5 rounded border border-[#E4E4E7] bg-white text-sm text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:border-[#2D5BE3] focus:ring-2 focus:ring-[#EFF4FF] transition"
       />
       {searchTerm && (
         <button
           onClick={handleClear}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#6B7280] hover:text-[#0D0D0D]"
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#71717A] hover:text-[#18181B] cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>

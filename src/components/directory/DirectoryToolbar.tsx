@@ -26,36 +26,37 @@ export function DirectoryToolbar({ totalCount }: DirectoryToolbarProps) {
   };
 
   return (
-    <div className="bg-white border border-[#E1E4E7] px-4 py-3 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
-      <div className="text-[#6B7280]">
-        INDEXED: <strong className="text-[#0D0D0D]">{totalCount}</strong> ACCREDITED EXPORTER{totalCount === 1 ? "" : "S"}
+    <div className="bg-white border border-[#E4E4E7] px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div className="text-sm text-[#71717A]">
+        <span className="font-medium text-[#18181B]">{totalCount}</span>{" "}
+        accredited {totalCount === 1 ? "exporter" : "exporters"} found
       </div>
 
-      <div className="flex items-center space-x-3">
-        {/* Sort Select */}
-        <div className="flex items-center space-x-1.5 text-[#6B7280]">
-          <span className="hidden sm:inline uppercase text-[10px] tracking-wider">Order:</span>
+      <div className="flex items-center gap-3">
+        {/* Sort */}
+        <div className="flex items-center gap-2 text-sm text-[#71717A]">
+          <span className="hidden sm:inline">Sort by</span>
           <select
             value={currentSort}
             onChange={(e) => setParam("sort", e.target.value)}
-            className="px-2.5 py-1.5 rounded-none border border-[#E1E4E7] text-xs font-mono text-[#0D0D0D] bg-white focus:outline-none focus:border-[#0D0D0D]"
+            className="px-2.5 py-1.5 rounded border border-[#E4E4E7] text-sm text-[#18181B] bg-white focus:outline-none focus:border-[#2D5BE3] focus:ring-2 focus:ring-[#EFF4FF] transition"
           >
-            <option value="capacity-desc">Highest Monthly Capacity</option>
-            <option value="capacity-asc">Lowest Monthly Capacity</option>
-            <option value="established-desc">Earliest Established</option>
-            <option value="name-asc">Alphabetical (A-Z)</option>
+            <option value="capacity-desc">Highest capacity</option>
+            <option value="capacity-asc">Lowest capacity</option>
+            <option value="established-desc">Earliest established</option>
+            <option value="name-asc">Alphabetical (A–Z)</option>
           </select>
         </div>
 
-        {/* View Switcher */}
-        <div className="flex items-center bg-[#F6F7F8] p-0.5 border border-[#E1E4E7]">
+        {/* View switcher */}
+        <div className="flex items-center bg-[#F7F8FA] p-0.5 border border-[#E4E4E7] rounded">
           <button
             onClick={() => setParam("view", "grid")}
             aria-label="Grid view"
-            className={`p-1.5 transition-colors ${
+            className={`p-1.5 rounded transition-colors cursor-pointer ${
               currentView === "grid"
-                ? "bg-white text-[#0D0D0D] shadow-xs border border-[#E1E4E7]"
-                : "text-[#6B7280] hover:text-[#0D0D0D]"
+                ? "bg-white text-[#18181B] shadow-sm border border-[#E4E4E7]"
+                : "text-[#71717A] hover:text-[#18181B]"
             }`}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
@@ -63,10 +64,10 @@ export function DirectoryToolbar({ totalCount }: DirectoryToolbarProps) {
           <button
             onClick={() => setParam("view", "list")}
             aria-label="List view"
-            className={`p-1.5 transition-colors ${
+            className={`p-1.5 rounded transition-colors cursor-pointer ${
               currentView === "list"
-                ? "bg-white text-[#0D0D0D] shadow-xs border border-[#E1E4E7]"
-                : "text-[#6B7280] hover:text-[#0D0D0D]"
+                ? "bg-white text-[#18181B] shadow-sm border border-[#E4E4E7]"
+                : "text-[#71717A] hover:text-[#18181B]"
             }`}
           >
             <List className="w-3.5 h-3.5" />

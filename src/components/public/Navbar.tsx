@@ -82,11 +82,10 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center px-3 py-1.5 text-xs font-mono transition-colors ${
-                    active
+                  className={`flex items-center px-3 py-1.5 text-xs font-mono transition-colors ${active
                       ? "bg-[#F6F7F8] text-[#0D0D0D] font-bold border-b-2 border-[#1E3A52]"
                       : "text-[#6B7280] hover:text-[#0D0D0D] hover:bg-[#F6F7F8]"
-                  }`}
+                    }`}
                 >
                   <Icon className="w-3.5 h-3.5 mr-2 opacity-70" />
                   {link.label}
@@ -130,11 +129,10 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center px-3 py-2 text-xs font-mono ${
-                  active
+                className={`flex items-center px-3 py-2 text-xs font-mono ${active
                     ? "bg-[#F6F7F8] text-[#0D0D0D] font-bold border-l-2 border-[#1E3A52]"
                     : "text-[#6B7280] hover:bg-[#F6F7F8] hover:text-[#0D0D0D]"
-                }`}
+                  }`}
               >
                 <Icon className="w-4 h-4 mr-2.5 text-[#1E3A52]" />
                 {link.label}

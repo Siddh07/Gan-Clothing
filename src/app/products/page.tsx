@@ -5,9 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
 import { PaginationControls } from "@/components/common/PaginationControls";
-import {
-  Layers,
-} from "lucide-react";
+import { Layers } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -60,40 +58,40 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
+    <div className="flex min-h-screen flex-col bg-[#F7F8FA] text-[#18181B]">
       <Navbar />
 
       <main className="flex-1 pb-20">
-        {/* Banner */}
-        <div className="bg-[#0D0D0D] text-white py-10 border-b border-[#0D0D0D]">
+        {/* Page header */}
+        <div className="bg-white border-b border-[#E4E4E7] py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-2">
-              <div className="inline-flex items-center space-x-2 font-mono text-[10px] uppercase tracking-widest text-[#E1E4E7]">
-                <Layers className="w-3.5 h-3.5 text-white" />
-                <span>Export Showroom & Technical Specimen Registry</span>
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <Layers className="w-4 h-4 text-[#2D5BE3]" />
+                <span className="text-sm text-[#71717A]">Export showroom</span>
               </div>
-              <h1 className="font-mono text-2xl sm:text-3xl font-bold uppercase tracking-tight">
-                Nepal Apparel Export Catalog
+              <h1 className="text-2xl font-semibold text-[#18181B] mb-2">
+                Nepal apparel export catalog
               </h1>
-              <p className="text-xs text-[#E1E4E7] leading-relaxed font-sans">
-                Export-ready specimens produced by verified Nepalese mills. All garments support bespoke brand tech-packs, labels, Pantone formulations, and bulk FOB/CIF shipment terms.
+              <p className="text-sm text-[#71717A] leading-relaxed">
+                Export-ready samples produced by verified Nepalese mills. All garments support bespoke tech-packs, Pantone formulations, and bulk FOB/CIF shipment terms.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 pb-6 border-b border-[#E1E4E7] font-mono text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          {/* Category filter tabs */}
+          <div className="flex flex-wrap items-center gap-2 pb-6 border-b border-[#E4E4E7]">
             <Link
               href="/products"
-              className={`px-3 py-1.5 uppercase tracking-wider font-bold transition-colors ${
+              className={`px-3 py-1.5 text-sm rounded border transition-colors ${
                 !category
-                  ? "bg-[#0D0D0D] text-white"
-                  : "bg-white text-[#6B7280] border border-[#E1E4E7] hover:border-[#0D0D0D] hover:text-[#0D0D0D]"
+                  ? "bg-[#2D5BE3] text-white border-[#2D5BE3] font-medium"
+                  : "bg-white text-[#71717A] border-[#E4E4E7] hover:border-[#2D5BE3] hover:text-[#18181B]"
               }`}
             >
-              All Categories ({totalCount})
+              All categories ({totalCount})
             </Link>
             {categories.map((cat) => {
               const isSelected = category === cat.slug;
@@ -101,10 +99,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <Link
                   key={cat.id}
                   href={`/products?category=${cat.slug}`}
-                  className={`px-3 py-1.5 uppercase tracking-wider font-bold transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded border transition-colors ${
                     isSelected
-                      ? "bg-[#0D0D0D] text-white"
-                      : "bg-white text-[#6B7280] border border-[#E1E4E7] hover:border-[#0D0D0D] hover:text-[#0D0D0D]"
+                      ? "bg-[#2D5BE3] text-white border-[#2D5BE3] font-medium"
+                      : "bg-white text-[#71717A] border-[#E4E4E7] hover:border-[#2D5BE3] hover:text-[#18181B]"
                   }`}
                 >
                   {cat.name} ({cat._count.products})
@@ -113,8 +111,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             })}
           </div>
 
-          {/* Product Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+          {/* Product grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-6">
             {products.map((product) => {
               let parsedImages: string[] = [];
               try {
@@ -129,84 +127,75 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               return (
                 <div
                   key={product.id}
-                  className="bg-white border border-[#E1E4E7] overflow-hidden hover:border-[#0D0D0D] transition-colors flex flex-col justify-between"
+                  className="bg-white border border-[#E4E4E7] hover:border-[#2D5BE3] rounded-md overflow-hidden flex flex-col transition-colors"
                 >
-                  <div>
-                    {/* Image Header */}
-                    <div className="relative aspect-4/3 bg-[#F6F7F8] overflow-hidden border-b border-[#E1E4E7]">
-                      <img
-                        src={displayImage}
-                        alt={product.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 font-mono text-[9px] uppercase font-bold">
-                        <span className="bg-[#0D0D0D] text-white px-2 py-0.5">
-                          {product.category.name}
-                        </span>
-                        {product.isFeatured && (
-                          <span className="bg-[#1E3A52] text-white px-2 py-0.5">
-                            Priority Run
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4 space-y-2">
-                      <div>
-                        <span className="font-mono text-[10px] text-[#6B7280] uppercase block">
-                          Mill: {product.enterprise.name} // {product.enterprise.city}
-                        </span>
-                        <Link href={`/products/${product.slug}`}>
-                          <h3 className="font-mono text-sm font-bold uppercase text-[#0D0D0D] hover:text-[#1E3A52] transition-colors truncate mt-0.5">
-                            {product.title}
-                          </h3>
-                        </Link>
-                      </div>
-
-                      <p className="text-xs text-[#6B7280] line-clamp-2 leading-relaxed font-sans">
-                        {product.description}
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-2 py-2 border-y border-[#E1E4E7] font-mono text-xs">
-                        <div>
-                          <span className="text-[#6B7280] block text-[9px] uppercase">Composition:</span>
-                          <span className="text-[#0D0D0D] truncate block font-bold">
-                            {product.fabricType}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-[#6B7280] block text-[9px] uppercase">Target MOQ:</span>
-                          <span className="font-bold text-[#1E3A52]">
-                            {product.moq.toLocaleString()} pcs
-                          </span>
-                        </div>
-                      </div>
+                  {/* Image */}
+                  <div className="relative h-52 bg-[#F7F8FA] border-b border-[#E4E4E7]">
+                    <img
+                      src={displayImage}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1">
+                      <span className="badge badge-neutral">{product.category.name}</span>
+                      {product.isFeatured && (
+                        <span className="badge badge-accent">Featured</span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="p-4 pt-0 flex items-center justify-between gap-3 font-mono text-xs">
-                    <Link
-                      href={`/products/${product.slug}`}
-                      className="uppercase tracking-wider font-bold text-[#6B7280] hover:text-[#0D0D0D]"
-                    >
-                      Tech Specs
-                    </Link>
+                  {/* Card body */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <div className="mb-2">
+                      <div className="text-xs text-[#71717A] mb-0.5">
+                        {product.enterprise.name} — {product.enterprise.city}
+                      </div>
+                      <Link href={`/products/${product.slug}`}>
+                        <h3 className="text-sm font-semibold text-[#18181B] hover:text-[#2D5BE3] line-clamp-1 transition-colors">
+                          {product.title}
+                        </h3>
+                      </Link>
+                    </div>
 
-                    <Link
-                      href={`/products/${product.slug}`}
-                      className="px-3.5 py-1.5 text-xs uppercase tracking-wider font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
-                    >
-                      Inspect & Quote
-                    </Link>
+                    <p className="text-sm text-[#71717A] line-clamp-2 leading-relaxed mb-3 flex-1">
+                      {product.description}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-2 py-3 border-y border-[#E4E4E7] text-sm mb-3">
+                      <div>
+                        <div className="text-xs text-[#71717A] mb-0.5">Fabric</div>
+                        <div className="font-medium text-[#18181B] truncate text-xs">
+                          {product.fabricType}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-[#71717A] mb-0.5">MOQ</div>
+                        <div className="font-medium text-[#18181B] text-xs">
+                          {product.moq.toLocaleString()} pcs
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        href={`/products/${product.slug}`}
+                        className="text-sm text-[#2D5BE3] hover:underline"
+                      >
+                        View specs
+                      </Link>
+                      <Link
+                        href={`/products/${product.slug}`}
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors"
+                      >
+                        Request quote
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Pagination Controls */}
           <div className="mt-8">
             <PaginationControls
               currentPage={page}

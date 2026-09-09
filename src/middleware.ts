@@ -48,5 +48,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/((?!login).*)", "/portal/:path*"],
+  matcher: ["/admin", "/admin/:path*", "/portal", "/portal/:path*"],
 };

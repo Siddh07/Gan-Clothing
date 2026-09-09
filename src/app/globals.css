@@ -16,9 +16,9 @@
   --color-fg-tertiary:      #d1d5db;
 
   /* Accent */
-  --color-accent:           #3b5bdb;
-  --color-accent-hover:     #3451c7;
-  --color-accent-subtle:    #eef2ff;
+  --color-accent:           #2d5be3;
+  --color-accent-hover:     #2650cc;
+  --color-accent-subtle:    #eff4ff;
 
   /* Border */
   --color-border:           #d1d5db;
@@ -43,10 +43,10 @@
 }
 
 :root {
-  --background: #f8f8f6;
-  --foreground: #1a1a1a;
-  --border: #d1d5db;
-  --accent: #3b5bdb;
+  --background: #f7f8fa;
+  --foreground: #18181b;
+  --border: #e4e4e7;
+  --accent: #2d5be3;
 }
 
 /* ─── Base ─── */
@@ -156,9 +156,10 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #3b5bdb;
-  box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.12);
+  border-color: #2d5be3;
+  box-shadow: 0 0 0 3px rgba(45, 91, 227, 0.12);
 }
+
 
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar {

@@ -22,12 +22,10 @@ export default async function PortalCertificationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-[#E1E4E7] pb-4">
-        <h1 className="text-xl font-bold text-[#0D0D0D] tracking-tight">
-          Compliance Accreditations & Social Audit Dossier
-        </h1>
-        <p className="text-xs font-mono text-[#6B7280] mt-1">
-          LABOUR INTEGRITY, CHEMICAL RESTRICTIONS (OEKO-TEX) & ENVIRONMENTAL AUDIT RECORDS
+      <div className="pb-5 border-b border-[#E4E4E7]">
+        <h1 className="text-xl font-semibold text-[#18181B]">Certifications</h1>
+        <p className="text-sm text-[#71717A] mt-1">
+          Manage compliance certifications displayed on your public factory profile. Buyers filter by WRAP, GOTS, ISO, and similar standards.
         </p>
       </div>
 

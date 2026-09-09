@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "postinstall": "node scripts/patch-next-auth.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { addFactoryCertification } from "@/actions/portal";
 import {
   Award,
@@ -12,6 +13,7 @@ import {
   Calendar,
   X,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 interface Certification {
@@ -29,8 +31,15 @@ export function PortalCertificationManager({
 }: {
   initialCertifications: Certification[];
 }) {
+  const router = useRouter();
+  const [certifications, setCertifications] = useState<Certification[]>(initialCertifications);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setCertifications(initialCertifications);
+  }, [initialCertifications]);
 
   const [formData, setFormData] = useState({
     name: "WRAP Gold Level",
@@ -70,9 +79,28 @@ export function PortalCertificationManager({
 
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     startTransition(async () => {
-      await addFactoryCertification(formData);
-      setIsUploadOpen(false);
+      try {
+        const res = await addFactoryCertification(formData);
+        if (res.success && res.certification) {
+          setCertifications((prev) => [res.certification as Certification, ...prev]);
+          setIsUploadOpen(false);
+          setFormData({
+            name: "WRAP Gold Level",
+            issuer: "Worldwide Responsible Accredited Production",
+            certificateNumber: "",
+            issueDate: "",
+            expiryDate: "",
+            certificateFileUrl: "",
+          });
+          router.refresh();
+        } else {
+          setFormError("Failed to upload certification. Please check required fields.");
+        }
+      } catch (err: any) {
+        setFormError(err?.message || "Failed to submit certification. Check that you are signed in.");
+      }
     });
   };
 
@@ -80,7 +108,7 @@ export function PortalCertificationManager({
     <div className="space-y-4">
       <div className="flex justify-between items-center bg-white border border-[#E1E4E7] p-3">
         <p className="text-xs font-mono text-[#6B7280]">
-          ACCREDITATION REGISTER: {initialCertifications.length} VERIFIED AUDIT RECORD{initialCertifications.length === 1 ? "" : "S"}
+          ACCREDITATION REGISTER: {certifications.length} VERIFIED AUDIT RECORD{certifications.length === 1 ? "" : "S"}
         </p>
         <button
           onClick={() => setIsUploadOpen(true)}
@@ -92,7 +120,7 @@ export function PortalCertificationManager({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {initialCertifications.map((cert) => {
+        {certifications.map((cert) => {
           const status = getStatus(cert.expiryDate);
           return (
             <div
@@ -109,8 +137,8 @@ export function PortalCertificationManager({
                       status.alert
                         ? "tag-neutral text-[10px] text-red-700 border-red-200"
                         : status.warning
-                        ? "tag-pending text-[10px]"
-                        : "tag-approved text-[10px]"
+                          ? "tag-pending text-[10px]"
+                          : "tag-approved text-[10px]"
                     }
                   >
                     {status.label}
@@ -182,6 +210,12 @@ export function PortalCertificationManager({
             </div>
 
             <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
+              {formError && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] text-xs text-[#DC2626] flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
                   Audit Standard & Framework *
