@@ -32,75 +32,77 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F6F7F8] flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-[#0D0D0D]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-700 text-white font-bold flex items-center justify-center text-lg shadow-md">
+          <div className="w-10 h-10 bg-[#0D0D0D] text-white font-mono font-bold flex items-center justify-center text-sm">
             GAN
           </div>
         </div>
-        <h2 className="mt-4 text-center text-2xl font-black text-slate-900 font-outfit">
-          Account Password Recovery
+        <h2 className="mt-4 text-center text-lg font-bold text-[#0D0D0D] tracking-tight">
+          Credential Recovery Protocol
         </h2>
-        <p className="mt-1 text-center text-xs text-slate-700">
-          Enter your registered work email to receive a password reset verification link.
+        <p className="mt-1 text-center text-xs font-mono text-[#6B7280]">
+          OFFICIAL VERIFICATION LINK FOR RE-AUTHENTICATION
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-100 sm:px-10">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
+        <div className="bg-white p-8 border border-[#E1E4E7]">
           {message ? (
             <div className="space-y-4 text-center">
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-6 h-6" />
+              <div className="w-10 h-10 border border-[#E1E4E7] text-[#1E3A52] flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900">Check Your Inbox</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
+              <h3 className="text-xs font-bold font-mono text-[#0D0D0D] uppercase tracking-wider">
+                Verification Dispatched
+              </h3>
+              <p className="text-xs text-[#6B7280] leading-relaxed font-sans">{message}</p>
 
               {debugLink && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left text-xs text-amber-900 mt-4">
-                  <div className="font-bold mb-1">Development Preview Link:</div>
+                <div className="p-3 bg-[#F6F7F8] border border-[#1E3A52] text-left text-xs font-mono mt-4">
+                  <div className="font-bold text-[#0D0D0D] text-[10px] uppercase mb-1">Development Preview Link:</div>
                   <a
                     href={debugLink}
-                    className="text-emerald-700 hover:underline break-all font-mono text-[11px]"
+                    className="text-[#1E3A52] hover:underline break-all text-[10px]"
                   >
                     {debugLink}
                   </a>
                 </div>
               )}
 
-              <div className="pt-4 border-t border-slate-100">
+              <div className="pt-4 border-t border-[#E1E4E7]">
                 <Link
                   href="/admin/login"
-                  className="inline-flex items-center text-xs font-bold text-emerald-700 hover:text-emerald-800"
+                  className="inline-flex items-center text-xs font-mono text-[#1E3A52] hover:underline"
                 >
                   <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-                  Return to Sign In
+                  RETURN TO AUTHENTICATION
                 </Link>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-2 text-red-700 text-xs">
+                <div className="p-3 bg-[#F6F7F8] border border-red-600 flex items-start gap-2 text-red-600 text-xs font-mono">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Registered Email Address
+                <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+                  Registered Official Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-700 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-3.5 h-3.5 text-[#6B7280] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="rep@yourfactory.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
+                    placeholder="officer@tradeassociation.np"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono text-[#0D0D0D] rounded-none focus:outline-none"
                   />
                 </div>
               </div>
@@ -108,28 +110,28 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-700/20 transition-all disabled:opacity-50 inline-flex items-center justify-center"
+                className="w-full py-2.5 px-4 bg-[#1E3A52] hover:bg-[#0D0D0D] text-white text-xs font-mono font-medium rounded-none transition-colors disabled:opacity-50 inline-flex items-center justify-center cursor-pointer"
               >
                 {isPending ? (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Sending Reset Link...
+                    <RefreshCw className="w-3.5 h-3.5 mr-2 animate-spin" />
+                    DISPATCHING VERIFICATION...
                   </>
                 ) : (
                   <>
-                    <KeyRound className="w-4 h-4 mr-2" />
-                    Send Password Reset Link
+                    <KeyRound className="w-3.5 h-3.5 mr-2" />
+                    TRANSMIT RESET PROTOCOL
                   </>
                 )}
               </button>
 
-              <div className="text-center pt-2">
+              <div className="text-center pt-2 border-t border-[#E1E4E7]">
                 <Link
                   href="/admin/login"
-                  className="inline-flex items-center text-xs font-semibold text-slate-700 hover:text-slate-900"
+                  className="inline-flex items-center text-xs font-mono text-[#6B7280] hover:text-[#0D0D0D]"
                 >
                   <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                  Back to Login
+                  Return to Sign In
                 </Link>
               </div>
             </form>

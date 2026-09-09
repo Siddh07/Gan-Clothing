@@ -44,18 +44,20 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="text-center space-y-4">
-        <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
-          <AlertCircle className="w-6 h-6" />
+        <div className="w-10 h-10 border border-red-200 text-red-600 flex items-center justify-center mx-auto">
+          <AlertCircle className="w-5 h-5" />
         </div>
-        <h3 className="text-sm font-bold text-slate-900">Missing Reset Token</h3>
-        <p className="text-xs text-slate-700">
-          The link you accessed is missing a verification token or has already been consumed.
+        <h3 className="text-xs font-bold font-mono text-[#0D0D0D] uppercase tracking-wider">
+          Missing Verification Token
+        </h3>
+        <p className="text-xs font-mono text-[#6B7280]">
+          The accessed URL lacks an active verification token or it has expired.
         </p>
         <Link
           href="/auth/forgot-password"
-          className="inline-flex items-center text-xs font-bold text-emerald-700 hover:text-emerald-800"
+          className="inline-flex items-center text-xs font-mono text-[#1E3A52] hover:underline"
         >
-          Request a New Reset Link
+          REQUEST NEW VERIFICATION
         </Link>
       </div>
     );
@@ -65,62 +67,64 @@ function ResetPasswordForm() {
     <div>
       {message ? (
         <div className="space-y-4 text-center">
-          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-6 h-6" />
+          <div className="w-10 h-10 border border-[#E1E4E7] text-[#1E3A52] flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-5 h-5" />
           </div>
-          <h3 className="text-sm font-bold text-slate-900">Password Updated</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
-          <div className="pt-4 border-t border-slate-100">
+          <h3 className="text-xs font-bold font-mono text-[#0D0D0D] uppercase tracking-wider">
+            Credentials Synchronized
+          </h3>
+          <p className="text-xs text-[#6B7280] leading-relaxed font-sans">{message}</p>
+          <div className="pt-4 border-t border-[#E1E4E7]">
             <Link
               href="/admin/login"
-              className="inline-flex items-center px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold hover:bg-emerald-800 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-[#1E3A52] text-white rounded-none text-xs font-mono font-medium hover:bg-[#0D0D0D] transition-colors"
             >
-              Sign In with New Password
+              AUTHENTICATE WITH NEW CREDENTIALS
             </Link>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-2 text-red-700 text-xs">
+            <div className="p-3 bg-[#F6F7F8] border border-red-600 flex items-start gap-2 text-red-600 text-xs font-mono">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              New Password
+            <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+              New Master Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-700 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-3.5 h-3.5 text-[#6B7280] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono text-[#0D0D0D] rounded-none focus:outline-none"
               />
             </div>
-            <span className="text-[11px] text-slate-700 mt-1 block">
-              Minimum 8 characters.
+            <span className="text-[10px] font-mono text-[#6B7280] mt-1 block">
+              MINIMUM 8 CHARACTERS REQUIRED
             </span>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Confirm New Password
+            <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
+              Re-enter New Password
             </label>
             <div className="relative">
-              <Key className="w-4 h-4 text-slate-700 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Key className="w-3.5 h-3.5 text-[#6B7280] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono text-[#0D0D0D] rounded-none focus:outline-none"
               />
             </div>
           </div>
@@ -128,15 +132,15 @@ function ResetPasswordForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-700/20 transition-all disabled:opacity-50 inline-flex items-center justify-center mt-2"
+            className="w-full py-2.5 px-4 bg-[#1E3A52] hover:bg-[#0D0D0D] text-white text-xs font-mono font-medium rounded-none transition-colors disabled:opacity-50 inline-flex items-center justify-center mt-2 cursor-pointer"
           >
             {isPending ? (
               <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Updating Password...
+                <RefreshCw className="w-3.5 h-3.5 mr-2 animate-spin" />
+                COMMITTING CREDENTIALS...
               </>
             ) : (
-              "Save New Password"
+              "COMMIT NEW CREDENTIALS"
             )}
           </button>
         </form>
@@ -147,24 +151,24 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F6F7F8] flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-[#0D0D0D]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-700 text-white font-bold flex items-center justify-center text-lg shadow-md">
+          <div className="w-10 h-10 bg-[#0D0D0D] text-white font-mono font-bold flex items-center justify-center text-sm">
             GAN
           </div>
         </div>
-        <h2 className="mt-4 text-center text-2xl font-black text-slate-900 font-outfit">
-          Set New Password
+        <h2 className="mt-4 text-center text-lg font-bold text-[#0D0D0D] tracking-tight">
+          Credential Key Replacement
         </h2>
-        <p className="mt-1 text-center text-xs text-slate-700">
-          Create a new secure password for your GAN platform credentials.
+        <p className="mt-1 text-center text-xs font-mono text-[#6B7280]">
+          AUTHORIZATION RE-ENROLLMENT
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-100 sm:px-10">
-          <Suspense fallback={<div className="text-center text-xs text-slate-700 py-8">Loading verification session...</div>}>
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
+        <div className="bg-white p-8 border border-[#E1E4E7]">
+          <Suspense fallback={<div className="text-center text-xs font-mono text-[#6B7280] py-8">INITIALIZING SESSION...</div>}>
             <ResetPasswordForm />
           </Suspense>
         </div>

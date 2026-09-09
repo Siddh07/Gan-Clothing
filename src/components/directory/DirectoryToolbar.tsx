@@ -26,50 +26,50 @@ export function DirectoryToolbar({ totalCount }: DirectoryToolbarProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 px-4 py-3 shadow-xs flex flex-wrap items-center justify-between gap-4">
-      <div className="text-xs text-slate-600">
-        Showing <strong className="text-slate-900">{totalCount}</strong> verified Nepalese garment exporter{totalCount === 1 ? "" : "s"}
+    <div className="bg-white border border-[#E1E4E7] px-4 py-3 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+      <div className="text-[#6B7280]">
+        INDEXED: <strong className="text-[#0D0D0D]">{totalCount}</strong> ACCREDITED EXPORTER{totalCount === 1 ? "" : "S"}
       </div>
 
       <div className="flex items-center space-x-3">
         {/* Sort Select */}
-        <div className="flex items-center space-x-1.5 text-xs text-slate-600">
-          <span className="hidden sm:inline">Sort:</span>
+        <div className="flex items-center space-x-1.5 text-[#6B7280]">
+          <span className="hidden sm:inline uppercase text-[10px] tracking-wider">Order:</span>
           <select
             value={currentSort}
             onChange={(e) => setParam("sort", e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="px-2.5 py-1.5 rounded-none border border-[#E1E4E7] text-xs font-mono text-[#0D0D0D] bg-white focus:outline-none focus:border-[#0D0D0D]"
           >
-            <option value="capacity-desc">Highest Capacity</option>
-            <option value="capacity-asc">Lowest Capacity</option>
-            <option value="established-desc">Most Established</option>
+            <option value="capacity-desc">Highest Monthly Capacity</option>
+            <option value="capacity-asc">Lowest Monthly Capacity</option>
+            <option value="established-desc">Earliest Established</option>
             <option value="name-asc">Alphabetical (A-Z)</option>
           </select>
         </div>
 
         {/* View Switcher */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+        <div className="flex items-center bg-[#F6F7F8] p-0.5 border border-[#E1E4E7]">
           <button
             onClick={() => setParam("view", "grid")}
             aria-label="Grid view"
-            className={`p-1.5 rounded-md transition-colors ${
+            className={`p-1.5 transition-colors ${
               currentView === "grid"
-                ? "bg-white text-emerald-700 shadow-xs"
-                : "text-slate-700 hover:text-slate-700"
+                ? "bg-white text-[#0D0D0D] shadow-xs border border-[#E1E4E7]"
+                : "text-[#6B7280] hover:text-[#0D0D0D]"
             }`}
           >
-            <LayoutGrid className="w-4 h-4" />
+            <LayoutGrid className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setParam("view", "list")}
             aria-label="List view"
-            className={`p-1.5 rounded-md transition-colors ${
+            className={`p-1.5 transition-colors ${
               currentView === "list"
-                ? "bg-white text-emerald-700 shadow-xs"
-                : "text-slate-700 hover:text-slate-700"
+                ? "bg-white text-[#0D0D0D] shadow-xs border border-[#E1E4E7]"
+                : "text-[#6B7280] hover:text-[#0D0D0D]"
             }`}
           >
-            <List className="w-4 h-4" />
+            <List className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

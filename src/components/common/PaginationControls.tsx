@@ -54,11 +54,11 @@ export function PaginationControls({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200">
-      <div className="text-xs text-slate-700">
-        Showing <span className="font-bold text-slate-900">{startItem}</span> to{" "}
-        <span className="font-bold text-slate-900">{endItem}</span> of{" "}
-        <span className="font-bold text-slate-900">{totalCount}</span> results
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#E1E4E7] font-mono text-xs">
+      <div className="text-[#6B7280]">
+        INDEXED: <span className="font-bold text-[#0D0D0D]">{startItem}</span> TO{" "}
+        <span className="font-bold text-[#0D0D0D]">{endItem}</span> // TOTAL:{" "}
+        <span className="font-bold text-[#0D0D0D]">{totalCount}</span>
       </div>
 
       <div className="flex items-center space-x-1">
@@ -66,14 +66,14 @@ export function PaginationControls({
         {currentPage > 1 ? (
           <Link
             href={buildPageUrl(currentPage - 1)}
-            className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+            className="p-2 border border-[#E1E4E7] bg-white text-[#0D0D0D] hover:bg-[#F6F7F8] transition-colors"
             title="Previous Page"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </Link>
         ) : (
-          <span className="p-2 rounded-xl border border-slate-100 bg-slate-50 text-slate-700 cursor-not-allowed">
-            <ChevronLeft className="w-4 h-4" />
+          <span className="p-2 border border-[#E1E4E7] bg-[#F6F7F8] text-[#6B7280] cursor-not-allowed">
+            <ChevronLeft className="w-3.5 h-3.5" />
           </span>
         )}
 
@@ -82,11 +82,11 @@ export function PaginationControls({
           <>
             <Link
               href={buildPageUrl(1)}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              className="px-3 py-1.5 border border-[#E1E4E7] bg-white text-xs text-[#0D0D0D] hover:bg-[#F6F7F8]"
             >
               1
             </Link>
-            {startPage > 2 && <span className="px-1 text-slate-700">...</span>}
+            {startPage > 2 && <span className="px-1 text-[#6B7280]">..</span>}
           </>
         )}
 
@@ -96,10 +96,10 @@ export function PaginationControls({
             <Link
               key={p}
               href={buildPageUrl(p)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 text-xs font-bold transition-colors ${
                 isCurrent
-                  ? "bg-emerald-700 text-white shadow-xs"
-                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  ? "bg-[#0D0D0D] text-white border border-[#0D0D0D]"
+                  : "bg-white border border-[#E1E4E7] text-[#0D0D0D] hover:bg-[#F6F7F8]"
               }`}
             >
               {p}
@@ -109,10 +109,10 @@ export function PaginationControls({
 
         {endPage < totalPages && (
           <>
-            {endPage < totalPages - 1 && <span className="px-1 text-slate-700">...</span>}
+            {endPage < totalPages - 1 && <span className="px-1 text-[#6B7280]">..</span>}
             <Link
               href={buildPageUrl(totalPages)}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              className="px-3 py-1.5 border border-[#E1E4E7] bg-white text-xs text-[#0D0D0D] hover:bg-[#F6F7F8]"
             >
               {totalPages}
             </Link>
@@ -123,14 +123,14 @@ export function PaginationControls({
         {currentPage < totalPages ? (
           <Link
             href={buildPageUrl(currentPage + 1)}
-            className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+            className="p-2 border border-[#E1E4E7] bg-white text-[#0D0D0D] hover:bg-[#F6F7F8] transition-colors"
             title="Next Page"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         ) : (
-          <span className="p-2 rounded-xl border border-slate-100 bg-slate-50 text-slate-700 cursor-not-allowed">
-            <ChevronRight className="w-4 h-4" />
+          <span className="p-2 border border-[#E1E4E7] bg-[#F6F7F8] text-[#6B7280] cursor-not-allowed">
+            <ChevronRight className="w-3.5 h-3.5" />
           </span>
         )}
       </div>

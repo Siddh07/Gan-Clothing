@@ -10,16 +10,10 @@ import { ProductQuoteTrigger } from "@/components/products/ProductQuoteTrigger";
 import { ProductJsonLd } from "@/components/seo/JsonLd";
 import {
   ShieldCheck,
-  Building2,
   MapPin,
   ArrowLeft,
-  Package,
-  Layers,
-  CheckCircle2,
   ExternalLink,
-  Truck,
-  Sparkles,
-  Calendar,
+  CheckCircle2,
 } from "lucide-react";
 
 interface ProductDetailPageProps {
@@ -90,32 +84,32 @@ export default async function ProductDetailPage({
         sku={`GAN-PROD-${product.id.slice(-6).toUpperCase()}`}
       />
 
-      <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+      <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
         <Navbar />
 
         <main className="flex-1 pb-20">
           {/* Breadcrumb Header */}
-          <div className="bg-slate-900 text-slate-700 border-b border-slate-800 py-3">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs">
+          <div className="bg-[#0D0D0D] text-[#E1E4E7] border-b border-[#0D0D0D] py-3 font-mono text-xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Link
                   href="/products"
                   className="hover:text-white transition-colors inline-flex items-center"
                 >
                   <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                  Product Catalog
+                  Product Showroom
                 </Link>
                 <span>/</span>
-                <span className="text-slate-700">{product.category.name}</span>
+                <span className="text-[#6B7280] uppercase">{product.category.name}</span>
                 <span>/</span>
-                <span className="text-white font-medium truncate max-w-xs">{product.title}</span>
+                <span className="text-white uppercase truncate max-w-xs">{product.title}</span>
               </div>
               <span className="hidden sm:inline">SKU: #{product.id.slice(-6).toUpperCase()}</span>
             </div>
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
               {/* Left Column: Image Gallery with Zoom */}
               <div>
                 <ProductGallery images={images} title={product.title} />
@@ -124,71 +118,72 @@ export default async function ProductDetailPage({
               {/* Right Column: Garment Specs & Quote Engine */}
               <div className="space-y-6">
                 {/* Category & Badge */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] uppercase">
+                  <span className="px-2 py-0.5 bg-[#0D0D0D] text-white font-bold">
                     {product.category.name}
                   </span>
                   {product.isFeatured && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 flex items-center">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      Featured Export Sample
+                    <span className="px-2 py-0.5 bg-[#1E3A52] text-white font-bold">
+                      Priority Export Specimen
                     </span>
                   )}
                 </div>
 
                 {/* Product Title */}
-                <h1 className="font-outfit text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                  {product.title}
-                </h1>
+                <div>
+                  <h1 className="font-mono text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[#0D0D0D]">
+                    {product.title}
+                  </h1>
+                </div>
 
                 {/* Description */}
-                <p className="text-slate-600 text-base leading-relaxed">
+                <p className="text-[#6B7280] text-xs leading-relaxed font-sans">
                   {product.description}
                 </p>
 
-                {/* Manufacturer Attribution Badge */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-emerald-500 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-700 uppercase font-bold tracking-wider">
+                {/* Manufacturer Attribution Card */}
+                <div className="p-5 bg-white border border-[#E1E4E7] space-y-3 font-mono">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[10px] text-[#6B7280] uppercase font-bold tracking-wider">
                       Contract Manufacturer
                     </span>
                     {product.enterprise.isVerified && (
-                      <span className="inline-flex items-center text-xs font-bold text-emerald-700">
+                      <span className="inline-flex items-center text-[10px] font-bold text-[#1E3A52] uppercase">
                         <ShieldCheck className="w-3.5 h-3.5 mr-1" />
                         GAN Verified Mill
                       </span>
                     )}
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center justify-between pt-1">
                     <div>
                       <Link
                         href={`/directory/${product.enterprise.slug}`}
-                        className="font-outfit text-xl font-bold text-slate-900 hover:text-emerald-700 transition-colors flex items-center"
+                        className="text-base font-bold uppercase text-[#0D0D0D] hover:text-[#1E3A52] transition-colors flex items-center"
                       >
                         {product.enterprise.name}
-                        <ExternalLink className="w-4 h-4 ml-2 opacity-60" />
+                        <ExternalLink className="w-3.5 h-3.5 ml-1.5 opacity-60" />
                       </Link>
-                      <p className="text-xs text-slate-700 mt-1 flex items-center">
-                        <MapPin className="w-3.5 h-3.5 mr-1 text-slate-700" />
-                        {product.enterprise.city}, Nepal • Est. {product.enterprise.yearEstablished}
+                      <p className="text-[11px] text-[#6B7280] mt-0.5 flex items-center">
+                        <MapPin className="w-3 h-3 mr-1 text-[#6B7280]" />
+                        {product.enterprise.city}, Nepal // Est. {product.enterprise.yearEstablished}
                       </p>
                     </div>
 
                     <Link
                       href={`/directory/${product.enterprise.slug}`}
-                      className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                      className="px-3 py-1 text-xs uppercase font-bold text-[#0D0D0D] border border-[#E1E4E7] hover:bg-[#F6F7F8] transition-colors"
                     >
-                      View Factory
+                      Mill Dossier
                     </Link>
                   </div>
 
                   {/* Mill Certifications */}
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-1.5">
+                  <div className="pt-3 border-t border-[#E1E4E7] flex flex-wrap gap-1.5">
                     {product.enterprise.certifications.map((cert) => (
                       <span
                         key={cert.id}
-                        className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100"
+                        className="px-2 py-0.5 text-[9px] font-bold uppercase bg-[#F6F7F8] text-[#0D0D0D] border border-[#E1E4E7]"
                       >
                         {cert.name}
                       </span>
@@ -197,61 +192,61 @@ export default async function ProductDetailPage({
                 </div>
 
                 {/* Technical Specification Table */}
-                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                  <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 font-outfit font-bold text-sm text-slate-900">
-                    Garment Technical Specifications
+                <div className="bg-white border border-[#0D0D0D] overflow-hidden font-mono">
+                  <div className="bg-[#0D0D0D] text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider">
+                    Technical Specifications Dossier
                   </div>
 
-                  <div className="divide-y divide-slate-100 text-sm">
-                    <div className="px-6 py-3 flex justify-between">
-                      <span className="text-slate-700 font-medium">Fabric Composition</span>
-                      <span className="font-semibold text-slate-900 text-right">
+                  <div className="divide-y divide-[#E1E4E7] text-xs">
+                    <div className="px-5 py-2.5 flex justify-between">
+                      <span className="text-[#6B7280] uppercase text-[10px]">Fabric Composition</span>
+                      <span className="font-bold text-[#0D0D0D] text-right">
                         {product.fabricType}
                       </span>
                     </div>
 
                     {product.gsmWeight && (
-                      <div className="px-6 py-3 flex justify-between">
-                        <span className="text-slate-700 font-medium">Fabric Weight</span>
-                        <span className="font-semibold text-slate-900">
+                      <div className="px-5 py-2.5 flex justify-between">
+                        <span className="text-[#6B7280] uppercase text-[10px]">Areal Density (Weight)</span>
+                        <span className="font-bold text-[#0D0D0D]">
                           {product.gsmWeight} GSM
                         </span>
                       </div>
                     )}
 
-                    <div className="px-6 py-3 flex justify-between">
-                      <span className="text-slate-700 font-medium">Minimum Order Quantity (MOQ)</span>
-                      <span className="font-bold text-emerald-700">
+                    <div className="px-5 py-2.5 flex justify-between">
+                      <span className="text-[#6B7280] uppercase text-[10px]">Minimum Order Volume (MOQ)</span>
+                      <span className="font-bold text-[#1E3A52]">
                         {product.moq.toLocaleString()} pcs / style
                       </span>
                     </div>
 
-                    <div className="px-6 py-3 flex justify-between">
-                      <span className="text-slate-700 font-medium">Target Demographic</span>
-                      <span className="font-semibold text-slate-900">
-                        {product.targetGender}
+                    <div className="px-5 py-2.5 flex justify-between">
+                      <span className="text-[#6B7280] uppercase text-[10px]">Target Demographic</span>
+                      <span className="font-bold text-[#0D0D0D]">
+                        {product.targetGender || "Universal / Unisex"}
                       </span>
                     </div>
 
-                    <div className="px-6 py-3 flex justify-between">
-                      <span className="text-slate-700 font-medium">Standard Production Lead Time</span>
-                      <span className="font-semibold text-slate-900">
-                        45 - 60 Days (Post Tech-Pack & Lab Dips)
+                    <div className="px-5 py-2.5 flex justify-between">
+                      <span className="text-[#6B7280] uppercase text-[10px]">Standard Lead Time</span>
+                      <span className="font-bold text-[#0D0D0D]">
+                        45 – 60 Days (Post Tech-Pack Approval)
                       </span>
                     </div>
 
-                    <div className="px-6 py-3 flex justify-between">
-                      <span className="text-slate-700 font-medium">Sample Availability</span>
-                      <span className="font-semibold text-slate-900 flex items-center">
-                        <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" />
-                        Available within 7-10 days via DHL / FedEx
+                    <div className="px-5 py-2.5 flex justify-between">
+                      <span className="text-[#6B7280] uppercase text-[10px]">Physical Sampling</span>
+                      <span className="font-bold text-[#0D0D0D] flex items-center">
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-[#1E3A52]" />
+                        Dispatch 7-10 days via DHL / FedEx
                       </span>
                     </div>
 
-                    <div className="px-6 py-3 flex justify-between">
-                      <span className="text-slate-700 font-medium">Incoterms Supported</span>
-                      <span className="font-semibold text-slate-900">
-                        FOB Kathmandu (Tribhuvan Airport) / CIF Kolkata Sea Port
+                    <div className="px-5 py-2.5 flex justify-between">
+                      <span className="text-[#6B7280] uppercase text-[10px]">Incoterms Supported</span>
+                      <span className="font-bold text-[#0D0D0D]">
+                        FOB Tribhuvan / CIF Kolkata Seaport
                       </span>
                     </div>
                   </div>

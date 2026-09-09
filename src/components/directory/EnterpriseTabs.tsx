@@ -8,15 +8,9 @@ import {
   ShieldCheck,
   Package,
   Send,
-  Download,
   ExternalLink,
   Award,
   CheckCircle2,
-  Layers,
-  MapPin,
-  Phone,
-  Mail,
-  Globe,
 } from "lucide-react";
 import { QuoteModal } from "@/components/public/QuoteModal";
 
@@ -80,25 +74,25 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
   } | null>(null);
 
   const tabs = [
-    { id: "overview", label: "Company Overview", icon: Building2 },
-    { id: "machinery", label: "Machinery & Production Specs", icon: Cpu },
+    { id: "overview", label: "Mill Overview", icon: Building2 },
+    { id: "machinery", label: "Machinery & Technical Specifications", icon: Cpu },
     {
       id: "certifications",
-      label: `Certifications (${enterprise.certifications.length})`,
+      label: `Accreditations (${enterprise.certifications.length})`,
       icon: ShieldCheck,
     },
     {
       id: "products",
-      label: `Export Products (${enterprise.products.length})`,
+      label: `Export Catalog (${enterprise.products.length})`,
       icon: Package,
     },
-    { id: "rfq", label: "Request Direct Quote", icon: Send },
+    { id: "rfq", label: "Direct Sourcing RFQ", icon: Send },
   ];
 
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-1.5 shadow-xs flex flex-wrap gap-1">
+      <div className="bg-white border border-[#E1E4E7] p-1 flex flex-wrap gap-1 font-mono text-xs">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -106,12 +100,13 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${isActive
-                  ? "bg-emerald-800 text-white shadow-sm"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                }`}
+              className={`flex-1 min-w-[150px] py-2.5 px-3 rounded-none uppercase tracking-wider text-xs font-bold transition-colors flex items-center justify-center space-x-2 ${
+                isActive
+                  ? "bg-[#0D0D0D] text-white"
+                  : "text-[#6B7280] hover:text-[#0D0D0D] hover:bg-[#F6F7F8]"
+              }`}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className="w-3.5 h-3.5 shrink-0" />
               <span>{tab.label}</span>
             </button>
           );
@@ -120,54 +115,57 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
 
       {/* Tab 1: Company Overview */}
       {activeTab === "overview" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-8 animate-in fade-in duration-200">
+        <div className="bg-white border border-[#E1E4E7] p-8 space-y-8 animate-in fade-in duration-150">
           <div>
-            <h3 className="font-outfit text-2xl font-bold text-slate-900 mb-4">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
+              Operational Profile // Mill Overview
+            </div>
+            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1 mb-4">
               About {enterprise.name}
             </h3>
-            <p className="text-slate-600 leading-relaxed text-base">
+            <p className="text-[#6B7280] leading-relaxed text-sm">
               {enterprise.description}
             </p>
           </div>
 
           {/* Plant Vital Signs */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-[#F6F7F8] border border-[#E1E4E7] font-mono">
             <div>
-              <span className="text-xs text-slate-700 block">Established:</span>
-              <span className="font-outfit text-xl font-black text-slate-900">
+              <span className="text-[10px] uppercase text-[#6B7280] block">Inception</span>
+              <span className="text-base font-bold text-[#0D0D0D]">
                 {enterprise.yearEstablished}
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-700 block">Artisan & Labor Workforce:</span>
-              <span className="font-outfit text-xl font-black text-slate-900">
-                {enterprise.employeeCount} Personnel
+              <span className="text-[10px] uppercase text-[#6B7280] block">Workforce Headcount</span>
+              <span className="text-base font-bold text-[#0D0D0D]">
+                {enterprise.employeeCount} Operatives
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-700 block">Monthly Export Capacity:</span>
-              <span className="font-outfit text-xl font-black text-emerald-700">
+              <span className="text-[10px] uppercase text-[#6B7280] block">Monthly Volume Capacity</span>
+              <span className="text-base font-bold text-[#1E3A52]">
                 {enterprise.monthlyCapacityPcs.toLocaleString()} pcs
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-700 block">Accreditation:</span>
-              <span className="font-outfit text-xl font-black text-slate-900">
-                GAN Member
+              <span className="text-[10px] uppercase text-[#6B7280] block">Accreditation</span>
+              <span className="text-base font-bold text-[#0D0D0D]">
+                GAN Verified
               </span>
             </div>
           </div>
 
           {/* Global Markets */}
           <div>
-            <h4 className="font-outfit text-lg font-bold text-slate-900 mb-3">
-              Key Export Destinations
+            <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D0D0D] mb-3">
+              Export Trading Destinations
             </h4>
             <div className="flex flex-wrap gap-2">
               {enterprise.exportMarkets.split(",").map((market, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200"
+                  className="px-2.5 py-1 text-xs font-mono bg-[#F6F7F8] text-[#0D0D0D] border border-[#E1E4E7]"
                 >
                   {market.trim()}
                 </span>
@@ -176,12 +174,12 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
           </div>
 
           {/* Statutory Registration Details */}
-          <div className="pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-600">
+          <div className="pt-6 border-t border-[#E1E4E7] grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs text-[#6B7280]">
             <div>
-              <strong>Government Registration No:</strong> {enterprise.registrationNumber}
+              <strong className="text-[#0D0D0D]">Enterprise Reg ID:</strong> {enterprise.registrationNumber}
             </div>
             <div>
-              <strong>PAN / VAT Tax ID:</strong> {enterprise.panNumber} (Inland Revenue Dept)
+              <strong className="text-[#0D0D0D]">Inland Revenue PAN:</strong> {enterprise.panNumber}
             </div>
           </div>
         </div>
@@ -189,56 +187,59 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
 
       {/* Tab 2: Machinery & Production Specs */}
       {activeTab === "machinery" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-8 animate-in fade-in duration-200">
+        <div className="bg-white border border-[#E1E4E7] p-8 space-y-8 animate-in fade-in duration-150">
           <div>
-            <h3 className="font-outfit text-2xl font-bold text-slate-900 mb-2">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
+              Facility Equipment Telemetry
+            </div>
+            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1 mb-2">
               Production Machinery & Technical Capabilities
             </h3>
-            <p className="text-slate-600 text-sm">
+            <p className="text-[#6B7280] text-xs font-mono">
               Audited production infrastructure deployed at the {enterprise.city} manufacturing plant.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                01
+            <div className="p-5 bg-[#F6F7F8] border border-[#E1E4E7] space-y-3 font-mono">
+              <div className="text-xs font-bold text-[#1E3A52]">
+                [SUITE 01]
               </div>
-              <h4 className="font-outfit text-base font-bold text-slate-900">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
                 Pattern & Cutting Suite
               </h4>
-              <ul className="text-xs text-slate-600 space-y-1.5">
-                <li>• CAD Digitized Pattern Grading & Marker Making</li>
+              <ul className="text-xs text-[#6B7280] space-y-1.5 font-sans">
+                <li>• CAD Digitized Pattern Grading & Marker Optimization</li>
                 <li>• Automated Fabric Spreading & High-Ply Knife Cutting</li>
-                <li>• End-to-end fabric shrinkage testing baths</li>
+                <li>• End-to-end fabric shrinkage & torque testing baths</li>
               </ul>
             </div>
 
-            <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                02
+            <div className="p-5 bg-[#F6F7F8] border border-[#E1E4E7] space-y-3 font-mono">
+              <div className="text-xs font-bold text-[#1E3A52]">
+                [SUITE 02]
               </div>
-              <h4 className="font-outfit text-base font-bold text-slate-900">
-                Sewing & Knitting Assembly
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
+                Assembly & Knitting Lines
               </h4>
-              <ul className="text-xs text-slate-600 space-y-1.5">
-                <li>• Direct-drive computerized lockstitch & overlock machines</li>
-                <li>• Shima Seiki / Stoll computerized multi-gauge flatbeds</li>
-                <li>• Laser cutting & ultrasonic seam-sealing lines</li>
+              <ul className="text-xs text-[#6B7280] space-y-1.5 font-sans">
+                <li>• Direct-drive programmable lockstitch & 5-thread overlockers</li>
+                <li>• Computerized multi-gauge Shima Seiki / Stoll flatbed knitters</li>
+                <li>• Laser contour cutting & ultrasonic seam-bonding lines</li>
               </ul>
             </div>
 
-            <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                03
+            <div className="p-5 bg-[#F6F7F8] border border-[#E1E4E7] space-y-3 font-mono">
+              <div className="text-xs font-bold text-[#1E3A52]">
+                [SUITE 03]
               </div>
-              <h4 className="font-outfit text-base font-bold text-slate-900">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D0D0D]">
                 Finishing & Quality Assurance
               </h4>
-              <ul className="text-xs text-slate-600 space-y-1.5">
-                <li>• Vacuum suction ironing tables & tension presses</li>
-                <li>• Hasima conveyor needle detectors (9-point audit)</li>
-                <li>• AQL 2.5 standard pre-shipment quality inspection</li>
+              <ul className="text-xs text-[#6B7280] space-y-1.5 font-sans">
+                <li>• Suction vacuum pressing boards & garment steamers</li>
+                <li>• Hasima dual-sensor conveyor needle detection stations</li>
+                <li>• AQL 1.5 / 2.5 standard pre-dispatch inspection protocols</li>
               </ul>
             </div>
           </div>
@@ -247,13 +248,16 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
 
       {/* Tab 3: Certifications */}
       {activeTab === "certifications" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-6 animate-in fade-in duration-200">
+        <div className="bg-white border border-[#E1E4E7] p-8 space-y-6 animate-in fade-in duration-150">
           <div>
-            <h3 className="font-outfit text-2xl font-bold text-slate-900 mb-2">
-              Compliance & Sustainability Certifications
+            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
+              Audited Standards & Compliance Register
+            </div>
+            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1 mb-2">
+              Accreditations & Social Audit Records
             </h3>
-            <p className="text-slate-600 text-sm">
-              Verified by international independent auditing agencies for social accountability and chemical safety.
+            <p className="text-[#6B7280] text-xs font-mono">
+              Validated against international accreditation databases for environmental safety and fair labor standards.
             </p>
           </div>
 
@@ -270,54 +274,44 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
               return (
                 <div
                   key={cert.id}
-                  className={`p-5 rounded-xl border transition-all flex items-start justify-between gap-4 ${isExpired
-                      ? "border-red-200 bg-red-50/40"
-                      : isExpiringSoon
-                        ? "border-amber-200 bg-amber-50/40"
-                        : "border-slate-200 bg-slate-50/70 hover:bg-white hover:border-emerald-500 hover:shadow-md"
-                    }`}
+                  className="p-4 border border-[#E1E4E7] bg-[#F6F7F8] flex items-start justify-between gap-4 font-mono text-xs"
                 >
                   <div className="flex items-start space-x-3">
-                    <div className={`p-2.5 rounded-lg shrink-0 ${isExpired
-                        ? "bg-red-100 text-red-700"
-                        : isExpiringSoon
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-emerald-100 text-emerald-700"
-                      }`}>
-                      <Award className="w-6 h-6" />
+                    <div className="p-2 bg-white border border-[#E1E4E7] text-[#0D0D0D]">
+                      <Award className="w-5 h-5 text-[#1E3A52]" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-outfit font-bold text-slate-900 text-base">
+                      <h4 className="font-bold text-[#0D0D0D] uppercase text-xs">
                         {cert.name}
                       </h4>
-                      <p className="text-xs text-slate-700">
-                        Issuing Body: <strong>{cert.issuer}</strong>
-                        {cert.certificateNumber && ` • Cert #${cert.certificateNumber}`}
+                      <p className="text-[11px] text-[#6B7280]">
+                        Issuer: <strong className="text-[#0D0D0D]">{cert.issuer}</strong>
+                        {cert.certificateNumber && ` // Cert #${cert.certificateNumber}`}
                       </p>
 
                       {cert.expiryDate && (
-                        <p className="text-[11px] text-slate-700">
-                          Valid: {cert.issueDate ? `${new Date(cert.issueDate).toLocaleDateString()} — ` : ""}
+                        <p className="text-[10px] text-[#6B7280]">
+                          Validity: {cert.issueDate ? `${new Date(cert.issueDate).toLocaleDateString()} — ` : ""}
                           {new Date(cert.expiryDate).toLocaleDateString()}
                         </p>
                       )}
 
-                      {/* Compliance Status Badge */}
+                      {/* Status Tag */}
                       <div className="pt-1">
                         {isActive && (
-                          <span className="inline-flex items-center text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
-                            <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                            Active & Audited in GAN Registry
+                          <span className="tag-approved text-[10px]">
+                            <CheckCircle2 className="w-3 h-3 inline mr-1" />
+                            AUDITED & ACTIVE
                           </span>
                         )}
                         {isExpiringSoon && (
-                          <span className="inline-flex items-center text-[11px] font-semibold text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
-                            ⚠ Renewal in Progress ({daysRemaining} days remaining)
+                          <span className="tag-pending text-[10px]">
+                            RENEWAL PROTOCOL ({daysRemaining} DAYS REMAINING)
                           </span>
                         )}
                         {isExpired && (
-                          <span className="inline-flex items-center text-[11px] font-semibold text-red-800 bg-red-100 px-2 py-0.5 rounded border border-red-300">
-                            ✕ Audit Expired — Recertification Pending
+                          <span className="tag-neutral text-[10px] text-red-600 border-red-200">
+                            EXPIRED // AUDIT REQUIRED
                           </span>
                         )}
                       </div>
@@ -329,10 +323,10 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
                       href={cert.certificateFileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                      className="p-1.5 border border-[#E1E4E7] bg-white text-[#6B7280] hover:text-[#0D0D0D] hover:border-[#0D0D0D] transition-colors"
                       title="View Certificate PDF"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   )}
                 </div>
@@ -344,19 +338,20 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
 
       {/* Tab 4: Product Catalog */}
       {activeTab === "products" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-6 animate-in fade-in duration-200">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-outfit text-2xl font-bold text-slate-900">
-                Products Manufactured by {enterprise.name}
-              </h3>
-              <p className="text-slate-600 text-sm">
-                Export samples available for tech-pack evaluation and bulk manufacturing.
-              </p>
+        <div className="bg-white border border-[#E1E4E7] p-8 space-y-6 animate-in fade-in duration-150">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-[#6B7280]">
+              Sample Registry // Production Runs
             </div>
+            <h3 className="font-mono text-xl font-bold uppercase text-[#0D0D0D] mt-1">
+              Specimens Manufactured by {enterprise.name}
+            </h3>
+            <p className="text-[#6B7280] text-xs font-mono">
+              Export specimens configured for tech-pack replication and bulk contract cutting.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {enterprise.products.map((product) => {
               let images: string[] = [];
               try {
@@ -369,47 +364,47 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
               return (
                 <div
                   key={product.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50/50 overflow-hidden hover:shadow-lg hover:border-emerald-500 transition-all flex flex-col justify-between"
+                  className="border border-[#E1E4E7] bg-white hover:border-[#0D0D0D] transition-colors flex flex-col justify-between"
                 >
                   <div>
-                    <div className="relative h-48 w-full bg-slate-200">
+                    <div className="relative h-44 w-full bg-[#F6F7F8] border-b border-[#E1E4E7]">
                       <img
                         src={displayImage}
                         alt={product.title}
                         className="w-full h-full object-cover"
                       />
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
+                      <span className="absolute top-2 left-2 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider font-bold bg-[#0D0D0D] text-white">
                         {product.category.name}
                       </span>
                     </div>
 
                     <div className="p-4 space-y-2">
                       <Link href={`/products/${product.slug}`} className="block">
-                        <h4 className="font-outfit font-bold text-slate-900 hover:text-emerald-700 transition-colors text-sm line-clamp-1">
+                        <h4 className="font-mono text-xs font-bold uppercase text-[#0D0D0D] hover:text-[#1E3A52] transition-colors truncate">
                           {product.title}
                         </h4>
                       </Link>
 
-                      <div className="text-xs text-slate-600 space-y-1">
+                      <div className="font-mono text-[11px] text-[#6B7280] space-y-1">
                         <div>
-                          <strong>Fabric:</strong> {product.fabricType}
+                          <strong>FIBER:</strong> {product.fabricType}
                         </div>
                         {product.gsmWeight && (
                           <div>
-                            <strong>Weight:</strong> {product.gsmWeight} GSM
+                            <strong>WEIGHT:</strong> {product.gsmWeight} GSM
                           </div>
                         )}
                         <div>
-                          <strong>MOQ:</strong> {product.moq} pcs
+                          <strong>MOQ:</strong> {product.moq.toLocaleString()} PCS
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 pt-0 flex items-center justify-between gap-2 border-t border-slate-100/80 mt-2">
+                  <div className="p-4 pt-0 flex items-center justify-between gap-2 border-t border-[#E1E4E7] mt-2">
                     <Link
                       href={`/products/${product.slug}`}
-                      className="text-xs font-semibold text-slate-700 hover:text-emerald-700"
+                      className="font-mono text-[10px] uppercase tracking-wider font-bold text-[#6B7280] hover:text-[#0D0D0D]"
                     >
                       Specifications
                     </Link>
@@ -422,9 +417,9 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
                         });
                         setIsQuoteModalOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors"
+                      className="px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
                     >
-                      Quote Product
+                      Quote Specimen
                     </button>
                   </div>
                 </div>
@@ -436,16 +431,21 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
 
       {/* Tab 5: Direct RFQ section */}
       {activeTab === "rfq" && (
-        <div id="rfq" className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs animate-in fade-in duration-200">
-          <div className="max-w-2xl mx-auto space-y-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
-              <Send className="w-8 h-8" />
+        <div id="rfq" className="bg-white border border-[#E1E4E7] p-8 animate-in fade-in duration-150">
+          <div className="max-w-xl mx-auto space-y-6 text-center">
+            <div className="w-12 h-12 border border-[#E1E4E7] text-[#0D0D0D] flex items-center justify-center mx-auto">
+              <Send className="w-5 h-5 text-[#1E3A52]" />
             </div>
-            <h3 className="font-outfit text-3xl font-black text-slate-900">
-              Submit Direct RFQ to {enterprise.name}
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Your inquiry will be logged with the Garment Association of Nepal and transmitted directly to the export merchandising team of {enterprise.name}.
+            <div className="space-y-1 font-mono">
+              <div className="text-[10px] uppercase tracking-widest text-[#6B7280]">
+                Contract Manufacturing Requisition
+              </div>
+              <h3 className="text-xl font-bold uppercase text-[#0D0D0D]">
+                Submit Commercial RFQ to {enterprise.name}
+              </h3>
+            </div>
+            <p className="text-[#6B7280] text-xs leading-relaxed font-sans">
+              Your inquiry will be logged with the Garment Association of Nepal trade desk and transmitted directly to the export merchandising team of {enterprise.name}.
             </p>
             <div className="pt-2">
               <button
@@ -453,7 +453,7 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
                   setSelectedProductForQuote(null);
                   setIsQuoteModalOpen(true);
                 }}
-                className="px-8 py-4 rounded-xl text-base font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all hover:scale-105"
+                className="px-6 py-3 font-mono text-xs uppercase tracking-widest font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
               >
                 Launch Factory Quotation Form
               </button>

@@ -8,13 +8,13 @@ import { DirectorySearch } from "@/components/directory/DirectorySearch";
 import { DirectoryToolbar } from "@/components/directory/DirectoryToolbar";
 import { FactoryCard } from "@/components/directory/FactoryCard";
 import { PaginationControls } from "@/components/common/PaginationControls";
-import { ShieldCheck, Building2, HelpCircle } from "lucide-react";
+import { ShieldCheck, Building2 } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Exporter Directory | Verified Nepalese Garment Manufacturers",
+  title: "Exporter Registry | Verified Nepalese Garment Manufacturers",
   description:
     "Explore certified garment export mills, cashmere factories, and sustainable apparel manufacturers registered with the Garment Association of Nepal.",
 };
@@ -113,7 +113,7 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
   // Determine sorting order
   let orderBy: any = { monthlyCapacityPcs: "desc" };
   if (sort === "capacity-asc") orderBy = { monthlyCapacityPcs: "asc" };
-  if (sort === "established-desc") orderBy = { yearEstablished: "asc" }; // Earlier year = more established
+  if (sort === "established-desc") orderBy = { yearEstablished: "asc" };
   if (sort === "name-asc") orderBy = { name: "asc" };
 
   // Fetch factories and metadata options in parallel with pagination
@@ -159,23 +159,23 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
   const availableCertifications = allCertifications.map((c) => c.name).sort();
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+    <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
       <Navbar />
 
       <main className="flex-1 pb-20">
-        {/* Directory Header Banner */}
-        <div className="bg-slate-900 text-white py-12 border-b border-slate-800">
+        {/* Directory Masthead Strip */}
+        <div className="bg-[#0D0D0D] text-white py-10 border-b border-[#0D0D0D]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center space-x-2 text-xs font-semibold text-emerald-400 uppercase tracking-widest">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Audited Exporter Catalog</span>
+            <div className="max-w-3xl space-y-2">
+              <div className="inline-flex items-center space-x-2 font-mono text-[10px] uppercase tracking-widest text-[#E1E4E7]">
+                <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                <span>B2B Exporter Accreditation Ledger</span>
               </div>
-              <h1 className="font-outfit text-3xl sm:text-4xl font-black">
+              <h1 className="font-mono text-2xl sm:text-3xl font-bold uppercase tracking-tight">
                 Verified Garment Manufacturers of Nepal
               </h1>
-              <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                Connect with accredited mills certified for WRAP, OEKO-TEX, and GOTS standards. Filter by production capacity, apparel specialization, and export destinations.
+              <p className="text-xs text-[#E1E4E7] leading-relaxed font-sans">
+                Accredited export mills verified for WRAP, OEKO-TEX, and GOTS standards. Filter by monthly production volume, apparel specialization, and bilateral export destinations.
               </p>
             </div>
           </div>
@@ -188,9 +188,9 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
             <DirectorySearch />
             <Link
               href="/rfq"
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors shadow-xs shrink-0"
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-none text-xs font-mono uppercase tracking-wider font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] border border-[#0D0D0D] transition-colors shrink-0"
             >
-              Can't Find a Mill? Submit Custom Sourcing RFQ
+              Submit Custom Commercial RFQ
             </Link>
           </div>
 
@@ -209,28 +209,28 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
               <DirectoryToolbar totalCount={totalCount} />
 
               {factories.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-700">
-                    <Building2 className="w-8 h-8" />
+                <div className="bg-white rounded-none border border-[#E1E4E7] p-12 text-center space-y-4">
+                  <div className="w-12 h-12 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
+                    <Building2 className="w-6 h-6" />
                   </div>
-                  <h3 className="font-outfit text-xl font-bold text-slate-900">
-                    No Matching Exporters Found
+                  <h3 className="font-mono text-sm uppercase font-bold tracking-wider text-[#0D0D0D]">
+                    No Matching Exporters Indexed
                   </h3>
-                  <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                    No manufacturers match your active filter criteria. Try clearing selected certifications, increasing the MOQ threshold, or submitting a direct trade desk RFQ.
+                  <p className="text-xs text-[#6B7280] max-w-md mx-auto leading-relaxed">
+                    No manufacturers match your active filter parameters. Clear selected certifications, increase the MOQ threshold, or route an inquiry directly to the secretariat trade desk.
                   </p>
                   <div className="pt-2 flex justify-center space-x-3">
                     <Link
                       href="/directory"
-                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                      className="px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#0D0D0D] border border-[#E1E4E7] hover:bg-[#F6F7F8] transition-colors"
                     >
                       Clear All Filters
                     </Link>
                     <Link
                       href="/rfq"
-                      className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors"
+                      className="px-4 py-2 text-xs font-mono uppercase tracking-wider text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors"
                     >
-                      Post Trade Desk Inquiry
+                      Post Trade Desk RFQ
                     </Link>
                   </div>
                 </div>

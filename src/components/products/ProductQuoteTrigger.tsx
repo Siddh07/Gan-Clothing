@@ -45,30 +45,30 @@ export function ProductQuoteTrigger({
 
   return (
     <>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2 font-mono text-xs">
         <button
           onClick={handleAddToCart}
-          className="flex-1 inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-bold text-slate-900 bg-emerald-300 hover:bg-emerald-400 transition-all shadow-sm cursor-pointer"
+          className="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-none uppercase tracking-wider font-bold text-[#0D0D0D] bg-white border border-[#0D0D0D] hover:bg-[#F6F7F8] transition-colors cursor-pointer"
         >
           {justAdded ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-emerald-950" />
-              <span>Added to RFQ Basket!</span>
+              <Check className="w-4 h-4 mr-2 text-[#1E3A52]" />
+              <span>Added to RFQ Docket</span>
             </>
           ) : (
             <>
-              <ShoppingBag className="w-4 h-4 mr-2" />
-              <span>Add to RFQ Basket</span>
+              <ShoppingBag className="w-4 h-4 mr-2 text-[#0D0D0D]" />
+              <span>Add to Requisition Docket</span>
             </>
           )}
         </button>
 
         <button
           onClick={() => setIsOpen(true)}
-          className="flex-1 inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 transition-all shadow-sm cursor-pointer"
+          className="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-none uppercase tracking-wider font-bold text-white bg-[#0D0D0D] hover:bg-[#1E3A52] transition-colors cursor-pointer"
         >
-          <Send className="w-4 h-4 mr-2 text-emerald-400" />
-          <span>Direct Quick RFQ</span>
+          <Send className="w-4 h-4 mr-2 text-white" />
+          <span>Launch Direct RFQ</span>
         </button>
       </div>
 

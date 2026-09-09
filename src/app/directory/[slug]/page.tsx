@@ -9,15 +9,11 @@ import { EnterpriseTabs } from "@/components/directory/EnterpriseTabs";
 import { OrganizationJsonLd } from "@/components/seo/JsonLd";
 import {
   ShieldCheck,
-  Building2,
   MapPin,
   Globe,
   Phone,
   Mail,
   ArrowLeft,
-  Calendar,
-  Layers,
-  Users,
   Printer,
 } from "lucide-react";
 
@@ -84,73 +80,73 @@ export default async function EnterpriseDetailPage({
         telephone={enterprise.contactPhone}
       />
 
-      <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+      <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
         <Navbar />
 
         <main className="flex-1 pb-20">
           {/* Back Navigation Bar */}
-          <div className="bg-slate-900 border-b border-slate-800 text-slate-700 py-3">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs">
+          <div className="bg-[#0D0D0D] border-b border-[#0D0D0D] text-[#E1E4E7] py-3">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between font-mono text-xs">
               <Link
                 href="/directory"
                 className="inline-flex items-center hover:text-white transition-colors"
               >
-                <ArrowLeft className="w-4 h-4 mr-1.5" />
-                Back to All Exporters Directory
+                <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+                Return to Exporter Registry
               </Link>
-              <span>GAN Registry Ref: #{enterprise.id.slice(-6).toUpperCase()}</span>
+              <span>REGISTRY ID: #{enterprise.id.slice(-6).toUpperCase()}</span>
             </div>
           </div>
 
           {/* Hero Header */}
-          <section className="bg-white border-b border-slate-200">
-            <div className="relative h-64 sm:h-80 w-full bg-slate-900 overflow-hidden">
+          <section className="bg-white border-b border-[#E1E4E7]">
+            <div className="relative h-64 sm:h-72 w-full bg-[#0D0D0D] overflow-hidden">
               {enterprise.coverImageUrl ? (
                 <img
                   src={enterprise.coverImageUrl}
                   alt={enterprise.name}
-                  className="w-full h-full object-cover opacity-80"
+                  className="w-full h-full object-cover opacity-60"
                 />
               ) : (
-                <div className="w-full h-full bg-linear-to-r from-slate-900 to-emerald-950" />
+                <div className="w-full h-full bg-[#0D0D0D]" />
               )}
-              <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-[#0D0D0D]/40 to-transparent" />
 
               <div className="absolute bottom-6 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
+                <div className="flex flex-wrap items-center gap-2 mb-2 font-mono text-[10px] uppercase">
                   {enterprise.isVerified && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-sm">
-                      <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                    <span className="inline-flex items-center px-2 py-0.5 bg-[#1E3A52] text-white border border-white/20">
+                      <ShieldCheck className="w-3 h-3 mr-1" />
                       GAN Verified Exporter
                     </span>
                   )}
-                  <span className="text-xs text-slate-300 font-medium">
-                    Established in {enterprise.yearEstablished}
+                  <span className="text-[#E1E4E7]">
+                    Est. {enterprise.yearEstablished}
                   </span>
-                  <span className="text-xs text-slate-300">•</span>
-                  <span className="text-xs text-slate-300 font-medium">
+                  <span className="text-[#6B7280]">//</span>
+                  <span className="text-[#E1E4E7]">
                     {enterprise.city}, Nepal
                   </span>
                 </div>
-                <h1 className="font-outfit text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+                <h1 className="font-mono text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-white">
                   {enterprise.name}
                 </h1>
               </div>
             </div>
 
             {/* Quick Contact & Info Strip */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[#6B7280]">
               <div className="flex flex-wrap items-center gap-6">
-                <span className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-1.5 text-emerald-600 shrink-0" />
+                <span className="flex items-center text-[#0D0D0D]">
+                  <MapPin className="w-3.5 h-3.5 mr-1.5 text-[#1E3A52] shrink-0" />
                   {enterprise.address}, {enterprise.city}
                 </span>
-                <span className="flex items-center">
-                  <Phone className="w-4 h-4 mr-1.5 text-emerald-600 shrink-0" />
+                <span className="flex items-center text-[#0D0D0D]">
+                  <Phone className="w-3.5 h-3.5 mr-1.5 text-[#1E3A52] shrink-0" />
                   {enterprise.contactPhone}
                 </span>
-                <span className="flex items-center">
-                  <Mail className="w-4 h-4 mr-1.5 text-emerald-600 shrink-0" />
+                <span className="flex items-center text-[#0D0D0D]">
+                  <Mail className="w-3.5 h-3.5 mr-1.5 text-[#1E3A52] shrink-0" />
                   {enterprise.contactEmail}
                 </span>
                 {enterprise.websiteUrl && (
@@ -158,10 +154,10 @@ export default async function EnterpriseDetailPage({
                     href={enterprise.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center hover:text-emerald-700 font-medium"
+                    className="flex items-center text-[#1E3A52] hover:underline"
                   >
-                    <Globe className="w-4 h-4 mr-1.5 text-emerald-600 shrink-0" />
-                    Website
+                    <Globe className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                    Web Portal
                   </a>
                 )}
               </div>
@@ -170,10 +166,10 @@ export default async function EnterpriseDetailPage({
                 <Link
                   href={`/directory/${enterprise.slug}/pdf`}
                   target="_blank"
-                  className="inline-flex items-center px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-bold transition-colors shadow-xs"
+                  className="inline-flex items-center px-3.5 py-1.5 rounded-none border border-[#E1E4E7] bg-white text-[#0D0D0D] hover:bg-[#F6F7F8] font-mono text-xs uppercase tracking-wider font-bold transition-colors"
                 >
-                  <Printer className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
-                  Export Factory Dossier (PDF)
+                  <Printer className="w-3.5 h-3.5 mr-1.5 text-[#1E3A52]" />
+                  Dossier (Print / PDF)
                 </Link>
               </div>
             </div>

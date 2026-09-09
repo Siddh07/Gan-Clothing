@@ -14,13 +14,15 @@ export default async function PortalDashboardPage() {
 
   if (!enterpriseId) {
     return (
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4">
-        <Building2 className="w-12 h-12 text-slate-400 mx-auto" />
-        <h2 className="font-outfit text-xl font-bold text-slate-900">
-          No Linked Factory Profile
+      <div className="bg-white border border-[#E1E4E7] p-8 text-center space-y-3">
+        <div className="w-10 h-10 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
+          <Building2 className="w-5 h-5" />
+        </div>
+        <h2 className="text-sm font-bold text-[#0D0D0D]">
+          Unassigned Facility Accreditation
         </h2>
-        <p className="text-xs text-slate-600 max-w-md mx-auto">
-          Your account is registered as a representative, but has not yet been linked to an active factory profile by the GAN Secretariat.
+        <p className="text-xs font-mono text-[#6B7280] max-w-md mx-auto">
+          Your credentials are authenticated as a manufacturer representative, but this account has not yet been linked to an active mill dossier by the GAN Secretariat.
         </p>
       </div>
     );
