@@ -26,158 +26,120 @@ export default function AdminLoginPage() {
       });
 
       if (res?.error) {
-        setError("Invalid credentials. Please verify official email and key.");
+        setError("Invalid email or password. Please try again.");
       } else {
         window.location.href = "/admin";
       }
-    } catch (err) {
-      setError("An authentication gateway error occurred. Contact the secretariat.");
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F7F8] flex items-center justify-center p-0 sm:p-6 lg:p-12">
-      {/* 12-Column Precision Ledger Container */}
-      <div className="w-full max-w-5xl bg-[#FFFFFF] border border-[#E1E4E7] grid grid-cols-1 lg:grid-cols-12">
-        {/* Left 5 Columns: Institutional Masthead & Protocol Ledger */}
-        <div className="lg:col-span-5 bg-[#F6F7F8] p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-[#E1E4E7] flex flex-col justify-between">
-          <div className="space-y-6">
-            <div>
-              <div className="text-xs font-mono text-[#6B7280]">
-                Garment Association of Nepal
-              </div>
-              <h1 className="text-xl font-semibold text-[#0D0D0D] tracking-tight mt-1">
-                Procurement & Operations Console
-              </h1>
-              <p className="text-xs text-[#6B7280] leading-relaxed mt-2">
-                Restricted terminal for registered garment manufacturers, certified compliance auditors, and trade secretariat officers.
-              </p>
+    <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Brand */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 mb-1">
+            <div className="w-7 h-7 bg-[#3B5BDB] rounded flex items-center justify-center">
+              <span className="text-white text-[11px] font-semibold leading-none">G</span>
             </div>
+            <span className="text-[15px] font-semibold text-[#1A1A1A]">GAN Trade Platform</span>
+          </div>
+          <p className="text-xs text-[#6B7280] mt-1">Garment Association of Nepal</p>
+        </div>
 
-            {/* Technical Specification Table */}
-            <div className="border-t border-b border-[#E1E4E7] py-4 space-y-2.5 font-mono text-xs">
-              <div className="flex justify-between items-baseline">
-                <span className="text-[#6B7280]">Terminal</span>
-                <span className="text-[#0D0D0D] font-medium">GAN-B2B-OS / v3.2</span>
-              </div>
-              <div className="flex justify-between items-baseline">
-                <span className="text-[#6B7280]">Trade protocol</span>
-                <span className="text-[#0D0D0D] font-medium">NTPA P.L. 114-125</span>
-              </div>
-              <div className="flex justify-between items-baseline">
-                <span className="text-[#6B7280]">Clearing hub</span>
-                <span className="text-[#0D0D0D] font-medium">Chobhar Dry Port (ICD)</span>
-              </div>
-              <div className="flex justify-between items-baseline">
-                <span className="text-[#6B7280]">Security</span>
-                <span className="text-[#0D0D0D] font-medium">Encrypted session</span>
-              </div>
-            </div>
+        {/* Card */}
+        <div className="bg-white rounded-lg border border-[#D1D5DB] p-8">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold text-[#1A1A1A]">Sign in to your workspace</h1>
+            <p className="text-sm text-[#6B7280] mt-1">
+              Enter your credentials to access the admin console.
+            </p>
           </div>
 
-          <div className="pt-6 font-mono text-[11px] text-[#6B7280]">
-            Official apex trade body established 1986. Kathmandu, Nepal.
+          {error && (
+            <div className="mb-4 p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded text-sm text-[#DC2626] flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+                Email address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-[#D1D5DB] rounded text-sm text-[#1A1A1A] bg-white placeholder:text-[#6B7280] focus:border-[#3B5BDB] focus:ring-2 focus:ring-[#3B5BDB]/20 focus:outline-none transition"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-sm font-medium text-[#1A1A1A]">
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs text-[#3B5BDB] hover:text-[#3451C7]"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-[#D1D5DB] rounded text-sm text-[#1A1A1A] bg-white placeholder:text-[#6B7280] focus:border-[#3B5BDB] focus:ring-2 focus:ring-[#3B5BDB]/20 focus:outline-none transition"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-2.5 px-4 bg-[#3B5BDB] hover:bg-[#3451C7] text-white text-sm font-medium rounded transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
+            </button>
+          </form>
+
+          {/* Dev credentials helper */}
+          <div className="mt-5 pt-4 border-t border-[#F3F4F6]">
+            <p className="text-xs font-medium text-[#6B7280] mb-2">Development credentials</p>
+            <div className="bg-[#F8F8F6] rounded border border-[#D1D5DB] p-3 text-xs font-mono space-y-1 text-[#1A1A1A]">
+              <div className="flex gap-2">
+                <span className="text-[#6B7280] w-14 shrink-0">Email</span>
+                <span>admin@ganepal.org</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="text-[#6B7280] w-14 shrink-0">Password</span>
+                <span>Admin@GAN2024!</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right 7 Columns: Form Entry Stage */}
-        <div className="lg:col-span-7 p-8 lg:p-12 flex flex-col justify-center bg-[#FFFFFF]">
-          <div className="max-w-md w-full mx-auto space-y-6">
-            <div>
-              <h2 className="text-2xl font-semibold text-[#0D0D0D] tracking-tight">
-                Sign in to console
-              </h2>
-              <p className="text-xs text-[#6B7280] mt-1">
-                Enter your administrative credentials to access the secretariat workspace.
-              </p>
-            </div>
-
-            {error && (
-              <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] text-[#991B1B] text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#0D0D0D] mb-1.5">
-                  Official secretariat email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E1E4E7] text-sm text-[#0D0D0D] font-mono focus:border-[#1E3A52]"
-                  placeholder="admin@ganepal.org"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-medium text-[#0D0D0D]">
-                    Administrative password
-                  </label>
-                  <Link
-                    href="/auth/forgot-password"
-                    className="text-xs text-[#6B7280] hover:text-[#0D0D0D] underline"
-                  >
-                    Reset password
-                  </Link>
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-[#E1E4E7] text-sm text-[#0D0D0D] font-mono focus:border-[#1E3A52]"
-                  placeholder="••••••••••••"
-                />
-              </div>
-
-              {/* Seed Specimen Credentials Box */}
-              <div className="p-3 bg-[#F6F7F8] border border-[#E1E4E7] font-mono text-[11px] text-[#6B7280] space-y-1">
-                <div className="text-[#0D0D0D] font-medium">
-                  Seed authentication reference:
-                </div>
-                <div className="flex justify-between">
-                  <span>User:</span>
-                  <span className="text-[#0D0D0D]">admin@ganepal.org</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Key:</span>
-                  <span className="text-[#0D0D0D]">Admin@GAN2024!</span>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-2.5 px-4 bg-[#1E3A52] hover:bg-[#152A3B] text-white text-xs font-medium tracking-wide uppercase transition-colors disabled:opacity-50 flex items-center justify-center cursor-pointer"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-                    <span>Verifying session...</span>
-                  </>
-                ) : (
-                  <span>Authenticate session</span>
-                )}
-              </button>
-            </form>
-
-            <div className="pt-2 border-t border-[#E1E4E7] text-left">
-              <Link
-                href="/"
-                className="text-xs text-[#6B7280] hover:text-[#0D0D0D] font-mono"
-              >
-                Return to public directory
-              </Link>
-            </div>
-          </div>
+        <div className="mt-6 text-center">
+          <Link href="/" className="text-xs text-[#6B7280] hover:text-[#1A1A1A] transition">
+            Back to public directory
+          </Link>
         </div>
       </div>
     </div>

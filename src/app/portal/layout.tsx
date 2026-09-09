@@ -4,35 +4,18 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import {
-  Building2,
-  Package,
-  Inbox,
-  ShieldCheck,
-  ExternalLink,
-  LogOut,
-  User,
-  Layers,
-} from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { PortalNav } from "@/components/portal/PortalNav";
 
-export default async function PortalLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user) {
-    redirect("/admin/login");
-  }
+  if (!session?.user) redirect("/admin/login");
 
   const role = (session.user as any).role;
   const enterpriseId = (session.user as any).enterpriseId;
 
-  if (role !== "FACTORY_REP" && role !== "SUPER_ADMIN") {
-    redirect("/admin");
-  }
+  if (role !== "FACTORY_REP" && role !== "SUPER_ADMIN") redirect("/admin");
 
   let enterprise = null;
   if (enterpriseId) {
@@ -42,79 +25,74 @@ export default async function PortalLayout({
     });
   }
 
-  return (
-    <div className="min-h-screen bg-[#F6F7F8] flex flex-col md:flex-row text-[#0D0D0D]">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white border-r border-[#E1E4E7] flex flex-col justify-between shrink-0">
-        <div>
-          {/* Header */}
-          <div className="p-4 border-b border-[#E1E4E7]">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-[#0D0D0D] text-white flex items-center justify-center font-mono font-bold text-xs shrink-0">
-                GAN
-              </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="font-bold text-sm text-[#0D0D0D] leading-tight truncate">
-                  {enterprise?.name || "Factory Portal"}
-                </h2>
-                <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#6B7280] mt-0.5">
-                  <span>PLANT TERMINAL</span>
-                  {enterprise?.isVerified && (
-                    <span className="tag-approved text-[9px] py-0 px-1">ACCREDITED</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+  const userInitials = session.user.name
+    ? session.user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "FR";
 
-          {/* Navigation Links */}
-          <div className="py-2">
-            <div className="px-4 py-1.5 text-[10px] font-mono uppercase text-[#6B7280]">
-              Facility Operations
+  return (
+    <div className="min-h-screen bg-[#F8F8F6] flex">
+      {/* Sidebar */}
+      <aside className="w-60 shrink-0 bg-[#F8F8F6] border-r border-[#D1D5DB] flex flex-col fixed inset-y-0 left-0">
+        {/* Brand zone */}
+        <div className="h-14 flex items-center gap-2.5 px-4 border-b border-[#D1D5DB] bg-white shrink-0">
+          <div className="w-6 h-6 bg-[#3B5BDB] rounded flex items-center justify-center shrink-0">
+            <span className="text-white text-[10px] font-semibold">G</span>
+          </div>
+          <div className="min-w-0">
+            <div className="text-[13px] font-semibold text-[#1A1A1A] leading-tight truncate">
+              {enterprise?.name || "Factory portal"}
             </div>
-            <PortalNav enterpriseSlug={enterprise?.slug} />
+            <div className="flex items-center gap-1.5 text-[11px] text-[#6B7280]">
+              <span>Supplier portal</span>
+              {enterprise?.isVerified && (
+                <span className="badge badge-success py-0 text-[10px]">Verified</span>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* User profile & Public Link */}
-        <div className="p-3 border-t border-[#E1E4E7] space-y-2 bg-[#F6F7F8]/50">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
+          <div className="px-3 mb-1 text-[11px] font-medium text-[#9CA3AF] uppercase tracking-wider">
+            Facility
+          </div>
+          <PortalNav enterpriseSlug={enterprise?.slug} />
+        </nav>
+
+        {/* User zone */}
+        <div className="border-t border-[#D1D5DB] p-4 space-y-2 shrink-0">
           {enterprise?.slug && (
             <Link
               href={`/directory/${enterprise.slug}`}
               target="_blank"
-              className="flex items-center justify-between px-3 py-2 text-xs font-mono text-[#6B7280] hover:text-[#0D0D0D] hover:bg-white border border-transparent hover:border-[#E1E4E7] transition-colors"
+              className="flex items-center justify-between text-xs text-[#6B7280] hover:text-[#1A1A1A] transition-colors py-1"
             >
-              <span className="flex items-center">
-                <ExternalLink className="w-3.5 h-3.5 mr-2 text-[#1E3A52]" />
-                Public Directory Entry
-              </span>
+              <span>Public profile</span>
+              <ExternalLink className="w-3 h-3" />
             </Link>
           )}
-
-          <div className="p-2.5 bg-white border border-[#E1E4E7] flex items-center justify-between">
-            <div className="truncate text-xs">
-              <div className="font-bold text-[#0D0D0D] truncate">
-                {session.user.name || "Factory Representative"}
-              </div>
-              <div className="text-[10px] font-mono text-[#6B7280] truncate">
-                {session.user.email}
-              </div>
+          <div className="flex items-center gap-2.5 pt-1">
+            <div className="w-7 h-7 rounded-full bg-[#3B5BDB] flex items-center justify-center shrink-0">
+              <span className="text-white text-[11px] font-semibold">{userInitials}</span>
             </div>
-
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-[#1A1A1A] truncate">{session.user.name || "Factory rep"}</div>
+              <div className="text-[11px] text-[#6B7280] truncate">{session.user.email}</div>
+            </div>
             <Link
               href="/api/auth/signout"
-              title="Sign Out"
-              className="p-1.5 text-[#6B7280] hover:text-[#0D0D0D] hover:bg-[#F6F7F8] border border-transparent hover:border-[#E1E4E7] transition-colors"
+              title="Sign out"
+              className="p-1 text-[#9CA3AF] hover:text-[#DC2626] transition-colors shrink-0"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <main className="p-6 md:p-8 max-w-7xl w-full mx-auto">{children}</main>
+      {/* Main content */}
+      <div className="flex-1 ml-60 min-w-0 overflow-y-auto">
+        <main className="max-w-[1280px] w-full mx-auto px-6 py-6">{children}</main>
       </div>
     </div>
   );

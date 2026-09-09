@@ -4,6 +4,9 @@ import React, { useState, useTransition } from "react";
 import { updateFactoryProfile } from "@/actions/portal";
 import { CheckCircle2, AlertCircle, Loader2, Save } from "lucide-react";
 
+const inputCls = "w-full px-3 py-2 border border-[#D1D5DB] rounded text-sm text-[#1A1A1A] bg-white placeholder:text-[#9CA3AF] focus:border-[#3B5BDB] focus:ring-2 focus:ring-[#3B5BDB]/15 focus:outline-none transition";
+const labelCls = "block text-sm font-medium text-[#1A1A1A] mb-1.5";
+
 export function FactoryProfileForm({ enterprise }: { enterprise: any }) {
   const [formData, setFormData] = useState({
     enterpriseId: enterprise.id,
@@ -24,6 +27,8 @@ export function FactoryProfileForm({ enterprise }: { enterprise: any }) {
   const [successMsg, setSuccessMsg] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const setF = (key: string, val: unknown) => setFormData((p) => ({ ...p, [key]: val }));
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMsg(false);
@@ -36,7 +41,7 @@ export function FactoryProfileForm({ enterprise }: { enterprise: any }) {
           setSuccessMsg(true);
           setTimeout(() => setSuccessMsg(false), 3000);
         } else {
-          setErrorMsg("Failed to update factory profile.");
+          setErrorMsg("Failed to update profile. Please try again.");
         }
       } catch (err: any) {
         setErrorMsg(err?.message || "An error occurred.");
@@ -47,181 +52,89 @@ export function FactoryProfileForm({ enterprise }: { enterprise: any }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {successMsg && (
-        <div className="p-3 bg-[#F6F7F8] border border-[#1E3A52] flex items-center text-xs text-[#0D0D0D] font-mono">
-          <CheckCircle2 className="w-4 h-4 mr-2 text-[#1E3A52] shrink-0" />
-          Technical dossier updated and synchronized with central trade directory.
+        <div className="p-3 bg-[#F0FDF4] border border-[#86EFAC] rounded flex items-center gap-2 text-sm text-[#16A34A]">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          Profile updated and synced to the directory.
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-3 bg-[#F6F7F8] border border-red-600 flex items-center text-xs text-red-600 font-mono">
-          <AlertCircle className="w-4 h-4 mr-2 text-red-600 shrink-0" />
+        <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded flex items-center gap-2 text-sm text-[#DC2626]">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           {errorMsg}
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Registered Legal Name *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Production Hub / City *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Monthly Production Capacity (Pcs) *
-          </label>
-          <input
-            type="number"
-            required
-            value={formData.monthlyCapacityPcs}
-            onChange={(e) => setFormData({ ...formData, monthlyCapacityPcs: Number(e.target.value) })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Artisan & Labor Force Headcount *
-          </label>
-          <input
-            type="number"
-            required
-            value={formData.employeeCount}
-            onChange={(e) => setFormData({ ...formData, employeeCount: Number(e.target.value) })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Export Desk Official Email *
-          </label>
-          <input
-            type="email"
-            required
-            value={formData.contactEmail}
-            onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Official Telephone / Hotline *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.contactPhone}
-            onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
+      {/* Core details */}
+      <div>
+        <h3 className="text-sm font-semibold text-[#1A1A1A] mb-4 pb-2 border-b border-[#D1D5DB]">Basic information</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Legal name *</label>
+            <input type="text" required value={formData.name} onChange={(e) => setF("name", e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>City *</label>
+            <input type="text" required value={formData.city} onChange={(e) => setF("city", e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Monthly capacity (pcs) *</label>
+            <input type="number" required value={formData.monthlyCapacityPcs} onChange={(e) => setF("monthlyCapacityPcs", Number(e.target.value))} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Employees *</label>
+            <input type="number" required value={formData.employeeCount} onChange={(e) => setF("employeeCount", Number(e.target.value))} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Contact email *</label>
+            <input type="email" required value={formData.contactEmail} onChange={(e) => setF("contactEmail", e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Phone</label>
+            <input type="text" required value={formData.contactPhone} onChange={(e) => setF("contactPhone", e.target.value)} className={inputCls} />
+          </div>
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-          Physical Plant Facility Address *
-        </label>
-        <input
-          type="text"
-          required
-          value={formData.address}
-          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-          className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-        />
+        <label className={labelCls}>Address *</label>
+        <input type="text" required value={formData.address} onChange={(e) => setF("address", e.target.value)} className={inputCls} />
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-          Technical Capabilities & Machinery Description *
-        </label>
-        <textarea
-          rows={4}
-          required
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs rounded-none focus:outline-none bg-white"
-        ></textarea>
+        <label className={labelCls}>Description & capabilities *</label>
+        <textarea rows={4} required value={formData.description} onChange={(e) => setF("description", e.target.value)} className={inputCls} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Active Export Corridors (Comma-separated)
-          </label>
-          <input
-            type="text"
-            value={formData.exportMarkets}
-            onChange={(e) => setFormData({ ...formData, exportMarkets: e.target.value })}
-            placeholder="EU, US, Japan, Germany..."
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-            Corporate Domain / URL
-          </label>
-          <input
-            type="url"
-            value={formData.websiteUrl}
-            onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
-            className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-            placeholder="https://..."
-          />
-        </div>
-      </div>
-
+      {/* Commercial */}
       <div>
-        <label className="block text-[10px] font-mono uppercase text-[#6B7280] mb-1">
-          Plant / Facility Cover Photograph URL
-        </label>
-        <input
-          type="url"
-          value={formData.coverImageUrl}
-          onChange={(e) => setFormData({ ...formData, coverImageUrl: e.target.value })}
-          className="w-full px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs font-mono rounded-none focus:outline-none bg-white"
-        />
+        <h3 className="text-sm font-semibold text-[#1A1A1A] mb-4 pb-2 border-b border-[#D1D5DB]">Commercial details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Export markets</label>
+            <input type="text" value={formData.exportMarkets} onChange={(e) => setF("exportMarkets", e.target.value)} className={inputCls} placeholder="USA, Germany, UK…" />
+          </div>
+          <div>
+            <label className={labelCls}>Website</label>
+            <input type="url" value={formData.websiteUrl} onChange={(e) => setF("websiteUrl", e.target.value)} className={inputCls} placeholder="https://…" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Cover image URL</label>
+            <input type="url" value={formData.coverImageUrl} onChange={(e) => setF("coverImageUrl", e.target.value)} className={inputCls} />
+          </div>
+        </div>
       </div>
 
-      <div className="flex justify-end pt-2 border-t border-[#E1E4E7]">
+      <div className="flex justify-end pt-2 border-t border-[#D1D5DB]">
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center px-5 py-2.5 text-xs font-mono font-medium text-white bg-[#1E3A52] hover:bg-[#0D0D0D] transition-colors rounded-none cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3B5BDB] hover:bg-[#3451C7] text-white text-sm font-medium rounded transition disabled:opacity-60 cursor-pointer"
         >
           {isPending ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-              SYNCHRONIZING...
-            </>
+            <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
           ) : (
-            <>
-              <Save className="w-3.5 h-3.5 mr-2" />
-              SAVE DOSSIER CHANGES
-            </>
+            <><Save className="w-4 h-4" /> Save changes</>
           )}
         </button>
       </div>

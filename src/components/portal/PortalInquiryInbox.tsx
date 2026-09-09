@@ -2,17 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { updateFactoryInquiryStatus, addInquiryNote } from "@/actions/portal";
-import {
-  Inbox,
-  Eye,
-  Send,
-  MessageSquare,
-  Clock,
-  Building2,
-  CheckCircle2,
-  X,
-  Plus,
-} from "lucide-react";
+import { Inbox, MessageSquare, X, Eye, Send, CheckCircle2 } from "lucide-react";
 
 interface InquiryItem {
   id: string;
@@ -30,20 +20,25 @@ interface InquiryItem {
     status: string;
     targetDeliveryDate?: Date | null;
     createdAt: Date;
-    communications: {
-      id: string;
-      author: string;
-      content: string;
-      createdAt: Date;
-    }[];
+    communications: { id: string; author: string; content: string; createdAt: Date }[];
   };
 }
 
-export function PortalInquiryInbox({
-  initialItems,
-}: {
-  initialItems: InquiryItem[];
-}) {
+const STATUS_ACTIONS: { label: string; value: "VIEWED" | "RESPONDED" | "CLOSED"; icon: React.ElementType }[] = [
+  { label: "Mark viewed", value: "VIEWED", icon: Eye },
+  { label: "Mark responded", value: "RESPONDED", icon: Send },
+  { label: "Close", value: "CLOSED", icon: CheckCircle2 },
+];
+
+function statusBadge(status: string) {
+  if (status === "NEW") return <span className="badge badge-warning">New</span>;
+  if (status === "VIEWED") return <span className="badge badge-neutral">Viewed</span>;
+  if (status === "RESPONDED") return <span className="badge badge-success">Responded</span>;
+  if (status === "CLOSED") return <span className="badge badge-neutral">Closed</span>;
+  return <span className="badge badge-neutral">{status}</span>;
+}
+
+export function PortalInquiryInbox({ initialItems }: { initialItems: InquiryItem[] }) {
   const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -51,14 +46,8 @@ export function PortalInquiryInbox({
   const handleStatusChange = (inquiryId: string, status: "VIEWED" | "RESPONDED" | "CLOSED") => {
     startTransition(async () => {
       await updateFactoryInquiryStatus(inquiryId, status);
-      if (selectedInquiry && selectedInquiry.inquiry.id === inquiryId) {
-        setSelectedInquiry({
-          ...selectedInquiry,
-          inquiry: {
-            ...selectedInquiry.inquiry,
-            status,
-          },
-        });
+      if (selectedInquiry?.inquiry.id === inquiryId) {
+        setSelectedInquiry({ ...selectedInquiry, inquiry: { ...selectedInquiry.inquiry, status } });
       }
     });
   };
@@ -66,7 +55,6 @@ export function PortalInquiryInbox({
   const handleAddNote = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNoteContent.trim() || !selectedInquiry) return;
-
     startTransition(async () => {
       const res = await addInquiryNote(selectedInquiry.inquiry.id, newNoteContent);
       if (res.success && res.note) {
@@ -74,10 +62,7 @@ export function PortalInquiryInbox({
           ...selectedInquiry,
           inquiry: {
             ...selectedInquiry.inquiry,
-            communications: [
-              ...selectedInquiry.inquiry.communications,
-              res.note as any,
-            ],
+            communications: [...selectedInquiry.inquiry.communications, res.note as any],
           },
         });
         setNewNoteContent("");
@@ -87,88 +72,56 @@ export function PortalInquiryInbox({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center bg-white border border-[#E1E4E7] p-3">
-        <p className="text-xs font-mono text-[#6B7280]">
-          ALLOCATED REQUISITIONS: {initialItems.length} INCOMING ORDER{initialItems.length === 1 ? "" : "S"}
-        </p>
+      {/* Summary */}
+      <div className="flex items-center gap-3">
+        <span className="badge badge-warning">{initialItems.filter((i) => i.inquiry.status === "NEW").length} new</span>
+        <span className="text-sm text-[#6B7280]">{initialItems.length} total inquiries from buyers</span>
       </div>
 
+      {/* List */}
       {initialItems.length === 0 ? (
-        <div className="bg-white border border-[#E1E4E7] p-12 text-center space-y-3">
-          <div className="w-10 h-10 border border-[#E1E4E7] text-[#6B7280] flex items-center justify-center mx-auto">
-            <Inbox className="w-5 h-5" />
-          </div>
-          <h3 className="text-sm font-bold text-[#0D0D0D]">
-            No Procurement Requisitions Allocated
-          </h3>
-          <p className="text-xs font-mono text-[#6B7280] max-w-sm mx-auto">
-            Trade leads dispatched by global buyers through the GAN Directory or central secretariat will appear here in real time.
-          </p>
+        <div className="bg-white rounded-lg border border-[#D1D5DB] py-16 text-center">
+          <Inbox className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
+          <p className="text-[#1A1A1A] font-medium">No inquiries yet</p>
+          <p className="text-sm text-[#6B7280] mt-1">Buyer inquiries addressed to your mill will appear here.</p>
         </div>
       ) : (
-        <div className="bg-white border border-[#E1E4E7] overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#D1D5DB] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs table-ledger">
-              <thead className="bg-[#F6F7F8] border-b border-[#E1E4E7] text-[10px] font-mono uppercase text-[#6B7280]">
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3">PO Ref & Client Entity</th>
-                  <th className="px-4 py-3">Origin / Destination</th>
-                  <th className="px-4 py-3">Target Apparel Specimen</th>
-                  <th className="px-4 py-3">Target Volume</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Logged Date</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th>Buyer</th>
+                  <th>Product requested</th>
+                  <th className="text-right">Quantity</th>
+                  <th>Status</th>
+                  <th>Received</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E1E4E7] font-mono text-xs">
+              <tbody>
                 {initialItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-[#F6F7F8] transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="font-bold text-[#0D0D0D] font-sans text-xs">
-                        {item.inquiry.buyerCompany}
-                      </div>
-                      <div className="text-[10px] text-[#6B7280] font-mono">
-                        {item.inquiry.inquiryNumber} • {item.inquiry.buyerName}
-                      </div>
+                  <tr key={item.id} className={item.inquiry.status === "NEW" ? "bg-[#FFFBEB]" : ""}>
+                    <td>
+                      <div className="font-medium text-[#1A1A1A] text-sm">{item.inquiry.buyerName}</div>
+                      <div className="text-xs text-[#6B7280]">{item.inquiry.buyerCompany} · {item.inquiry.buyerCountry}</div>
                     </td>
-
-                    <td className="px-4 py-3 font-medium text-[#0D0D0D]">
-                      {item.inquiry.buyerCountry}
+                    <td className="text-sm text-[#1A1A1A] max-w-[180px] truncate">
+                      {item.product?.title || "General inquiry"}
                     </td>
-
-                    <td className="px-4 py-3 text-[#1E3A52] font-sans font-medium">
-                      {item.product?.title || "General Sourcing Request"}
-                    </td>
-
-                    <td className="px-4 py-3 font-bold text-[#0D0D0D]">
+                    <td className="text-right text-sm font-medium tabular-nums">
                       {item.requestedQuantity.toLocaleString()} pcs
                     </td>
-
-                    <td className="px-4 py-3">
-                      <span
-                        className={
-                          item.inquiry.status === "NEW"
-                            ? "tag-pending"
-                            : item.inquiry.status === "RESPONDED"
-                            ? "tag-approved"
-                            : "tag-neutral"
-                        }
-                      >
-                        {item.inquiry.status}
-                      </span>
+                    <td>{statusBadge(item.inquiry.status)}</td>
+                    <td className="text-sm text-[#6B7280] tabular-nums">
+                      {new Date(item.inquiry.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}
                     </td>
-
-                    <td className="px-4 py-3 text-[#6B7280]">
-                      {new Date(item.inquiry.createdAt).toISOString().split("T")[0]}
-                    </td>
-
-                    <td className="px-4 py-3 text-right">
+                    <td className="text-right">
                       <button
                         onClick={() => setSelectedInquiry(item)}
-                        className="px-2.5 py-1 text-xs font-mono text-[#0D0D0D] border border-[#E1E4E7] hover:bg-[#F6F7F8] rounded-none inline-flex items-center cursor-pointer"
+                        className="text-sm font-medium text-[#3B5BDB] hover:underline"
                       >
-                        <Eye className="w-3.5 h-3.5 mr-1 text-[#6B7280]" />
-                        INSPECT
+                        View
                       </button>
                     </td>
                   </tr>
@@ -179,154 +132,132 @@ export function PortalInquiryInbox({
         </div>
       )}
 
-      {/* Inquiry Inspection Modal / Commercial Dossier */}
+      {/* Inquiry detail modal */}
       {selectedInquiry && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0D0D0D]/60 flex items-center justify-center p-4">
-          <div className="bg-white max-w-2xl w-full border border-[#E1E4E7] shadow-xl overflow-hidden">
-            <div className="bg-[#0D0D0D] text-white px-5 py-3.5 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg border border-[#D1D5DB] shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#D1D5DB] sticky top-0 bg-white z-10">
               <div>
-                <h3 className="font-mono font-bold text-xs uppercase tracking-wider">
-                  Commercial Purchase Requisition #{selectedInquiry.inquiry.inquiryNumber}
-                </h3>
-                <span className="text-[10px] font-mono text-[#E1E4E7]/70">
-                  BUYER: {selectedInquiry.inquiry.buyerCompany} ({selectedInquiry.inquiry.buyerCountry})
-                </span>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-[#1A1A1A]">
+                    {selectedInquiry.inquiry.inquiryNumber || `INQ-${selectedInquiry.inquiry.id.slice(-6).toUpperCase()}`}
+                  </h2>
+                  {statusBadge(selectedInquiry.inquiry.status)}
+                </div>
+                <p className="text-sm text-[#6B7280] mt-0.5">
+                  {selectedInquiry.inquiry.buyerCompany} · {selectedInquiry.inquiry.buyerCountry}
+                </p>
               </div>
-              <button onClick={() => setSelectedInquiry(null)} className="text-[#E1E4E7] hover:text-white cursor-pointer">
+              <button onClick={() => setSelectedInquiry(null)} className="p-1.5 rounded text-[#6B7280] hover:text-[#1A1A1A] hover:bg-[#F3F4F6] transition">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5 text-xs font-mono max-h-[80vh] overflow-y-auto">
-              {/* Buyer specs */}
-              <div className="border border-[#E1E4E7] divide-y divide-[#E1E4E7] bg-[#F6F7F8]">
-                <div className="p-2.5 flex justify-between">
-                  <span className="text-[#6B7280] uppercase text-[10px]">Buyer Officer:</span>
-                  <span className="font-bold text-[#0D0D0D]">
-                    {selectedInquiry.inquiry.buyerName}
-                  </span>
-                </div>
-                <div className="p-2.5 flex justify-between">
-                  <span className="text-[#6B7280] uppercase text-[10px]">Contact Email:</span>
-                  <a
-                    href={`mailto:${selectedInquiry.inquiry.buyerEmail}`}
-                    className="font-bold text-[#1E3A52] hover:underline"
-                  >
-                    {selectedInquiry.inquiry.buyerEmail}
-                  </a>
-                </div>
-                <div className="p-2.5 flex justify-between">
-                  <span className="text-[#6B7280] uppercase text-[10px]">Target Garment:</span>
-                  <span className="font-bold text-[#0D0D0D] font-sans">
-                    {selectedInquiry.product?.title || "General Sourcing Requirement"}
-                  </span>
-                </div>
-                <div className="p-2.5 flex justify-between">
-                  <span className="text-[#6B7280] uppercase text-[10px]">Target Volume:</span>
-                  <span className="font-bold text-[#0D0D0D]">
-                    {selectedInquiry.requestedQuantity.toLocaleString()} pcs
-                  </span>
-                </div>
+            <div className="p-6 space-y-5">
+              {/* Buyer details */}
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  ["Buyer", selectedInquiry.inquiry.buyerName],
+                  ["Email", selectedInquiry.inquiry.buyerEmail],
+                  ["Product", selectedInquiry.product?.title || "General"],
+                  ["Quantity", `${selectedInquiry.requestedQuantity.toLocaleString()} pcs`],
+                  ["Target delivery", selectedInquiry.inquiry.targetDeliveryDate
+                    ? new Date(selectedInquiry.inquiry.targetDeliveryDate).toLocaleDateString()
+                    : "Not specified"],
+                  ["Received", new Date(selectedInquiry.inquiry.createdAt).toLocaleDateString()],
+                ].map(([k, v]) => (
+                  <div key={k}>
+                    <dt className="text-xs text-[#6B7280]">{k}</dt>
+                    <dd className="text-sm font-medium text-[#1A1A1A] mt-0.5">{v}</dd>
+                  </div>
+                ))}
               </div>
 
-              {/* Line item specifications */}
-              {selectedInquiry.customSpecifications && (
+              {/* Message */}
+              {selectedInquiry.inquiry.generalMessage && (
                 <div>
-                  <span className="text-[10px] uppercase text-[#6B7280] block mb-1">
-                    Custom Technical Specifications & Grading:
-                  </span>
-                  <div className="p-3 bg-[#F6F7F8] border border-[#1E3A52] text-[#0D0D0D] text-xs font-sans">
-                    {selectedInquiry.customSpecifications}
-                  </div>
+                  <h3 className="text-sm font-semibold text-[#1A1A1A] mb-2">Buyer message</h3>
+                  <p className="text-sm text-[#6B7280] bg-[#F8F8F6] rounded p-3 leading-relaxed">
+                    {selectedInquiry.inquiry.generalMessage}
+                  </p>
                 </div>
               )}
 
-              {/* General Message */}
+              {/* Specs */}
+              {selectedInquiry.customSpecifications && (
+                <div>
+                  <h3 className="text-sm font-semibold text-[#1A1A1A] mb-2">Custom specifications</h3>
+                  <p className="text-sm text-[#6B7280] bg-[#F8F8F6] rounded p-3 leading-relaxed">
+                    {selectedInquiry.customSpecifications}
+                  </p>
+                </div>
+              )}
+
+              {/* Status actions */}
               <div>
-                <span className="text-[10px] uppercase text-[#6B7280] block mb-1">
-                  Procurement Brief / Notes:
-                </span>
-                <div className="p-3 bg-[#F6F7F8] border border-[#E1E4E7] text-[#0D0D0D] whitespace-pre-wrap text-[11px]">
-                  {selectedInquiry.inquiry.generalMessage}
+                <h3 className="text-sm font-semibold text-[#1A1A1A] mb-2">Update status</h3>
+                <div className="flex flex-wrap gap-2">
+                  {STATUS_ACTIONS.map(({ label, value, icon: Icon }) => (
+                    <button
+                      key={value}
+                      onClick={() => handleStatusChange(selectedInquiry.inquiry.id, value)}
+                      disabled={isPending || selectedInquiry.inquiry.status === value}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded border transition ${
+                        selectedInquiry.inquiry.status === value
+                          ? "bg-[#3B5BDB] text-white border-[#3B5BDB]"
+                          : "bg-white text-[#6B7280] border-[#D1D5DB] hover:text-[#1A1A1A] hover:border-[#1A1A1A]"
+                      } disabled:opacity-50`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Internal Communications Log */}
-              <div className="pt-3 border-t border-[#E1E4E7] space-y-3">
-                <span className="text-[10px] uppercase text-[#6B7280] block font-bold">
-                  Merchandising Follow-up & Audit Trail
-                </span>
-
+              {/* Notes */}
+              <div>
+                <h3 className="text-sm font-semibold text-[#1A1A1A] mb-2 flex items-center gap-1.5">
+                  <MessageSquare className="w-4 h-4 text-[#6B7280]" />
+                  Notes
+                </h3>
+                <form onSubmit={handleAddNote} className="flex gap-2 mb-3">
+                  <input
+                    value={newNoteContent}
+                    onChange={(e) => setNewNoteContent(e.target.value)}
+                    placeholder="Add a note…"
+                    className="flex-1 px-3 py-2 border border-[#D1D5DB] rounded text-sm bg-white text-[#1A1A1A] focus:border-[#3B5BDB] focus:outline-none"
+                  />
+                  <button type="submit" disabled={isPending || !newNoteContent.trim()}
+                    className="px-3 py-2 bg-[#3B5BDB] hover:bg-[#3451C7] text-white text-sm font-medium rounded transition disabled:opacity-50">
+                    Add
+                  </button>
+                </form>
                 {selectedInquiry.inquiry.communications.length === 0 ? (
-                  <p className="text-[11px] text-[#6B7280] italic">
-                    No follow-up notes logged yet.
-                  </p>
+                  <p className="text-sm text-[#9CA3AF]">No notes yet.</p>
                 ) : (
                   <div className="space-y-2">
-                    {selectedInquiry.inquiry.communications.map((comm) => (
-                      <div
-                        key={comm.id}
-                        className="p-2.5 bg-white border border-[#E1E4E7] text-xs"
-                      >
-                        <div className="flex justify-between text-[10px] text-[#6B7280] mb-1">
-                          <span className="font-bold text-[#1E3A52]">{comm.author}</span>
-                          <span>
-                            {new Date(comm.createdAt).toLocaleString()}
+                    {selectedInquiry.inquiry.communications.map((note) => (
+                      <div key={note.id} className="bg-[#F8F8F6] rounded p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-[#1A1A1A]">{note.author}</span>
+                          <span className="text-xs text-[#6B7280]">
+                            {new Date(note.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}
                           </span>
                         </div>
-                        <p className="text-[#0D0D0D] font-sans">{comm.content}</p>
+                        <p className="text-sm text-[#6B7280] leading-relaxed">{note.content}</p>
                       </div>
                     ))}
                   </div>
                 )}
-
-                {/* Add Note Form */}
-                <form onSubmit={handleAddNote} className="flex gap-2 pt-2">
-                  <input
-                    type="text"
-                    placeholder="Log progress note (e.g. Swatches dispatched via DHL, Costing sheet sent)..."
-                    value={newNoteContent}
-                    onChange={(e) => setNewNoteContent(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-[#E1E4E7] focus:border-[#0D0D0D] text-xs rounded-none focus:outline-none bg-white font-sans"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isPending || !newNoteContent.trim()}
-                    className="px-4 py-2 bg-[#1E3A52] hover:bg-[#0D0D0D] text-white rounded-none text-xs font-mono disabled:opacity-50 shrink-0 cursor-pointer"
-                  >
-                    APPEND NOTE
-                  </button>
-                </form>
               </div>
+            </div>
 
-              {/* Status Update Strip */}
-              <div className="pt-4 border-t border-[#E1E4E7] flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center space-x-2">
-                  <span className="text-[#6B7280] text-[10px] uppercase">Requisition Status:</span>
-                  <select
-                    value={selectedInquiry.inquiry.status}
-                    onChange={(e) =>
-                      handleStatusChange(
-                        selectedInquiry.inquiry.id,
-                        e.target.value as any
-                      )
-                    }
-                    className="px-2.5 py-1.5 border border-[#E1E4E7] font-bold text-xs bg-white rounded-none focus:outline-none"
-                  >
-                    <option value="NEW">NEW</option>
-                    <option value="VIEWED">VIEWED</option>
-                    <option value="RESPONDED">RESPONDED</option>
-                    <option value="CLOSED">CLOSED</option>
-                  </select>
-                </div>
-
-                <button
-                  onClick={() => setSelectedInquiry(null)}
-                  className="px-4 py-1.5 bg-[#F6F7F8] text-[#0D0D0D] font-mono text-xs border border-[#E1E4E7] hover:bg-white rounded-none cursor-pointer"
-                >
-                  DISMISS
-                </button>
-              </div>
+            <div className="flex justify-end px-6 py-4 border-t border-[#D1D5DB] bg-[#F8F8F6]">
+              <button onClick={() => setSelectedInquiry(null)}
+                className="px-4 py-2 bg-[#3B5BDB] hover:bg-[#3451C7] text-white text-sm font-medium rounded transition">
+                Close
+              </button>
             </div>
           </div>
         </div>

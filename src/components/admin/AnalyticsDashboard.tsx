@@ -1,54 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Globe,
-  Inbox,
-  Eye,
-  Building2,
-  Package,
-  Activity,
-  ArrowUpRight,
-  TrendingUp,
-} from "lucide-react";
+import { Globe, Inbox, Eye, Building2, Package, Activity, TrendingUp } from "lucide-react";
 
-interface CountryStat {
-  countryCode: string;
-  views: number;
-  rfqs: number;
-}
-
-interface TopEnterprise {
-  id: string;
-  name: string;
-  city: string;
-  _count: {
-    pageViews: number;
-    inquiries: number;
-  };
-}
-
-interface TopCategory {
-  name: string;
-  count: number;
-  volume: number;
-}
-
-interface RecentEvent {
-  id: string;
-  eventType: string;
-  countryCode: string;
-  enterpriseName: string;
-  createdAt: string;
-}
+interface CountryStat { countryCode: string; views: number; rfqs: number; }
+interface TopEnterprise { id: string; name: string; city: string; _count: { pageViews: number; inquiries: number }; }
+interface TopCategory { name: string; count: number; volume: number; }
+interface RecentEvent { id: string; eventType: string; countryCode: string; enterpriseName: string; createdAt: string; }
 
 export function AnalyticsDashboard({
-  totalEvents,
-  totalRFQs,
-  countryStats,
-  topEnterprises,
-  topCategories,
-  recentEvents,
+  totalEvents, totalRFQs, countryStats, topEnterprises, topCategories, recentEvents,
 }: {
   totalEvents: number;
   totalRFQs: number;
@@ -58,10 +19,9 @@ export function AnalyticsDashboard({
   recentEvents: RecentEvent[];
 }) {
   const [filterEvent, setFilterEvent] = useState("ALL");
-
   const totalVolume = topCategories.reduce((acc, c) => acc + c.volume, 0);
   const maxViews = Math.max(...countryStats.map((c) => c.views), 1);
-  const topCountry = countryStats[0]?.countryCode || "USA";
+  const topCountry = countryStats[0]?.countryCode || "—";
 
   const filteredEvents = recentEvents.filter((e) =>
     filterEvent === "ALL" ? true : e.eventType === filterEvent
@@ -69,167 +29,162 @@ export function AnalyticsDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Metric Summary Strip (Integrated hairline border strip) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 border border-[#E1E4E7] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E1E4E7]">
-        <div className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
-            Platform Sessions
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: Eye, label: "Platform sessions", value: totalEvents.toLocaleString(), sub: "All time" },
+          { icon: Inbox, label: "RFQs received", value: totalRFQs.toLocaleString(), sub: "Trade inquiries" },
+          { icon: Globe, label: "Top source market", value: topCountry, sub: countryStats[0]?.views ? `${countryStats[0].views.toLocaleString()} views` : "—" },
+          { icon: Package, label: "Demand volume", value: `${(totalVolume / 1000).toFixed(0)}k pcs`, sub: "Across RFQ items" },
+        ].map(({ icon: Icon, label, value, sub }) => (
+          <div key={label} className="bg-white rounded-lg border border-[#D1D5DB] p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Icon className="w-4 h-4 text-[#6B7280]" />
+              <span className="text-sm text-[#6B7280]">{label}</span>
+            </div>
+            <p className="text-2xl font-semibold text-[#1A1A1A]">{value}</p>
+            <p className="text-xs text-[#6B7280] mt-1">{sub}</p>
           </div>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
-              {totalEvents.toLocaleString()}
-            </span>
-            <span className="font-mono text-[10px] text-[#1E3A52] font-semibold">
-              +18.4%
-            </span>
-          </div>
-          <div className="mt-1 text-[11px] text-[#6B7280]">
-            International buyer touchpoints
-          </div>
-        </div>
-
-        <div className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
-            Trade Leads / RFQs
-          </div>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
-              {totalRFQs}
-            </span>
-            <span className="font-mono text-[10px] text-[#6B7280]">leads</span>
-          </div>
-          <div className="mt-1 text-[11px] text-[#6B7280]">
-            Dispatched buyer baskets
-          </div>
-        </div>
-
-        <div className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
-            Top Sourcing Corridor
-          </div>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
-              {topCountry}
-            </span>
-            <span className="font-mono text-[10px] text-[#6B7280]">market</span>
-          </div>
-          <div className="mt-1 text-[11px] text-[#6B7280]">
-            Highest inquiry density
-          </div>
-        </div>
-
-        <div className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">
-            Aggregate Demand
-          </div>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-mono text-2xl font-bold text-[#0D0D0D]">
-              {(totalVolume / 1000).toFixed(0)}k
-            </span>
-            <span className="font-mono text-[10px] text-[#6B7280]">pcs</span>
-          </div>
-          <div className="mt-1 text-[11px] text-[#6B7280]">
-            Requested apparel units
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Row 2: Country Sourcing Corridors & Garment Category Demand */}
+      {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Country Breakdown Table */}
-        <div className="border border-[#E1E4E7] bg-white">
-          <div className="p-4 border-b border-[#E1E4E7]">
-            <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
-              Sourcing Markets by Intent & Inquiries
-            </h3>
-            <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
-              Profile views and purchase requisitions logged by buyer jurisdiction
-            </p>
+        {/* Country breakdown */}
+        <div className="bg-white rounded-lg border border-[#D1D5DB] overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-[#D1D5DB]">
+            <h2 className="text-[15px] font-semibold text-[#1A1A1A]">Buyer market breakdown</h2>
           </div>
+          <div className="p-5 space-y-3">
+            {countryStats.length === 0 ? (
+              <p className="text-sm text-[#6B7280]">No country data available.</p>
+            ) : (
+              countryStats.slice(0, 8).map((c) => (
+                <div key={c.countryCode}>
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="font-medium text-[#1A1A1A]">{c.countryCode}</span>
+                    <span className="text-[#6B7280] tabular-nums">{c.views.toLocaleString()} views · {c.rfqs} RFQs</span>
+                  </div>
+                  <div className="h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#3B5BDB] rounded-full"
+                      style={{ width: `${(c.views / maxViews) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
+        {/* Top mills */}
+        <div className="bg-white rounded-lg border border-[#D1D5DB] overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-[#D1D5DB]">
+            <h2 className="text-[15px] font-semibold text-[#1A1A1A]">Most viewed mills</h2>
+          </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs table-ledger">
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>Jurisdiction</th>
-                  <th className="text-right">Catalog Views</th>
-                  <th className="text-right">RFQs Issued</th>
-                  <th className="w-28 text-right">Traffic Share</th>
+                  <th>Mill</th>
+                  <th className="text-right">Views</th>
+                  <th className="text-right">Inquiries</th>
                 </tr>
               </thead>
               <tbody>
-                {countryStats.map((item) => {
-                  const percent = Math.round((item.views / maxViews) * 100);
-                  return (
-                    <tr key={item.countryCode}>
+                {topEnterprises.length === 0 ? (
+                  <tr><td colSpan={3} className="py-8 text-center text-sm text-[#6B7280]">No data yet.</td></tr>
+                ) : (
+                  topEnterprises.slice(0, 6).map((e) => (
+                    <tr key={e.id}>
                       <td>
-                        <span className="font-mono font-bold text-[#0D0D0D]">
-                          {item.countryCode}
-                        </span>
+                        <div className="font-medium text-[#1A1A1A] text-sm">{e.name}</div>
+                        <div className="text-xs text-[#6B7280]">{e.city}</div>
                       </td>
-                      <td className="text-right font-mono font-semibold text-[#0D0D0D]">
-                        {item.views}
-                      </td>
-                      <td className="text-right font-mono font-bold text-[#1E3A52]">
-                        {item.rfqs}
-                      </td>
-                      <td className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="font-mono text-[10px] text-[#6B7280]">{percent}%</span>
-                          <div className="w-12 h-1.5 bg-[#E1E4E7] overflow-hidden">
-                            <div
-                              className="bg-[#0D0D0D] h-full"
-                              style={{ width: `${percent}%` }}
-                            />
-                          </div>
-                        </div>
-                      </td>
+                      <td className="text-right text-sm font-medium tabular-nums">{e._count.pageViews.toLocaleString()}</td>
+                      <td className="text-right text-sm tabular-nums">{e._count.inquiries}</td>
                     </tr>
-                  );
-                })}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Category Demand Table */}
-        <div className="border border-[#E1E4E7] bg-white">
-          <div className="p-4 border-b border-[#E1E4E7]">
-            <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
-              Garment Category Demand Breakdown
-            </h3>
-            <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
-              Aggregated procurement quantities requested across apparel classifications
-            </p>
+        {/* Top categories */}
+        <div className="bg-white rounded-lg border border-[#D1D5DB] overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-[#D1D5DB]">
+            <h2 className="text-[15px] font-semibold text-[#1A1A1A]">Top categories by demand</h2>
           </div>
-
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs table-ledger">
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>Apparel Category</th>
-                  <th className="text-right">Inquiries</th>
-                  <th className="text-right">Requested Volume</th>
+                  <th>Category</th>
+                  <th className="text-right">Items</th>
+                  <th className="text-right">Volume</th>
+                  <th className="text-right">Share</th>
                 </tr>
               </thead>
               <tbody>
                 {topCategories.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="py-8 text-center text-[#6B7280]">
-                      No category procurement data recorded in active cycle.
-                    </td>
-                  </tr>
+                  <tr><td colSpan={4} className="py-8 text-center text-sm text-[#6B7280]">No data yet.</td></tr>
                 ) : (
-                  topCategories.map((cat) => (
-                    <tr key={cat.name}>
-                      <td className="font-medium text-[#0D0D0D]">
-                        {cat.name}
+                  topCategories.map((c) => (
+                    <tr key={c.name}>
+                      <td className="font-medium text-sm text-[#1A1A1A]">{c.name}</td>
+                      <td className="text-right text-sm tabular-nums">{c.count}</td>
+                      <td className="text-right text-sm font-medium tabular-nums">{c.volume.toLocaleString()} pcs</td>
+                      <td className="text-right text-sm text-[#6B7280] tabular-nums">
+                        {totalVolume > 0 ? `${Math.round((c.volume / totalVolume) * 100)}%` : "—"}
                       </td>
-                      <td className="text-right font-mono text-[#6B7280]">
-                        {cat.count} RFQs
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Recent events */}
+        <div className="bg-white rounded-lg border border-[#D1D5DB] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#D1D5DB]">
+            <h2 className="text-[15px] font-semibold text-[#1A1A1A]">Recent events</h2>
+            <select
+              value={filterEvent}
+              onChange={(e) => setFilterEvent(e.target.value)}
+              className="px-2 py-1 border border-[#D1D5DB] rounded text-xs bg-white text-[#1A1A1A] focus:outline-none"
+            >
+              <option value="ALL">All events</option>
+              <option value="PAGE_VIEW">Page views</option>
+              <option value="RFQ_SUBMITTED">RFQ submitted</option>
+            </select>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Mill</th>
+                  <th>Country</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredEvents.length === 0 ? (
+                  <tr><td colSpan={4} className="py-8 text-center text-sm text-[#6B7280]">No events.</td></tr>
+                ) : (
+                  filteredEvents.slice(0, 8).map((e) => (
+                    <tr key={e.id}>
+                      <td>
+                        <span className={`badge ${e.eventType === "RFQ_SUBMITTED" ? "badge-accent" : "badge-neutral"}`}>
+                          {e.eventType === "RFQ_SUBMITTED" ? "RFQ" : "View"}
+                        </span>
                       </td>
-                      <td className="text-right font-mono font-bold text-[#0D0D0D]">
-                        {cat.volume.toLocaleString()} pcs
+                      <td className="text-sm text-[#1A1A1A] max-w-[140px] truncate">{e.enterpriseName || "—"}</td>
+                      <td className="text-sm text-[#6B7280]">{e.countryCode || "—"}</td>
+                      <td className="text-xs text-[#6B7280] tabular-nums">
+                        {new Date(e.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}
                       </td>
                     </tr>
                   ))
@@ -239,123 +194,6 @@ export function AnalyticsDashboard({
           </div>
         </div>
       </div>
-
-      {/* Row 3: Member Enterprise Engagement & Telemetry Stream */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Most Viewed Member Enterprises */}
-        <div className="border border-[#E1E4E7] bg-white">
-          <div className="p-4 border-b border-[#E1E4E7]">
-            <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
-              Member Mill Buyer Engagement
-            </h3>
-            <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
-              Audited facilities receiving the highest export buyer inquiry volume
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs table-ledger">
-              <thead>
-                <tr>
-                  <th>Mill / Enterprise</th>
-                  <th>Location</th>
-                  <th className="text-right">Showroom Views</th>
-                  <th className="text-right">Dispatched RFQs</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topEnterprises.map((factory) => (
-                  <tr key={factory.id}>
-                    <td className="font-medium text-[#0D0D0D]">
-                      {factory.name}
-                    </td>
-                    <td className="font-mono text-[10px] text-[#6B7280]">
-                      {factory.city}
-                    </td>
-                    <td className="text-right font-mono text-[#0D0D0D]">
-                      {factory._count.pageViews}
-                    </td>
-                    <td className="text-right font-mono font-bold text-[#1E3A52]">
-                      {factory._count.inquiries}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Real-time Telemetry Dispatch Stream */}
-        <div className="border border-[#E1E4E7] bg-white flex flex-col">
-          <div className="p-4 border-b border-[#E1E4E7] flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold uppercase tracking-tight text-[#0D0D0D]">
-                Buyer Sourcing Telemetry Log
-              </h3>
-              <p className="font-mono text-[11px] text-[#6B7280] mt-0.5">
-                Live international traffic & dispatch events
-              </p>
-            </div>
-
-            <div className="flex items-center border border-[#E1E4E7]">
-              {["ALL", "PAGE_VIEW", "RFQ_SENT"].map((ev) => (
-                <button
-                  key={ev}
-                  onClick={() => setFilterEvent(ev)}
-                  className={`px-2 py-0.5 font-mono text-[10px] transition-colors border-r border-[#E1E4E7] last:border-r-0 ${
-                    filterEvent === ev
-                      ? "bg-[#0D0D0D] text-white font-bold"
-                      : "bg-white text-[#6B7280] hover:text-[#0D0D0D]"
-                  }`}
-                >
-                  {ev}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="divide-y divide-[#E1E4E7] flex-1 max-h-72 overflow-y-auto">
-            {filteredEvents.length === 0 ? (
-              <p className="p-6 text-xs text-[#6B7280] italic font-mono text-center">
-                No telemetry events logged for current filter.
-              </p>
-            ) : (
-              filteredEvents.map((event) => (
-                <div key={event.id} className="p-3 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={
-                        event.eventType === "RFQ_SENT"
-                          ? "tag-pending"
-                          : "tag-neutral"
-                      }
-                    >
-                      {event.eventType}
-                    </span>
-                    <span className="font-medium text-[#0D0D0D] truncate max-w-xs">
-                      {event.enterpriseName}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 font-mono text-[10px] text-[#6B7280]">
-                    <span className="font-bold text-[#0D0D0D]">
-                      {event.countryCode}
-                    </span>
-                    <span>
-                      {new Date(event.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
-
