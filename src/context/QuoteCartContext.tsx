@@ -26,16 +26,19 @@ export function QuoteCartProvider({ children }: { children: React.ReactNode }) {
 
   // Load from localStorage on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setItems(JSON.parse(saved));
+    const timer = setTimeout(() => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          setItems(JSON.parse(saved));
+        }
+      } catch (e) {
+        console.error("Failed to load quote cart from localStorage", e);
+      } finally {
+        setIsLoaded(true);
       }
-    } catch (e) {
-      console.error("Failed to load quote cart from localStorage", e);
-    } finally {
-      setIsLoaded(true);
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Save to localStorage
