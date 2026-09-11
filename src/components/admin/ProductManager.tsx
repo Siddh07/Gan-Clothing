@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import {
   toggleProductFeatured,
   createProduct,
+  updateProduct,
   deleteProduct,
 } from "@/actions/admin";
 import {
   Plus,
+  Pencil,
   Trash2,
   ExternalLink,
   Search,
@@ -58,6 +60,20 @@ export function ProductManager({
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    enterpriseId: "",
+    categoryId: "",
+    fabricType: "",
+    gsmWeight: "" as number | string,
+    moq: 300,
+    targetGender: "Unisex",
+    description: "",
+    imageUrl: "",
+    isFeatured: false,
+  });
+  const [editFormError, setEditFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -154,6 +170,62 @@ export function ProductManager({
         }
       } catch (err: any) {
         setFormError(err?.message || "Failed to create product. Check that you are signed in.");
+      }
+    });
+  };
+
+  const handleOpenEdit = (prod: ProductItem) => {
+    const images = parseImages(prod.images);
+    setEditFormData({
+      title: prod.title,
+      enterpriseId: prod.enterprise.id,
+      categoryId: prod.category.id,
+      fabricType: prod.fabricType,
+      gsmWeight: prod.gsmWeight ?? "",
+      moq: prod.moq,
+      targetGender: prod.targetGender || "Unisex",
+      description: prod.description || "",
+      imageUrl: images[0] || "",
+      isFeatured: prod.isFeatured,
+    });
+    setEditFormError(null);
+    setEditingProduct(prod);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setEditFormError(null);
+    startTransition(async () => {
+      try {
+        const res = await updateProduct(editingProduct.id, {
+          title: editFormData.title,
+          enterpriseId: editFormData.enterpriseId,
+          categoryId: editFormData.categoryId,
+          fabricType: editFormData.fabricType,
+          gsmWeight: editFormData.gsmWeight !== "" ? Number(editFormData.gsmWeight) : null,
+          moq: Number(editFormData.moq),
+          targetGender: editFormData.targetGender,
+          description: editFormData.description,
+          images: editFormData.imageUrl ? [editFormData.imageUrl] : [],
+          isFeatured: editFormData.isFeatured,
+        });
+
+        if (res.success && res.product) {
+          const updatedProd = res.product as ProductItem;
+          setProducts((prev) =>
+            prev.map((p) => (p.id === editingProduct.id ? updatedProd : p))
+          );
+          if (selectedProduct?.id === editingProduct.id) {
+            setSelectedProduct(updatedProd);
+          }
+          setEditingProduct(null);
+          router.refresh();
+        } else {
+          setEditFormError("Failed to update product. Please try again.");
+        }
+      } catch (err: any) {
+        setEditFormError(err?.message || "Failed to update product. Check permissions.");
       }
     });
   };
@@ -353,6 +425,14 @@ export function ProductManager({
                           >
                             Details
                           </button>
+                          <button
+                            onClick={() => handleOpenEdit(prod)}
+                            className="px-2 py-1 text-xs font-medium text-[#1A1A1A] hover:bg-[#F3F4F6] rounded transition flex items-center gap-1"
+                            title="Edit product"
+                          >
+                            <Pencil className="w-3 h-3 text-[#6B7280]" />
+                            Edit
+                          </button>
                           <Link
                             href={`/products/${prod.slug}`}
                             target="_blank"
@@ -410,14 +490,21 @@ export function ProductManager({
                   </div>
                   <div className="mt-auto pt-2.5 border-t border-[#F3F4F6] flex items-center justify-between text-xs">
                     <span className="text-[#6B7280]">MOQ <span className="font-medium text-[#1A1A1A]">{prod.moq.toLocaleString()} pcs</span></span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => setSelectedProduct(prod)}
                         className="text-[#3B5BDB] hover:underline font-medium"
                       >
                         Details
                       </button>
-                      <Link href={`/products/${prod.slug}`} target="_blank" className="text-[#9CA3AF] hover:text-[#1A1A1A] ml-1">
+                      <button
+                        onClick={() => handleOpenEdit(prod)}
+                        className="text-[#1A1A1A] hover:text-[#3B5BDB] font-medium flex items-center gap-0.5"
+                      >
+                        <Pencil className="w-3 h-3 text-[#6B7280]" />
+                        Edit
+                      </button>
+                      <Link href={`/products/${prod.slug}`} target="_blank" className="text-[#9CA3AF] hover:text-[#1A1A1A] ml-0.5">
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -499,6 +586,16 @@ export function ProductManager({
                   <ExternalLink className="w-3.5 h-3.5 text-[#6B7280]" />
                   Public page
                 </Link>
+                <button
+                  onClick={() => {
+                    const prod = selectedProduct;
+                    handleOpenEdit(prod);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-[#D1D5DB] rounded bg-white hover:bg-[#F3F4F6] transition"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-[#6B7280]" />
+                  Edit product
+                </button>
                 <button
                   onClick={() => handleToggleFeatured(selectedProduct.id, selectedProduct.isFeatured)}
                   className="px-3 py-2 text-sm font-medium border border-[#D1D5DB] rounded bg-white hover:bg-[#F3F4F6] transition"
@@ -624,6 +721,172 @@ export function ProductManager({
                 <button type="submit" disabled={isPending}
                   className="px-4 py-2 bg-[#3B5BDB] hover:bg-[#3451C7] text-white text-sm font-medium rounded transition disabled:opacity-60">
                   {isPending ? "Saving…" : "Save product"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg border border-[#D1D5DB] shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#D1D5DB]">
+              <div>
+                <h2 className="text-lg font-semibold text-[#1A1A1A]">Edit product</h2>
+                <p className="text-xs text-[#6B7280]">Update product specifications and catalog information</p>
+              </div>
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="p-1.5 rounded text-[#6B7280] hover:text-[#1A1A1A] hover:bg-[#F3F4F6] transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+              {editFormError && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded text-sm text-[#DC2626] flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{editFormError}</span>
+                </div>
+              )}
+              <div>
+                <label className={labelCls}>Product title *</label>
+                <input
+                  type="text"
+                  required
+                  value={editFormData.title}
+                  onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                  className={inputCls}
+                  placeholder="e.g. 100% Chyangra Cashmere Crewneck"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Manufacturer *</label>
+                  <select
+                    value={editFormData.enterpriseId}
+                    onChange={(e) => setEditFormData({ ...editFormData, enterpriseId: e.target.value })}
+                    className={inputCls}
+                  >
+                    {enterprises.map((ent) => (
+                      <option key={ent.id} value={ent.id}>
+                        {ent.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Category *</label>
+                  <select
+                    value={editFormData.categoryId}
+                    onChange={(e) => setEditFormData({ ...editFormData, categoryId: e.target.value })}
+                    className={inputCls}
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Fabric composition *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editFormData.fabricType}
+                    onChange={(e) => setEditFormData({ ...editFormData, fabricType: e.target.value })}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>GSM weight</label>
+                  <input
+                    type="number"
+                    value={editFormData.gsmWeight}
+                    onChange={(e) => setEditFormData({ ...editFormData, gsmWeight: e.target.value })}
+                    className={inputCls}
+                    placeholder="260"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>MOQ (pieces) *</label>
+                  <input
+                    type="number"
+                    required
+                    value={editFormData.moq}
+                    onChange={(e) => setEditFormData({ ...editFormData, moq: Number(e.target.value) })}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Target demographic *</label>
+                  <select
+                    value={editFormData.targetGender}
+                    onChange={(e) => setEditFormData({ ...editFormData, targetGender: e.target.value })}
+                    className={inputCls}
+                  >
+                    <option value="Unisex">Unisex</option>
+                    <option value="Men">Men</option>
+                    <option value="Women">Women</option>
+                    <option value="Kids">Kids</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelCls}>Image URL *</label>
+                <input
+                  type="url"
+                  required
+                  value={editFormData.imageUrl}
+                  onChange={(e) => setEditFormData({ ...editFormData, imageUrl: e.target.value })}
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Description *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  className={inputCls}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="editIsFeatured"
+                  checked={editFormData.isFeatured}
+                  onChange={(e) => setEditFormData({ ...editFormData, isFeatured: e.target.checked })}
+                  className="rounded border-[#D1D5DB] text-[#3B5BDB] focus:ring-[#3B5BDB]"
+                />
+                <label htmlFor="editIsFeatured" className="text-sm text-[#1A1A1A]">
+                  Feature in public showcase
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#D1D5DB]">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="px-4 py-2 text-sm font-medium text-[#6B7280] hover:text-[#1A1A1A] transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="px-4 py-2 bg-[#3B5BDB] hover:bg-[#3451C7] text-white text-sm font-medium rounded transition disabled:opacity-60"
+                >
+                  {isPending ? "Updating…" : "Save changes"}
                 </button>
               </div>
             </form>

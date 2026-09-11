@@ -29,7 +29,7 @@ export default function ApplyPage() {
                 Apply for GAN Member Accreditation
               </h1>
               <p className="text-xs text-[#E1E4E7] leading-relaxed font-sans">
-                Join Nepal's premier apex apparel body. Gain international market exposure, duty-free preferential tariff routing (Nepal Trade Preference Program / EU EBA), and verified registry credentials.
+                Join Nepal&apos;s premier apex apparel body. Gain international market exposure, duty-free preferential tariff routing (Nepal Trade Preference Program / EU EBA), and verified registry credentials.
               </p>
             </div>
           </div>

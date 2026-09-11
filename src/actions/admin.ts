@@ -209,6 +209,64 @@ export async function createProduct(data: {
   return { success: true, product };
 }
 
+export async function updateProduct(
+  id: string,
+  data: {
+    title: string;
+    enterpriseId: string;
+    categoryId: string;
+    fabricType: string;
+    gsmWeight?: number | null;
+    moq: number;
+    targetGender: string;
+    description: string;
+    images: string[];
+    isFeatured?: boolean;
+  }
+) {
+  const session = await verifyAuth();
+
+  const product = await prisma.product.update({
+    where: { id },
+    data: {
+      title: data.title,
+      enterpriseId: data.enterpriseId,
+      categoryId: data.categoryId,
+      fabricType: data.fabricType,
+      gsmWeight: data.gsmWeight ? Number(data.gsmWeight) : null,
+      moq: Number(data.moq) || 500,
+      targetGender: data.targetGender || "Unisex",
+      description: data.description,
+      images: JSON.stringify(
+        data.images.length > 0
+          ? data.images
+          : ["https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800"]
+      ),
+      isFeatured: Boolean(data.isFeatured),
+    },
+    include: {
+      enterprise: { select: { id: true, name: true, slug: true } },
+      category: { select: { id: true, name: true } },
+    },
+  });
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: "PRODUCT_UPDATED",
+    entityType: "Product",
+    entityId: product.id,
+    metadata: {
+      title: product.title,
+      enterpriseId: product.enterpriseId,
+    },
+  });
+
+  revalidatePath("/admin/products");
+  revalidatePath("/products");
+  revalidatePath(`/products/${product.slug}`);
+  return { success: true, product };
+}
+
 export async function deleteProduct(id: string) {
   const session = await verifyAuth();
   await prisma.product.delete({

@@ -86,10 +86,12 @@ export function EnterpriseTabs({ enterprise }: EnterpriseTabsProps) {
     { id: "rfq", label: "Request quote", icon: Send },
   ];
 
+  const [currentTimestamp] = useState(() => Date.now());
+
   const getCertStatus = (expiryDate?: Date | string | null) => {
     if (!expiryDate) return { label: "Active", type: "success" as const };
     const daysLeft = Math.ceil(
-      (new Date(expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      (new Date(expiryDate).getTime() - currentTimestamp) / (1000 * 60 * 60 * 24)
     );
     if (daysLeft < 0) return { label: "Expired", type: "error" as const };
     if (daysLeft <= 30) return { label: `Expires in ${daysLeft}d`, type: "warning" as const };

@@ -69,7 +69,7 @@ export default async function FactoryPdfDossierPage({ params }: PdfPageProps) {
                 Official B2B Export Accreditation Dossier
               </p>
               <p className="font-mono text-[10px] text-[#6B7280] mt-0.5">
-                Secretariat Ref: GAN-EXP-{enterprise.id.slice(-6).toUpperCase()} // Date: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                Secretariat Ref: GAN-EXP-{enterprise.id.slice(-6).toUpperCase()} {"//"} Date: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </p>
             </div>
           </div>
@@ -95,9 +95,9 @@ export default async function FactoryPdfDossierPage({ params }: PdfPageProps) {
           </h2>
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-[#6B7280] mt-1.5">
             <span><strong>REG:</strong> {enterprise.registrationNumber}</span>
-            <span>//</span>
+            <span>{"//"}</span>
             <span><strong>TAX PAN:</strong> {enterprise.panNumber}</span>
-            <span>//</span>
+            <span>{"//"}</span>
             <span><strong>LOCATION:</strong> {enterprise.address}, {enterprise.city}, Nepal</span>
           </div>
         </div>
@@ -182,7 +182,7 @@ export default async function FactoryPdfDossierPage({ params }: PdfPageProps) {
               <div key={prod.id} className="p-3 border border-[#E1E4E7] font-mono text-xs space-y-1">
                 <div className="font-bold uppercase text-[#0D0D0D] text-[11px]">{prod.title}</div>
                 <div className="text-[10px] text-[#6B7280]">
-                  Fiber: {prod.fabricType} // Category: {prod.category.name}
+                  Fiber: {prod.fabricType} {"//"} Category: {prod.category.name}
                 </div>
                 <div className="text-[10px] font-bold text-[#1E3A52]">
                   Target MOQ: {prod.moq.toLocaleString()} pcs

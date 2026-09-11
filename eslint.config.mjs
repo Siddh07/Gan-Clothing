@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
       ],
       "@next/next/no-img-element": "warn",
       "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/purity": "warn",
     },
   },
   // Override default ignores of eslint-config-next.
@@ -27,6 +28,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "scripts/**",
   ]),
 ]);
 

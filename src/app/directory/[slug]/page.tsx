@@ -123,7 +123,7 @@ export default async function EnterpriseDetailPage({
                   <span className="text-[#E1E4E7]">
                     Est. {enterprise.yearEstablished}
                   </span>
-                  <span className="text-[#6B7280]">//</span>
+                  <span className="text-[#6B7280]">{"//"}</span>
                   <span className="text-[#E1E4E7]">
                     {enterprise.city}, Nepal
                   </span>

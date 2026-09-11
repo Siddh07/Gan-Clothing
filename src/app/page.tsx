@@ -71,7 +71,7 @@ export default async function HomePage() {
                   </div>
 
                   <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-[#18181B] leading-tight">
-                    Nepal's official garment factory registry and sourcing platform
+                    Nepal&apos;s official garment factory registry and sourcing platform
                   </h1>
 
                   <p className="text-base text-[#71717A] leading-relaxed max-w-xl">
