@@ -14,9 +14,18 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Exporter Registry | Verified Nepalese Garment Manufacturers",
+  title: "Verified Exporter Registry | Nepal Garment Manufacturers Directory",
   description:
-    "Explore certified garment export mills, cashmere factories, and sustainable apparel manufacturers registered with the Garment Association of Nepal.",
+    "Browse 50+ certified Nepalese garment manufacturers. Filter by WRAP, ISO 9001, OEKO-TEX, Sedex, and GOTS certifications. Source cashmere, knitwear, woven, denim, and outdoor gear at FOB Nepal pricing.",
+  alternates: {
+    canonical: "/directory",
+  },
+  openGraph: {
+    title: "Verified Nepalese Garment Manufacturer Directory | GAN",
+    description:
+      "Discover certified Nepalese apparel factories — WRAP, ISO, OEKO-TEX certified. Direct B2B sourcing at FOB Nepal pricing.",
+    url: "/directory",
+  },
 };
 
 interface DirectoryPageProps {

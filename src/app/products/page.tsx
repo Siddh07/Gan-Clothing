@@ -10,9 +10,18 @@ import { Layers } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Export Product Catalog | Garment Association of Nepal",
+  title: "Nepal Garment Export Catalog | FOB Wholesale Sourcing",
   description:
-    "Browse export-grade cashmere knitwear, tailored woven shirts, high-altitude outdoor gear, selvedge denim, and organic hemp garments made in Nepal.",
+    "Browse export-grade cashmere knitwear, tailored woven shirts, high-altitude outdoor gear, selvedge denim, and organic hemp garments from verified Nepalese manufacturers. FOB pricing, low MOQ, ILO-supported.",
+  alternates: {
+    canonical: "/products",
+  },
+  openGraph: {
+    title: "Nepal Garment Export Catalog | FOB Wholesale Sourcing | GAN",
+    description:
+      "Cashmere knitwear, woven shirts, outdoor gear, denim & sustainable apparel from verified Nepalese factories. FOB Nepal pricing.",
+    url: "/products",
+  },
 };
 
 interface ProductsPageProps {

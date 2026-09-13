@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/public/Navbar";
@@ -16,6 +17,22 @@ import {
 } from "lucide-react";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title:
+    "Nepal's Official Garment Export Registry & B2B Sourcing Portal",
+  description:
+    "Source directly from 50+ verified Nepalese RMG manufacturers. FOB Nepal pricing, 0% US import duty, zero-tariff EU access. Cashmere, knitwear, woven shirts, and sustainable apparel. Supported by the ILO LDC Graduation Project.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Nepal's Official Garment Export Registry & B2B Sourcing Portal",
+    description:
+      "Verified Nepalese RMG manufacturers — FOB Nepal, 0% US duty, ILO LDC Graduation Project.",
+    url: "/",
+  },
+};
 
 export default async function HomePage() {
   const [enterpriseCount, productCount, featuredEnterprises, categories] =
@@ -46,10 +63,10 @@ export default async function HomePage() {
     <>
       <OrganizationJsonLd
         name="Garment Association of Nepal (GAN)"
-        url="https://ganepal.org"
-        description="Apex trade organization of Nepalese ready-made garment and textile exporters."
+        url="https://ganb2b.org.np"
+        description="Apex trade organization and official registry of verified Nepalese ready-made garment and textile exporters. Supported by the ILO LDC Graduation Project."
         address="Sankhamul, Kathmandu, Nepal"
-        email="trade-desk@ganepal.org"
+        email="ganasso2011@gmail.com"
         telephone="+977-1-4350123"
       />
 

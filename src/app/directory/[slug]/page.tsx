@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
 import { EnterpriseTabs } from "@/components/directory/EnterpriseTabs";
-import { OrganizationJsonLd } from "@/components/seo/JsonLd";
+import { EnterpriseJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import {
   ShieldCheck,
   MapPin,
@@ -16,6 +16,9 @@ import {
   ArrowLeft,
   Printer,
 } from "lucide-react";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://ganb2b.org.np";
 
 interface EnterpriseDetailPageProps {
   params: Promise<{
@@ -29,19 +32,74 @@ export async function generateMetadata({
   const { slug } = await params;
   const enterprise = await prisma.enterprise.findUnique({
     where: { slug },
-    select: { name: true, description: true, city: true },
+    select: {
+      name: true,
+      description: true,
+      city: true,
+      monthlyCapacityPcs: true,
+      isVerified: true,
+      logoUrl: true,
+      certifications: { select: { name: true } },
+      products: {
+        select: { category: { select: { name: true } } },
+        take: 5,
+      },
+    },
   });
 
   if (!enterprise) {
     return { title: "Enterprise Not Found" };
   }
 
+  // Build dynamic description from structured data
+  const certNames = enterprise.certifications.map((c) => c.name);
+  const categoryNames = [
+    ...new Set(
+      enterprise.products
+        .map((p) => p.category.name)
+        .filter(Boolean)
+    ),
+  ].slice(0, 3);
+
+  const certPart =
+    certNames.length > 0
+      ? `Certifications: ${certNames.slice(0, 3).join(", ")}.`
+      : "";
+  const catPart =
+    categoryNames.length > 0
+      ? `Products: ${categoryNames.join(", ")}.`
+      : "";
+  const verifiedPart = enterprise.isVerified ? "GAN Verified Exporter. " : "";
+
+  const description =
+    `${verifiedPart}${enterprise.city}, Nepal manufacturer. ` +
+    `Capacity: ${enterprise.monthlyCapacityPcs.toLocaleString()} pcs/month. ` +
+    `${certPart} ${catPart}`.trim();
+
   return {
-    title: `${enterprise.name} | Garment Association of Nepal`,
-    description: enterprise.description.slice(0, 160),
+    title: `${enterprise.name} — Verified Manufacturer | GAN Nepal`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/directory/${slug}`,
+    },
     openGraph: {
-      title: `${enterprise.name} - Nepal Apparel Exporter`,
-      description: `Verified Nepalese garment factory based in ${enterprise.city}. Member of Garment Association of Nepal.`,
+      type: "profile",
+      title: `${enterprise.name} — Verified Nepal Garment Manufacturer`,
+      description: `${enterprise.city}-based manufacturer. ${certPart} Capacity: ${enterprise.monthlyCapacityPcs.toLocaleString()} pcs/month.`,
+      url: `/directory/${slug}`,
+      images: enterprise.logoUrl
+        ? [
+            {
+              url: enterprise.logoUrl,
+              alt: `${enterprise.name} — Nepalese Garment Manufacturer`,
+            },
+          ]
+        : [{ url: "/og-default.png", alt: "GAN Verified Manufacturer" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${enterprise.name} — Verified Nepal Manufacturer`,
+      description: `${enterprise.city}, Nepal. ${certPart}`,
     },
   };
 }
@@ -70,14 +128,34 @@ export default async function EnterpriseDetailPage({
 
   return (
     <>
-      <OrganizationJsonLd
+      {/* Enterprise-level Schema.org JSON-LD */}
+      <EnterpriseJsonLd
         name={enterprise.name}
-        url={`https://ganepal.org/directory/${enterprise.slug}`}
-        logo={enterprise.logoUrl || undefined}
+        slug={enterprise.slug}
+        url={SITE_URL}
+        logo={enterprise.logoUrl}
         description={enterprise.description}
-        address={`${enterprise.address}, ${enterprise.city}, Nepal`}
+        address={enterprise.address}
+        city={enterprise.city}
         email={enterprise.contactEmail}
         telephone={enterprise.contactPhone}
+        websiteUrl={enterprise.websiteUrl}
+        certifications={enterprise.certifications}
+        monthlyCapacityPcs={enterprise.monthlyCapacityPcs}
+        isVerified={enterprise.isVerified}
+        yearEstablished={enterprise.yearEstablished}
+      />
+
+      {/* Breadcrumb JSON-LD */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: SITE_URL },
+          { name: "Exporter Directory", url: `${SITE_URL}/directory` },
+          {
+            name: enterprise.name,
+            url: `${SITE_URL}/directory/${enterprise.slug}`,
+          },
+        ]}
       />
 
       <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
@@ -104,7 +182,7 @@ export default async function EnterpriseDetailPage({
               {enterprise.coverImageUrl ? (
                 <img
                   src={enterprise.coverImageUrl}
-                  alt={enterprise.name}
+                  alt={`${enterprise.name} factory cover image — ${enterprise.city}, Nepal`}
                   className="w-full h-full object-cover opacity-60"
                 />
               ) : (
@@ -128,6 +206,7 @@ export default async function EnterpriseDetailPage({
                     {enterprise.city}, Nepal
                   </span>
                 </div>
+                {/* Single H1 per page — enterprise name */}
                 <h1 className="font-mono text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-white">
                   {enterprise.name}
                 </h1>

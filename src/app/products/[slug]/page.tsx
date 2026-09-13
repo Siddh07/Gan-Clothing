@@ -7,7 +7,7 @@ import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { ProductQuoteTrigger } from "@/components/products/ProductQuoteTrigger";
-import { ProductJsonLd } from "@/components/seo/JsonLd";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import {
   ShieldCheck,
   MapPin,
@@ -15,6 +15,9 @@ import {
   ExternalLink,
   CheckCircle2,
 } from "lucide-react";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://ganb2b.org.np";
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -28,19 +31,68 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { enterprise: true, category: true },
+    include: {
+      enterprise: {
+        include: { certifications: { select: { name: true } } },
+      },
+      category: true,
+    },
   });
 
   if (!product) {
     return { title: "Product Not Found" };
   }
 
+  // Parse product images for OG
+  let images: string[] = [];
+  try {
+    images = JSON.parse(product.images);
+  } catch {
+    if (product.images) images = [product.images];
+  }
+
+  // Build rich description
+  const certNames = product.enterprise.certifications
+    .slice(0, 2)
+    .map((c) => c.name)
+    .join(", ");
+  const gsmPart = product.gsmWeight ? `, ${product.gsmWeight}gsm` : "";
+  const certPart = certNames ? ` Manufacturer certified: ${certNames}.` : "";
+
+  const description =
+    `${product.fabricType}${gsmPart}, MOQ ${product.moq.toLocaleString()} pcs. ` +
+    `Manufactured by ${product.enterprise.name} in ${product.enterprise.city}, Nepal.${certPart} ` +
+    `Export-ready FOB Nepal. Category: ${product.category.name}.`;
+
   return {
-    title: `${product.title} | ${product.enterprise.name} | GAN`,
-    description: product.description.slice(0, 160),
+    title: `${product.title} — Wholesale FOB Sourcing | Nepal Garment Association`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/products/${slug}`,
+    },
     openGraph: {
-      title: `${product.title} - Nepalese Apparel Export`,
-      description: `Manufactured by ${product.enterprise.name}, Nepal. ${product.fabricType}, MOQ: ${product.moq} pcs.`,
+      type: "website",
+      title: `${product.title} — Nepal Wholesale FOB Garment`,
+      description: `${product.fabricType}${gsmPart}, MOQ ${product.moq.toLocaleString()} pcs from ${product.enterprise.name}, Nepal.`,
+      url: `/products/${slug}`,
+      images:
+        images.length > 0
+          ? images.slice(0, 3).map((img) => ({
+              url: img,
+              alt: `${product.title} — ${product.category.name} made in Nepal by ${product.enterprise.name}`,
+            }))
+          : [
+              {
+                url: "/og-default.png",
+                alt: `${product.title} — Nepal Garment Export`,
+              },
+            ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} — Nepal FOB Garment`,
+      description: `${product.fabricType}${gsmPart}, MOQ ${product.moq.toLocaleString()} pcs. Made in Nepal.`,
+      images: images.length > 0 ? [images[0]] : ["/og-default.png"],
     },
   };
 }
@@ -75,13 +127,32 @@ export default async function ProductDetailPage({
 
   return (
     <>
+      {/* Product-level Schema.org JSON-LD */}
       <ProductJsonLd
         name={product.title}
         description={product.description}
         images={images}
         manufacturerName={product.enterprise.name}
+        manufacturerSlug={product.enterprise.slug}
         categoryName={product.category.name}
         sku={`GAN-PROD-${product.id.slice(-6).toUpperCase()}`}
+        fabricType={product.fabricType}
+        gsmWeight={product.gsmWeight}
+        moq={product.moq}
+        baseUrl={SITE_URL}
+      />
+
+      {/* Breadcrumb JSON-LD */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: SITE_URL },
+          { name: "Product Showroom", url: `${SITE_URL}/products` },
+          { name: product.category.name, url: `${SITE_URL}/products?category=${product.category.slug}` },
+          {
+            name: product.title,
+            url: `${SITE_URL}/products/${product.slug}`,
+          },
+        ]}
       />
 
       <div className="flex min-h-screen flex-col bg-[#F6F7F8] text-[#0D0D0D]">
@@ -100,7 +171,12 @@ export default async function ProductDetailPage({
                   Product Showroom
                 </Link>
                 <span>/</span>
-                <span className="text-[#6B7280] uppercase">{product.category.name}</span>
+                <Link
+                  href={`/products?category=${product.category.slug}`}
+                  className="text-[#6B7280] uppercase hover:text-white transition-colors"
+                >
+                  {product.category.name}
+                </Link>
                 <span>/</span>
                 <span className="text-white uppercase truncate max-w-xs">{product.title}</span>
               </div>
@@ -129,7 +205,7 @@ export default async function ProductDetailPage({
                   )}
                 </div>
 
-                {/* Product Title */}
+                {/* Product Title — single H1 per page */}
                 <div>
                   <h1 className="font-mono text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[#0D0D0D]">
                     {product.title}
