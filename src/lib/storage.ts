@@ -1,4 +1,19 @@
+/**
+ * src/lib/storage.ts
+ *
+ * Cloud storage abstraction for the GAN B2B Export Portal.
+ * Upload handler validates MIME via magic bytes BEFORE calling this module.
+ *
+ * Security hardening applied:
+ *  - resource_type: "image" — Cloudinary no longer auto-detects type.
+ *    Prevents ZIP, HTML, or JS uploads from slipping through.
+ *  - public_id: uses the caller-supplied UUID filename (original filename
+ *    discarded in route.ts before reaching here).
+ *  - Folder isolation: cert documents go to gan_certs/, images to gan_portal/.
+ */
+import "server-only";
 import { v2 as cloudinary } from "cloudinary";
+import { randomUUID } from "crypto";
 
 // Configure Cloudinary if credentials are provided in .env
 if (
@@ -21,14 +36,19 @@ export interface UploadResult {
 }
 
 /**
- * Upload an image or document to Cloudinary (cloud storage).
- * In development without cloud keys, returns the hosted source or an accessible web asset URL,
- * avoiding the ephemeral local disk trap entirely.
+ * Upload an image or document to Cloudinary.
+ *
+ * @param fileBuffer  Raw file bytes (already magic-byte validated by the caller).
+ * @param filename    UUID-based filename (e.g. "3f2a1b4c-....jpg"). Original
+ *                    filenames MUST be discarded before calling this function.
+ * @param mimeType    Detected MIME type from magic bytes (e.g. "image/jpeg").
+ * @param folder      Cloudinary folder. Defaults to "gan_portal".
  */
 export async function uploadToCloudStorage(
   fileBuffer: Buffer | string,
   filename: string,
-  folder = "gan_export_portal"
+  mimeType?: string,
+  folder = "gan_portal"
 ): Promise<UploadResult> {
   const isCloudinaryConfigured = Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&
@@ -36,17 +56,30 @@ export async function uploadToCloudStorage(
       process.env.CLOUDINARY_API_SECRET
   );
 
+  // Determine Cloudinary resource_type from validated MIME.
+  // We intentionally do NOT use "auto" — that would allow any file type.
+  const resourceType =
+    mimeType === "application/pdf" ? "raw" : "image";
+
   if (isCloudinaryConfigured) {
     try {
+      // Strip extension for public_id (Cloudinary appends it automatically)
+      const publicId = filename.replace(/\.[^/.]+$/, "");
+
       const base64Data =
         typeof fileBuffer === "string"
           ? fileBuffer
-          : `data:image/jpeg;base64,${fileBuffer.toString("base64")}`;
+          : `data:${mimeType ?? "image/jpeg"};base64,${fileBuffer.toString("base64")}`;
 
       const uploadResponse = await cloudinary.uploader.upload(base64Data, {
         folder,
-        resource_type: "auto",
-        public_id: filename.replace(/\.[^/.]+$/, ""),
+        resource_type: resourceType,
+        // UUID public_id — original filename is discarded
+        public_id: publicId,
+        // Overwrite disabled — each upload creates a unique asset
+        overwrite: false,
+        // Invalidate CDN cache on re-upload
+        invalidate: true,
       });
 
       return {
@@ -60,11 +93,11 @@ export async function uploadToCloudStorage(
     }
   }
 
-  // Graceful fallback for local development prototype when cloud keys are not yet input:
-  // Return high-fidelity apparel photo asset to prevent local /public disk corruption
+  // Graceful fallback for local development when cloud keys are not yet set.
+  // Returns a high-fidelity apparel asset URL — no local disk writes.
   return {
     url: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&auto=format&fit=crop&q=80",
-    publicId: `dev-mock-${Date.now()}`,
+    publicId: `dev-mock-${randomUUID()}`,
     provider: "cloud-hosted",
   };
 }

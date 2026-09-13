@@ -6,6 +6,15 @@ import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { logAuditAction } from "@/lib/audit";
 import { slugify } from "@/lib/utils";
+import {
+  enterpriseProfileUpdateSchema,
+  certificationSchema,
+  inquiryNoteSchema,
+} from "@/lib/schemas";
+
+// ---------------------------------------------------------------------------
+// Auth guard — FACTORY_REP or SUPER_ADMIN only
+// ---------------------------------------------------------------------------
 
 async function getFactoryRepSession() {
   const session = await getServerSession(authOptions);
@@ -22,42 +31,52 @@ async function getFactoryRepSession() {
   return { session, role, enterpriseId };
 }
 
-export async function updateFactoryProfile(data: {
-  enterpriseId: string;
-  name: string;
-  description: string;
-  monthlyCapacityPcs: number;
-  employeeCount: number;
-  address: string;
-  city: string;
-  contactEmail: string;
-  contactPhone: string;
-  websiteUrl?: string;
-  coverImageUrl?: string;
-  exportMarkets: string;
-}) {
+// ---------------------------------------------------------------------------
+// Enterprise profile update
+// ---------------------------------------------------------------------------
+
+export async function updateFactoryProfile(data: unknown) {
   const { session, role, enterpriseId: userEntId } = await getFactoryRepSession();
 
-  // Scoping check: Factory Rep can only update their own linked factory
-  const targetId = role === "SUPER_ADMIN" ? data.enterpriseId : userEntId;
+  // Zod validation on all inputs
+  const parsed = enterpriseProfileUpdateSchema.safeParse(data);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Invalid profile data",
+    };
+  }
+
+  const input = parsed.data;
+
+  // ABAC: FACTORY_REP can only update their own linked factory
+  const targetId = role === "SUPER_ADMIN" ? input.enterpriseId : userEntId;
   if (!targetId) {
     throw new Error("No linked factory found for representative");
+  }
+
+  // Prevent IDOR: verify targetId matches the authenticated user's enterprise
+  if (role === "FACTORY_REP" && targetId !== input.enterpriseId) {
+    console.warn(
+      `[Security] IDOR attempt: user enterpriseId="${userEntId}" tried to update "${input.enterpriseId}"`
+    );
+    throw new Error("Forbidden: Cannot update another factory's profile");
   }
 
   const updated = await prisma.enterprise.update({
     where: { id: targetId },
     data: {
-      name: data.name,
-      description: data.description,
-      monthlyCapacityPcs: Number(data.monthlyCapacityPcs),
-      employeeCount: Number(data.employeeCount),
-      address: data.address,
-      city: data.city,
-      contactEmail: data.contactEmail,
-      contactPhone: data.contactPhone,
-      websiteUrl: data.websiteUrl || null,
-      coverImageUrl: data.coverImageUrl || null,
-      exportMarkets: data.exportMarkets,
+      name: input.name,
+      description: input.description,
+      monthlyCapacityPcs: input.monthlyCapacityPcs,
+      employeeCount: input.employeeCount,
+      address: input.address,
+      city: input.city,
+      contactEmail: input.contactEmail,
+      contactPhone: input.contactPhone,
+      websiteUrl: input.websiteUrl ?? null,
+      coverImageUrl: input.coverImageUrl ?? null,
+      exportMarkets: input.exportMarkets,
     },
   });
 
@@ -75,6 +94,10 @@ export async function updateFactoryProfile(data: {
 
   return { success: true, enterprise: updated };
 }
+
+// ---------------------------------------------------------------------------
+// Factory product management
+// ---------------------------------------------------------------------------
 
 export async function addFactoryProduct(data: {
   title: string;
@@ -130,6 +153,7 @@ export async function deleteFactoryProduct(productId: string) {
   const { session, enterpriseId } = await getFactoryRepSession();
   if (!enterpriseId) throw new Error("Unauthorized");
 
+  // ABAC: verify this product belongs to the rep's enterprise
   const product = await prisma.product.findFirst({
     where: { id: productId, enterpriseId },
   });
@@ -151,25 +175,33 @@ export async function deleteFactoryProduct(productId: string) {
   return { success: true };
 }
 
-export async function addFactoryCertification(data: {
-  name: string;
-  issuer: string;
-  certificateNumber?: string;
-  issueDate?: string;
-  expiryDate?: string;
-  certificateFileUrl?: string;
-}) {
+// ---------------------------------------------------------------------------
+// Certification management
+// ---------------------------------------------------------------------------
+
+export async function addFactoryCertification(data: unknown) {
   const { session, enterpriseId } = await getFactoryRepSession();
   if (!enterpriseId) throw new Error("Unauthorized");
 
+  // Zod validation
+  const parsed = certificationSchema.safeParse(data);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Invalid certification data",
+    };
+  }
+
+  const input = parsed.data;
+
   const cert = await prisma.certification.create({
     data: {
-      name: data.name,
-      issuer: data.issuer,
-      certificateNumber: data.certificateNumber || null,
-      issueDate: data.issueDate ? new Date(data.issueDate) : null,
-      expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-      certificateFileUrl: data.certificateFileUrl || null,
+      name: input.name,
+      issuer: input.issuer,
+      certificateNumber: input.certificateNumber || null,
+      issueDate: input.issueDate ? new Date(input.issueDate) : null,
+      expiryDate: input.expiryDate ? new Date(input.expiryDate) : null,
+      certificateFileUrl: input.certificateFileUrl || null,
       enterpriseId,
     },
   });
@@ -187,15 +219,45 @@ export async function addFactoryCertification(data: {
   return { success: true, certification: cert };
 }
 
+// ---------------------------------------------------------------------------
+// Inquiry management — scoped to enterprise's own inquiries (IDOR fix)
+// ---------------------------------------------------------------------------
+
 export async function addInquiryNote(inquiryId: string, content: string) {
-  const { session } = await getFactoryRepSession();
+  const { session, enterpriseId } = await getFactoryRepSession();
+
+  // Zod validation
+  const parsed = inquiryNoteSchema.safeParse({ inquiryId, content });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  // ABAC: verify this inquiry is directed at the rep's enterprise
+  // SUPER_ADMIN bypass allowed
+  if ((session.user as any).role === "FACTORY_REP") {
+    const targetInquiry = await prisma.leadInquiryItem.findFirst({
+      where: {
+        inquiryId,
+        enterpriseId: enterpriseId!,
+      },
+      select: { id: true },
+    });
+
+    if (!targetInquiry) {
+      console.warn(
+        `[Security] IDOR attempt: enterpriseId="${enterpriseId}" tried to note inquiryId="${inquiryId}" not addressed to them.`
+      );
+      throw new Error("Forbidden: This inquiry is not addressed to your factory");
+    }
+  }
+
   const authorName = (session.user as any).name || "Representative";
 
   const note = await prisma.inquiryNote.create({
     data: {
       inquiryId,
       author: authorName,
-      content,
+      content: parsed.data.content,
     },
   });
 
@@ -208,7 +270,25 @@ export async function updateFactoryInquiryStatus(
   inquiryId: string,
   status: "VIEWED" | "RESPONDED" | "CLOSED"
 ) {
-  await getFactoryRepSession();
+  const { session, enterpriseId } = await getFactoryRepSession();
+
+  // ABAC: FACTORY_REP can only update status of inquiries addressed to their enterprise
+  if ((session.user as any).role === "FACTORY_REP") {
+    const targetInquiry = await prisma.leadInquiryItem.findFirst({
+      where: {
+        inquiryId,
+        enterpriseId: enterpriseId!,
+      },
+      select: { id: true },
+    });
+
+    if (!targetInquiry) {
+      console.warn(
+        `[Security] IDOR attempt: enterpriseId="${enterpriseId}" tried to update inquiryId="${inquiryId}" status.`
+      );
+      throw new Error("Forbidden: This inquiry is not addressed to your factory");
+    }
+  }
 
   await prisma.leadInquiry.update({
     where: { id: inquiryId },

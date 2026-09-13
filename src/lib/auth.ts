@@ -1,3 +1,4 @@
+import "server-only";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import * as bcrypt from "bcryptjs";
@@ -8,7 +9,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET || "gan_nepal_secret_fallback_key",
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/admin/login",
     error: "/admin/login",

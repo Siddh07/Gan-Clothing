@@ -7,16 +7,39 @@ import { authOptions } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { logAuditAction } from "@/lib/audit";
 
-async function verifyAuth() {
+// ---------------------------------------------------------------------------
+// Authorization guard — enforces SUPER_ADMIN or ADMIN_EDITOR role.
+//
+// Defense-in-depth: middleware.ts also guards /admin routes, but Server
+// Actions are callable from any origin (including direct fetch). We MUST
+// verify role here independently.
+// ---------------------------------------------------------------------------
+
+const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN_EDITOR"] as const;
+type AdminRole = (typeof ADMIN_ROLES)[number];
+
+async function verifyAdminAuth() {
   const session = await getServerSession(authOptions);
+
   if (!session?.user) {
-    throw new Error("Unauthorized: Admin session required");
+    throw new Error("Unauthorized: Authentication required");
   }
+
+  const role = (session.user as any).role as string;
+
+  if (!ADMIN_ROLES.includes(role as AdminRole)) {
+    // Log suspicious access attempt before throwing
+    console.warn(
+      `[Security] Admin action attempted by role="${role}" user="${(session.user as any).id}" — denied.`
+    );
+    throw new Error("Forbidden: Insufficient privileges");
+  }
+
   return session;
 }
 
 export async function toggleEnterpriseVerification(id: string, currentStatus: boolean) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
   const nextStatus = !currentStatus;
 
   const enterprise = await prisma.enterprise.update({
@@ -25,7 +48,7 @@ export async function toggleEnterpriseVerification(id: string, currentStatus: bo
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "ENTERPRISE_VERIFICATION_TOGGLED",
     entityType: "Enterprise",
     entityId: id,
@@ -60,7 +83,7 @@ export async function createEnterprise(data: {
   isVerified?: boolean;
   certifications?: { name: string; issuer: string; certificateFileUrl?: string }[];
 }) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
 
   const slug = slugify(data.name) + "-" + Math.floor(1000 + Math.random() * 9000);
 
@@ -95,7 +118,7 @@ export async function createEnterprise(data: {
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "ENTERPRISE_CREATED",
     entityType: "Enterprise",
     entityId: enterprise.id,
@@ -111,8 +134,8 @@ export async function createEnterprise(data: {
 }
 
 export async function deleteEnterprise(id: string) {
-  const session = await verifyAuth();
-  
+  const session = await verifyAdminAuth();
+
   const enterprise = await prisma.enterprise.findUnique({
     where: { id },
     select: { name: true },
@@ -123,7 +146,7 @@ export async function deleteEnterprise(id: string) {
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "ENTERPRISE_DELETED",
     entityType: "Enterprise",
     entityId: id,
@@ -138,14 +161,14 @@ export async function deleteEnterprise(id: string) {
 }
 
 export async function toggleProductFeatured(id: string, currentStatus: boolean) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
   await prisma.product.update({
     where: { id },
     data: { isFeatured: !currentStatus },
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "PRODUCT_FEATURED_TOGGLED",
     entityType: "Product",
     entityId: id,
@@ -169,7 +192,7 @@ export async function createProduct(data: {
   images: string[];
   isFeatured?: boolean;
 }) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
 
   const slug = slugify(data.title) + "-" + Math.floor(1000 + Math.random() * 9000);
 
@@ -194,7 +217,7 @@ export async function createProduct(data: {
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "PRODUCT_CREATED",
     entityType: "Product",
     entityId: product.id,
@@ -224,7 +247,7 @@ export async function updateProduct(
     isFeatured?: boolean;
   }
 ) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
 
   const product = await prisma.product.update({
     where: { id },
@@ -251,7 +274,7 @@ export async function updateProduct(
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "PRODUCT_UPDATED",
     entityType: "Product",
     entityId: product.id,
@@ -268,13 +291,13 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
   await prisma.product.delete({
     where: { id },
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "PRODUCT_DELETED",
     entityType: "Product",
     entityId: id,
@@ -289,14 +312,14 @@ export async function updateInquiryStatus(
   id: string,
   status: "NEW" | "VIEWED" | "FORWARDED" | "RESPONDED" | "CLOSED"
 ) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
   const inquiry = await prisma.leadInquiry.update({
     where: { id },
     data: { status },
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "INQUIRY_STATUS_UPDATED",
     entityType: "LeadInquiry",
     entityId: id,
@@ -312,19 +335,19 @@ export async function updateInquiryStatus(
 }
 
 export async function addAdminInquiryNote(inquiryId: string, content: string) {
-  const session = await verifyAuth();
+  const session = await verifyAdminAuth();
   if (!content.trim()) return { success: false, error: "Note cannot be empty" };
 
   const note = await prisma.inquiryNote.create({
     data: {
       inquiryId,
-      author: session.user.name || "GAN Trade Secretariat",
+      author: (session.user as any).name || "GAN Trade Secretariat",
       content: content.trim(),
     },
   });
 
   await logAuditAction({
-    userId: session.user.id,
+    userId: (session.user as any).id,
     action: "INQUIRY_NOTE_ADDED",
     entityType: "LeadInquiry",
     entityId: inquiryId,
