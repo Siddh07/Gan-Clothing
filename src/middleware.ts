@@ -6,19 +6,35 @@ export default withAuth(
     const token = req.nextauth.token;
     const pathname = req.nextUrl.pathname;
     const role = (token?.role as string) || "";
+    const mfaPending = Boolean(token?.mfaPending);
+    const mfaEnabled = Boolean(token?.mfaEnabled);
+
+    // Bypass login page
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
+
+    // [TEMPORARILY COMMENTED OUT: TWO-FACTOR AUTHENTICATION]
+    // if (mfaPending && pathname !== "/auth/mfa-verify") {
+    //   return NextResponse.redirect(new URL("/auth/mfa-verify", req.url));
+    // }
+
+    // Enforce mandatory MFA enrollment for ADMIN roles
+    // const allowDevBypass =
+    //   process.env.NODE_ENV !== "production" &&
+    //   req.nextUrl.searchParams.get("skip_mfa") === "true";
+    // if (isAdmin && !mfaEnabled && pathname !== "/auth/mfa-setup" && !allowDevBypass) {
+    //   return NextResponse.redirect(new URL("/auth/mfa-setup", req.url));
+    // }
+    const isAdmin = role === "SUPER_ADMIN" || role === "ADMIN_EDITOR";
 
     // 1. Guard /admin routes: Only SUPER_ADMIN and ADMIN_EDITOR allowed
     if (pathname.startsWith("/admin")) {
-      if (pathname === "/admin/login") {
-        return NextResponse.next();
-      }
-
       if (role === "FACTORY_REP") {
-        // Factory representative trying to access secretariat admin -> redirect to factory portal
         return NextResponse.redirect(new URL("/portal", req.url));
       }
 
-      if (role !== "SUPER_ADMIN" && role !== "ADMIN_EDITOR") {
+      if (!isAdmin) {
         return NextResponse.redirect(new URL("/admin/login", req.url));
       }
     }
@@ -48,5 +64,12 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*", "/portal", "/portal/:path*"],
+  matcher: [
+    "/admin",
+    "/admin/:path*",
+    "/portal",
+    "/portal/:path*",
+    "/auth/mfa-verify",
+    "/auth/mfa-setup",
+  ],
 };

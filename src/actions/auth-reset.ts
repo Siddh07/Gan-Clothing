@@ -11,8 +11,7 @@ export async function requestPasswordReset(email: string) {
   const cleanEmail = email.toLowerCase().trim();
 
   // Rate limit: 5 requests per 15 minutes per email
-  const rateKey = `reset-req-${cleanEmail}`;
-  const rate = checkRateLimit(rateKey, 5, 15 * 60 * 1000);
+  const rate = await checkRateLimit(cleanEmail, "reset-req", 5, 15 * 60 * 1000);
   if (!rate.success) {
     return {
       success: false,

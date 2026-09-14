@@ -16,15 +16,23 @@ import {
 // Auth guard — FACTORY_REP or SUPER_ADMIN only
 // ---------------------------------------------------------------------------
 
+import { logUnauthorizedAccess, logValidationRejection } from "@/lib/logger";
+
 async function getFactoryRepSession() {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
+    logUnauthorizedAccess({ route: "portal.action", reason: "Active session required" });
     throw new Error("Unauthorized: Active session required");
   }
   const role = (session.user as any).role;
   const enterpriseId = (session.user as any).enterpriseId;
 
   if (role !== "FACTORY_REP" && role !== "SUPER_ADMIN") {
+    logUnauthorizedAccess({
+      route: "portal.action",
+      userId: (session.user as any).id,
+      reason: `Forbidden role: ${role}`,
+    });
     throw new Error("Forbidden: Factory Representative or Super Admin required");
   }
 

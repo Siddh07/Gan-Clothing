@@ -8,6 +8,8 @@ import { rfqSubmissionSchema } from "@/lib/schemas";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { headers } from "next/headers";
 
+import { logValidationRejection, logRateLimitHit } from "@/lib/logger";
+
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "trade-desk@ganepal.org";
@@ -41,9 +43,21 @@ export async function submitMultiItemRFQ(input: SubmitRFQInput) {
     return { success: true, message: "Inquiry received." };
   }
 
+  const reqHeaders = await headers();
+  const ip =
+    reqHeaders.get("cf-connecting-ip") ||
+    reqHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    reqHeaders.get("x-real-ip") ||
+    "unknown";
+
   // 2. Zod input validation — enforces all field bounds and types
   const parsed = rfqSubmissionSchema.safeParse(input);
   if (!parsed.success) {
+    logValidationRejection({
+      route: "action.submitMultiItemRFQ",
+      ip,
+      errors: parsed.error.issues,
+    });
     return {
       success: false,
       error: parsed.error.issues[0]?.message || "Invalid RFQ data. Please check your inputs.",
@@ -53,16 +67,9 @@ export async function submitMultiItemRFQ(input: SubmitRFQInput) {
   const validInput = parsed.data;
 
   // 3. IP-keyed rate limiting — 5 requests per 10 minutes per IP
-  //    Keying by IP (not email) prevents spoofing by changing the email address.
-  const reqHeaders = await headers();
-  const ip =
-    reqHeaders.get("cf-connecting-ip") ||
-    reqHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    reqHeaders.get("x-real-ip") ||
-    "unknown";
-
   const rateLimit = await checkRateLimit(ip, "rfq", 5, 600_000);
   if (!rateLimit.success) {
+    logRateLimitHit({ route: "action.submitMultiItemRFQ", ip });
     return {
       success: false,
       error: "Too many requests. Please wait a few minutes before submitting another RFQ.",

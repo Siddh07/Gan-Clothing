@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Resend } from "resend";
 import { factoryApplicationSchema } from "@/lib/schemas";
+import { logValidationRejection } from "@/lib/logger";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "trade-desk@ganepal.org";
@@ -28,6 +29,11 @@ export async function submitFactoryApplication(data: unknown) {
   // 2. Zod validation — strict types and bounds on all fields
   const parsed = factoryApplicationSchema.safeParse(data);
   if (!parsed.success) {
+    logValidationRejection({
+      route: "action.submitFactoryApplication",
+      ip: "server-action",
+      errors: parsed.error.issues,
+    });
     const firstError = parsed.error.issues[0];
     return {
       success: false,

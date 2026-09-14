@@ -20,11 +20,16 @@ model User {
   role             String      @default("FACTORY_REP") // "SUPER_ADMIN" | "ADMIN_EDITOR" | "FACTORY_REP"
   enterpriseId     String?     // Linked factory if role is FACTORY_REP
   enterprise       Enterprise? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull)
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  auditLogs        AuditLog[]
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  resetToken          String?
+  resetTokenExpiry    DateTime?
+  failedLoginAttempts Int         @default(0)
+  lockedUntil         DateTime?
+  mfaEnabled          Boolean     @default(false)
+  mfaTotpSecret       String?
+  mfaBackupCodes      String      @default("[]") // Stored as JSON string for SQLite/Postgres compatibility
+  auditLogs           AuditLog[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 
   @@map("users")
 }

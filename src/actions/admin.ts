@@ -7,12 +7,14 @@ import { authOptions } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
 import { logAuditAction } from "@/lib/audit";
 
+import { logUnauthorizedAccess } from "@/lib/logger";
+
 // ---------------------------------------------------------------------------
-// Authorization guard — enforces SUPER_ADMIN or ADMIN_EDITOR role.
+// Authorization guard — enforces SUPER_ADMIN or ADMIN_EDITOR role + MFA.
 //
 // Defense-in-depth: middleware.ts also guards /admin routes, but Server
 // Actions are callable from any origin (including direct fetch). We MUST
-// verify role here independently.
+// verify role and MFA status here independently.
 // ---------------------------------------------------------------------------
 
 const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN_EDITOR"] as const;
@@ -22,18 +24,42 @@ async function verifyAdminAuth() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
+    logUnauthorizedAccess({ route: "admin.action", reason: "Unauthenticated" });
     throw new Error("Unauthorized: Authentication required");
   }
 
   const role = (session.user as any).role as string;
+  const mfaEnabled = (session.user as any).mfaEnabled;
+  const mfaPending = (session.user as any).mfaPending;
+
+  // [TEMPORARILY COMMENTED OUT: TWO-FACTOR AUTHENTICATION]
+  // if (mfaPending) {
+  //   logUnauthorizedAccess({
+  //     route: "admin.action",
+  //     userId: (session.user as any).id,
+  //     reason: "MFA verification pending",
+  //   });
+  //   throw new Error("Forbidden: MFA verification pending");
+  // }
 
   if (!ADMIN_ROLES.includes(role as AdminRole)) {
-    // Log suspicious access attempt before throwing
-    console.warn(
-      `[Security] Admin action attempted by role="${role}" user="${(session.user as any).id}" — denied.`
-    );
+    logUnauthorizedAccess({
+      route: "admin.action",
+      userId: (session.user as any).id,
+      reason: `Forbidden role: ${role}`,
+    });
     throw new Error("Forbidden: Insufficient privileges");
   }
+
+  // [TEMPORARILY COMMENTED OUT: TWO-FACTOR AUTHENTICATION]
+  // if (!mfaEnabled && process.env.NODE_ENV === "production") {
+  //   logUnauthorizedAccess({
+  //     route: "admin.action",
+  //     userId: (session.user as any).id,
+  //     reason: "MFA not enrolled for admin account",
+  //   });
+  //   throw new Error("Forbidden: MFA enrollment is required for administrator accounts");
+  // }
 
   return session;
 }

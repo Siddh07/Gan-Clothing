@@ -1,20 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { safeHandler } from "@/lib/safe-handler";
+import { logUnauthorizedAccess } from "@/lib/logger";
+
+// CORS: Internal only — no cross-origin access
 
 /**
  * GET /api/export-csv
  *
  * Exports RFQ inquiries as a CSV file for admin download.
- *
- * Security: explicit `select` blocks on all Prisma queries prevent leaking
- * internal enterprise fields (passwordHash, adminNotes, panNumber, etc.)
- * that are not needed in the buyer-facing export.
  */
-export async function GET() {
+export const GET = safeHandler(async (req: NextRequest) => {
   const session = await getServerSession(authOptions);
   if (!session?.user || !["SUPER_ADMIN", "ADMIN_EDITOR"].includes((session.user as any).role)) {
+    logUnauthorizedAccess({
+      route: "/api/export-csv",
+      userId: (session?.user as any)?.id,
+      reason: "Unauthorized attempt to export CSV data",
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -87,17 +92,17 @@ export async function GET() {
       item.items.length,
       totalQty,
       item.status,
-      `"${(item.generalMessage || "").replace(/"/g, '""').replace(/\n/g, " ")}"`,
-    ];
+      `"${(item.generalMessage || "").replace(/"/g, '""')}"`,
+    ].join(",");
   });
 
-  const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const csv = [headers.join(","), ...rows].join("\n");
 
-  return new NextResponse(csvContent, {
-    status: 200,
+  return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="gan-trade-rfqs-${new Date().toISOString().slice(0, 10)}.csv"`,
+      "Content-Disposition": `attachment; filename="gan-rfq-export-${new Date().toISOString().split("T")[0]}.csv"`,
+      "Cache-Control": "no-store, max-age=0",
     },
   });
-}
+});

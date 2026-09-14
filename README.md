@@ -136,3 +136,42 @@ npx prisma db seed
 | `/api/export-csv` | Streamed CSV download of all buyer inquiries |
 | `/sitemap.xml` | Dynamic SEO sitemap generator |
 | `/robots.txt` | Crawler policy configuration |
+
+---
+
+## 🔒 Security Logging
+
+The application utilizes high-performance, structured JSON logging via `pino` (`src/lib/logger.ts`) for all security events, authentication attempts, rate limit events, and validation failures.
+
+### Local Development
+In local development, output is piped through `pino-pretty` for human-readable colorized logs:
+```bash
+npm run dev
+```
+
+### Production Log Drains
+In production environments (Vercel, AWS, GCP, containerized Docker), logs are output directly to `stdout` in machine-readable JSON format.
+
+#### 1. Vercel Log Drains (Datadog, Better Stack, Axiom, CloudWatch)
+1. Go to your Project Settings on Vercel Dashboard -> **Log Drains**.
+2. Click **Add Log Drain** and select your provider (e.g. Datadog, Axiom, LogDNA).
+3. Set the Drain Scope to **All Environments** or **Production**.
+4. Set Filter to capture logs matching `service: "gan-export-platform"`.
+
+#### 2. AWS CloudWatch / ECS
+When deployed in ECS or AWS Lambda via SST/OpenNext, JSON logs are automatically captured by the CloudWatch log stream:
+- Metric filter for authentication failures: `{ $.event = "auth.failure" }`
+- Metric filter for rate limit hits: `{ $.event = "rate_limit.hit" }`
+
+#### 3. Datadog Log Integration
+Configure the Datadog log parser with rule:
+```json
+{
+  "service": "%{data:service}",
+  "event": "%{data:event}",
+  "ip": "%{data:ip}",
+  "reason": "%{data:reason}"
+}
+```
+Refer to `docs/security-alerts.md` for SIEM alert thresholds and incident severity levels.
+

@@ -1,23 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { submitInquiry } from "@/actions/inquiry";
+import { safeHandler } from "@/lib/safe-handler";
+import { applyCorsHeaders, handlePreflight } from "@/lib/cors";
+import { logValidationRejection } from "@/lib/logger";
+import { getClientIp } from "@/lib/rate-limit";
+
+// CORS: Allowed for configured origins (see CORS_ALLOWED_ORIGINS)
+
+export const OPTIONS = async (req: NextRequest) => {
+  const preflight = handlePreflight(req);
+  return preflight ?? new NextResponse(null, { status: 204 });
+};
 
 /**
- * CSRF protection: verify Origin/Referer header matches our site URL.
- *
- * Threat: State-changing requests from a malicious third-party page
- * that tricks an authenticated user's browser into submitting a form.
- *
- * Note: Next.js Server Actions have built-in CSRF protection via
- * the `Origin` header check. This Route Handler bridges a legacy
- * pattern — adding the same protection explicitly.
+ * CSRF protection: verify Origin/Referer header matches our site URL or configured allowed origins.
  */
 function verifyCsrfOrigin(req: NextRequest): boolean {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ganb2b.org.np";
+  const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
 
   const origin = req.headers.get("origin");
   const referer = req.headers.get("referer");
 
-  // Extract hostname from NEXT_PUBLIC_SITE_URL for comparison
   let siteHost: string;
   try {
     siteHost = new URL(siteUrl).host;
@@ -25,53 +32,65 @@ function verifyCsrfOrigin(req: NextRequest): boolean {
     siteHost = "ganb2b.org.np";
   }
 
-  // Allow requests from the same host (covers HTTP + HTTPS, www + non-www
-  // is handled at the infrastructure level — not here)
   if (origin) {
     try {
-      const originHost = new URL(origin).host;
-      return originHost === siteHost;
+      const originUrl = new URL(origin);
+      if (originUrl.host === siteHost || allowedOrigins.includes(origin)) {
+        return true;
+      }
     } catch {
       return false;
     }
   }
 
-  // Fall back to Referer if Origin is absent (some older browsers / fetch calls)
   if (referer) {
     try {
       const refererHost = new URL(referer).host;
-      return refererHost === siteHost;
+      if (refererHost === siteHost) {
+        return true;
+      }
     } catch {
       return false;
     }
   }
 
-  // No Origin or Referer — reject to be safe on state-changing POST
   return false;
 }
 
-export async function POST(req: NextRequest) {
-  // CSRF check — must come before reading body
+export const POST = safeHandler(async (req: NextRequest) => {
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
+
+  const ip = getClientIp(req);
+
+  // CSRF check
   if (!verifyCsrfOrigin(req)) {
-    console.warn(
-      `[Security] CSRF check failed on /api/inquiry — Origin: ${req.headers.get("origin")}`
-    );
-    return NextResponse.json(
-      { error: "Forbidden: Invalid request origin" },
-      { status: 403 }
+    return applyCorsHeaders(
+      req,
+      NextResponse.json(
+        { error: "Forbidden: Invalid request origin" },
+        { status: 403 }
+      )
     );
   }
 
-  try {
-    const body = await req.json();
-    const result = await submitInquiry(body);
+  const body = await req.json();
+  const result = await submitInquiry(body);
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-
-    return NextResponse.json(result, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message || "Internal server error" }, { status: 500 });
+  if (!result.success) {
+    logValidationRejection({
+      route: "/api/inquiry",
+      ip,
+      errors: result.error,
+    });
+    return applyCorsHeaders(
+      req,
+      NextResponse.json({ error: result.error }, { status: 400 })
+    );
   }
-}
+
+  return applyCorsHeaders(
+    req,
+    NextResponse.json(result, { status: 201 })
+  );
+});

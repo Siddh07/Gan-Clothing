@@ -112,9 +112,9 @@ export async function checkRateLimit(
   if (upstash) {
     try {
       const { Ratelimit, redis } = upstash;
-      const limiter = new Ratelimit.Ratelimit({
+      const limiter = new Ratelimit({
         redis,
-        limiter: Ratelimit.Ratelimit.slidingWindow(limit, `${Math.round(windowMs / 1000)} s`),
+        limiter: Ratelimit.slidingWindow(limit, `${Math.round(windowMs / 1000)} s`),
         prefix: `gan:rl:${prefix}`,
       });
 
@@ -133,24 +133,88 @@ export async function checkRateLimit(
 }
 
 /**
- * Extracts a real client IP from Next.js request headers.
- * Handles Cloudflare (CF-Connecting-IP), proxies (X-Forwarded-For), and direct connections.
+ * Authentication Route Rate Limiting:
+ * 10 failed attempts per 15-minute sliding window per IP.
  */
-export function getClientIp(req: NextRequest): string {
-  // Cloudflare provides the most reliable header
-  const cfIp = req.headers.get("cf-connecting-ip");
+const AUTH_LIMIT = 10;
+const AUTH_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+export async function checkAuthRateLimit(ip: string): Promise<{
+  allowed: boolean;
+  remaining: number;
+  retryAfterSeconds: number;
+}> {
+  const key = `auth:fail:${ip}`;
+  const record = inMemoryStore.get(key);
+  const now = Date.now();
+
+  if (!record || now > record.resetAt) {
+    return { allowed: true, remaining: AUTH_LIMIT, retryAfterSeconds: 0 };
+  }
+
+  if (record.count >= AUTH_LIMIT) {
+    const retryAfterSeconds = Math.max(1, Math.ceil((record.resetAt - now) / 1000));
+    return { allowed: false, remaining: 0, retryAfterSeconds };
+  }
+
+  return {
+    allowed: true,
+    remaining: AUTH_LIMIT - record.count,
+    retryAfterSeconds: 0,
+  };
+}
+
+export async function recordAuthFailure(ip: string): Promise<number> {
+  const key = `auth:fail:${ip}`;
+  const now = Date.now();
+  const record = inMemoryStore.get(key);
+
+  if (!record || now > record.resetAt) {
+    inMemoryStore.set(key, { count: 1, resetAt: now + AUTH_WINDOW_MS });
+    return 1;
+  }
+
+  record.count += 1;
+  return record.count;
+}
+
+export async function resetAuthFailures(ip: string): Promise<void> {
+  const key = `auth:fail:${ip}`;
+  inMemoryStore.delete(key);
+}
+
+/**
+ * Extracts a real client IP from headers or NextRequest
+ */
+export function getClientIpFromHeaders(headers: any): string {
+  if (!headers) return "unknown";
+
+  const getHeader = (name: string): string | null => {
+    if (typeof headers.get === "function") {
+      return headers.get(name);
+    }
+    return headers[name.toLowerCase()] || headers[name] || null;
+  };
+
+  const cfIp = getHeader("cf-connecting-ip");
   if (cfIp) return cfIp.trim();
 
-  // Standard proxy header — take the first (leftmost = client)
-  const forwarded = req.headers.get("x-forwarded-for");
+  const forwarded = getHeader("x-forwarded-for");
   if (forwarded) {
-    const first = forwarded.split(",")[0].trim();
+    const first = String(forwarded).split(",")[0].trim();
     if (first) return first;
   }
 
-  // Real-IP header (nginx)
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
+  const realIp = getHeader("x-real-ip");
+  if (realIp) return String(realIp).trim();
 
-  return "unknown";
+  return "127.0.0.1";
 }
+
+/**
+ * Extracts a real client IP from Next.js request headers.
+ */
+export function getClientIp(req: NextRequest): string {
+  return getClientIpFromHeaders(req.headers);
+}
+
