@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { QuoteCartProvider } from "@/context/QuoteCartContext";
 import { QuoteCartDrawer } from "@/components/public/QuoteCartDrawer";
+import { GlobalShell } from "@/components/public/GlobalShell";
 import { WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { GanOrganizationJsonLd } from "@/components/seo/JsonLd";
 
 const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-sans",
+  variable: "--font-ibm-plex-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -103,12 +111,6 @@ export const metadata: Metadata = {
     },
   },
 
-  verification: {
-    // Add Google Search Console verification token when available:
-    // google: "YOUR_GOOGLE_VERIFICATION_TOKEN",
-    // bing: "YOUR_BING_VERIFICATION_TOKEN",
-  },
-
   category: "business",
 };
 
@@ -120,9 +122,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${ibmPlexSans.variable} h-full`}
+      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-[#F8F8F6] text-[#1A1A1A] antialiased">
+      <body className="min-h-full flex flex-col font-sans bg-[#F2F2F2] text-[#231F20] antialiased">
         {/* Portal-level Schema.org JSON-LD */}
         <WebSiteJsonLd
           url={SITE_URL}
@@ -133,7 +135,7 @@ export default function RootLayout({
 
         <AuthProvider>
           <QuoteCartProvider>
-            {children}
+            <GlobalShell>{children}</GlobalShell>
             <QuoteCartDrawer />
           </QuoteCartProvider>
         </AuthProvider>

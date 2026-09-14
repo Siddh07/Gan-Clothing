@@ -1,63 +1,76 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { Navbar } from "@/components/public/Navbar";
-import { Footer } from "@/components/public/Footer";
+import { ProductSpecCard } from "@/components/ProductSpecCard";
+import { ProductionSection } from "@/components/ProductionSection";
 import { OrganizationJsonLd } from "@/components/seo/JsonLd";
-import {
-  ShieldCheck,
-  Building2,
-  Send,
-  Leaf,
-  Award,
-  Globe2,
-  Zap,
-  ExternalLink,
-} from "lucide-react";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title:
-    "Nepal's Official Garment Export Registry & B2B Sourcing Portal",
+  title: "Nepal Garment Export Registry // Apex B2B Sourcing Architecture",
   description:
-    "Source directly from 50+ verified Nepalese RMG manufacturers. FOB Nepal pricing, 0% US import duty, zero-tariff EU access. Cashmere, knitwear, woven shirts, and sustainable apparel. Supported by the ILO LDC Graduation Project.",
+    "Official institutional registry for verified Nepalese ready-made garment and textile manufacturers. Heavyweight blanks, combed jersey, Himalayan natural fibers. 0% US import duty under NTPA, WRAP and ILO certified.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Nepal's Official Garment Export Registry & B2B Sourcing Portal",
+    title: "Nepal Garment Export Registry // Apex B2B Sourcing Architecture",
     description:
-      "Verified Nepalese RMG manufacturers — FOB Nepal, 0% US duty, ILO LDC Graduation Project.",
+      "Direct procurement from verified Nepalese RMG manufacturers. FOB Nepal, 0% US duty under NTPA, ILO LDC Graduation Project.",
     url: "/",
   },
 };
 
 export default async function HomePage() {
-  const [enterpriseCount, productCount, featuredEnterprises, categories] =
-    await Promise.all([
-      prisma.enterprise.count(),
-      prisma.product.count(),
-      prisma.enterprise.findMany({
-        where: { isVerified: true },
-        include: {
-          certifications: true,
-          products: { take: 2 },
+  const [
+    enterpriseCount,
+    productCount,
+    featuredEnterprises,
+    categories,
+    verifiedCount,
+    specimenProducts,
+    totalCapacity,
+  ] = await Promise.all([
+    prisma.enterprise.count(),
+    prisma.product.count(),
+    prisma.enterprise.findMany({
+      where: { isVerified: true },
+      include: {
+        certifications: true,
+        products: { take: 2 },
+      },
+      take: 4,
+      orderBy: { monthlyCapacityPcs: "desc" },
+    }),
+    prisma.category.findMany({
+      include: { _count: { select: { products: true } } },
+      orderBy: { name: "asc" },
+    }),
+    prisma.enterprise.count({
+      where: { isVerified: true },
+    }),
+    prisma.product.findMany({
+      take: 8,
+      include: {
+        enterprise: {
+          select: { name: true, slug: true, isVerified: true },
         },
-        take: 4,
-        orderBy: { monthlyCapacityPcs: "desc" },
-      }),
-      prisma.category.findMany({
-        include: { _count: { select: { products: true } } },
-        orderBy: { name: "asc" },
-      }),
-    ]);
+        category: {
+          select: { name: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.enterprise.aggregate({
+      _sum: { monthlyCapacityPcs: true },
+    }),
+  ]);
 
-  const totalCapacity = await prisma.enterprise.aggregate({
-    _sum: { monthlyCapacityPcs: true },
-  });
-  const aggregatePcs = totalCapacity._sum.monthlyCapacityPcs || 865000;
+  const capacitySum = totalCapacity._sum.monthlyCapacityPcs || 865000;
+  const capacityFormatted = `${(capacitySum / 1000).toLocaleString()}K`;
 
   return (
     <>
@@ -70,391 +83,529 @@ export default async function HomePage() {
         telephone="+977-1-4350123"
       />
 
-      <div className="flex min-h-screen flex-col bg-[#F7F8FA] text-[#18181B]">
-        <Navbar />
-
-        <main className="flex-1">
-          {/* Hero */}
-          <section className="bg-white border-b border-[#E4E4E7] py-16 lg:py-24">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                <div className="lg:col-span-7 space-y-6">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="badge badge-success">Verified registry</span>
-                    <span className="badge badge-neutral">Est. 1986</span>
-                    <span className="text-xs text-[#71717A]">
-                      Nepal Trade Preference Act (P.L. 114-125) compliant
+      <div className="flex flex-col bg-[#F2F2F2] text-[#231F20]">
+        {/* ─── 1. Asymmetric Hero (8:4 Split) ─── */}
+        <section className="bg-white border-b border-[#DFD8CE]">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#DFD8CE]">
+              {/* Left Column (8 / 12 Split) */}
+              <div className="lg:col-span-8 p-6 sm:p-10 lg:p-12 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="w-2 h-2 bg-[#231F20]" />
+                    <span className="font-mono text-[9px] sm:text-[11px] tracking-widest uppercase text-[#5E5F5A]">
+                      INSTITUTIONAL PROCUREMENT ARCHITECTURE // SPECIMEN TRADE DESK
                     </span>
                   </div>
 
-                  <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-[#18181B] leading-tight">
-                    Nepal&apos;s official garment factory registry and sourcing platform
+                  <h1 className="text-[35px] sm:text-[43px] font-bold tracking-tight text-[#231F20] uppercase leading-[1.05] max-w-3xl mb-6">
+                    HEAVYWEIGHT BLANKS, TECHNICAL KNITTING &amp; VERIFIED EXPORT
+                    REGISTRY.
                   </h1>
 
-                  <p className="text-base text-[#71717A] leading-relaxed max-w-xl">
-                    The institutional directory of verified Nepalese ready-made garment manufacturers and export mills. Direct sourcing access for international apparel brands — with 0% US duty and zero-tariff EU access under bilateral trade agreements.
+                  <p className="text-[13px] text-[#5E5F5A] leading-relaxed max-w-2xl mb-8">
+                    Direct wholesale and contract procurement gateway to Nepal’s
+                    apex textile mills. Sourcing combed cotton fleece (350–500
+                    GSM), custom-milled jersey, and high-altitude Himalayan
+                    natural fibers under WRAP social audit standards. Eligible
+                    for zero-tariff US import under the Nepal Trade Preference
+                    Act.
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                  {/* Primary CTA Cluster */}
+                  <div className="flex flex-wrap items-center gap-3">
                     <Link
-                      href="/directory"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors"
+                      href="/products"
+                      className="bg-[#231F20] text-white hover:bg-[#5E5F5A] text-[11px] font-mono tracking-wider uppercase px-6 py-3.5 rounded-none inline-flex items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#231F20]"
                     >
-                      <Building2 className="w-4 h-4" />
-                      Browse accredited factories
+                      <span>EXPLORE SPECIMEN CATALOG</span>
+                      <span className="font-mono">→</span>
                     </Link>
+
                     <Link
                       href="/rfq"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#18181B] bg-white border border-[#E4E4E7] hover:bg-[#F7F8FA] rounded transition-colors"
+                      className="bg-[#F2F2F2] hover:bg-[#DFD8CE] border border-[#DFD8CE] text-[#231F20] text-[11px] font-mono tracking-wider uppercase px-6 py-3.5 rounded-none inline-flex items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#231F20]"
                     >
-                      <Send className="w-4 h-4 text-[#71717A]" />
-                      Submit sourcing RFQ
+                      <span>SUBMIT CONTRACT RFQ</span>
+                      <span className="font-mono">+</span>
                     </Link>
-                  </div>
 
-                  <div className="pt-4 border-t border-[#E4E4E7] flex flex-wrap gap-6 text-sm text-[#71717A]">
-                    <div>
-                      US tariff:{" "}
-                      <span className="font-medium text-[#18181B]">0% on 77 lines</span>
-                    </div>
-                    <div>
-                      EU regime:{" "}
-                      <span className="font-medium text-[#18181B]">EBA / GSP duty-free</span>
-                    </div>
-                    <div>
-                      Arbitration:{" "}
-                      <span className="font-medium text-[#18181B]">GAN secretariat desk</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stats panel */}
-                <div className="lg:col-span-5 border border-[#E4E4E7] bg-white rounded-md overflow-hidden">
-                  <div className="px-5 py-4 border-b border-[#E4E4E7] bg-[#F7F8FA]">
-                    <div className="text-sm font-medium text-[#18181B]">
-                      National sourcing capacity
-                    </div>
-                    <div className="text-3xl font-semibold text-[#18181B] mt-1">
-                      {(aggregatePcs / 1000).toFixed(0)}k{" "}
-                      <span className="text-sm font-normal text-[#71717A]">pcs / month</span>
-                    </div>
-                    <div className="text-xs text-[#71717A] mt-0.5">
-                      Aggregate member monthly line capacity
-                    </div>
-                  </div>
-
-                  <div className="divide-y divide-[#E4E4E7]">
-                    {[
-                      { label: "Accredited mills", value: `${enterpriseCount} registered` },
-                      { label: "Exhibition samples", value: `${productCount} styles live` },
-                      { label: "Active export corridors", value: "US, EU, UK, Japan" },
-                      { label: "Compliance frameworks", value: "WRAP, Sedex, GOTS" },
-                    ].map((row) => (
-                      <div
-                        key={row.label}
-                        className="flex justify-between items-center px-5 py-3 text-sm"
-                      >
-                        <span className="text-[#71717A]">{row.label}</span>
-                        <span className="font-medium text-[#18181B]">{row.value}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="px-5 py-4 border-t border-[#E4E4E7]">
                     <Link
-                      href="/apply"
-                      className="block w-full text-center py-2 text-sm font-medium text-[#2D5BE3] border border-[#2D5BE3] rounded hover:bg-[#EFF4FF] transition-colors"
+                      href="/directory"
+                      className="text-[11px] font-mono text-[#5E5F5A] hover:text-[#231F20] uppercase underline underline-offset-4 px-2 py-3 transition-colors"
                     >
-                      Apply for factory accreditation
+                      VERIFIED MILL DIRECTORY ({verifiedCount || enterpriseCount})
                     </Link>
                   </div>
                 </div>
-              </div>
-            </div>
-          </section>
 
-          {/* Metrics strip */}
-          <section className="bg-white border-b border-[#E4E4E7]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-[#E4E4E7]">
-                {[
-                  {
-                    label: "Accredited mills",
-                    value: String(enterpriseCount),
-                    sub: "Verified PAN & IRD registration",
-                  },
-                  {
-                    label: "Monthly output",
-                    value: `${(aggregatePcs / 1000).toFixed(0)}k+`,
-                    sub: "Pieces across apparel & knitwear",
-                  },
-                  {
-                    label: "Export corridors",
-                    value: "28+",
-                    sub: "Bilateral duty-free routes",
-                  },
-                  {
-                    label: "Labor compliance",
-                    value: "100%",
-                    sub: "Zero child labor verified",
-                  },
-                ].map((stat) => (
-                  <div key={stat.label} className="px-6 py-5">
-                    <div className="text-xs text-[#71717A] mb-1">{stat.label}</div>
-                    <div className="text-2xl font-semibold text-[#18181B]">{stat.value}</div>
-                    <div className="text-xs text-[#71717A] mt-0.5">{stat.sub}</div>
+                {/* Micro Spec Ledger at Base of Hero */}
+                <div className="mt-10 pt-6 border-t border-[#DFD8CE] grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-[9px] text-[#5E5F5A]">
+                  <div>
+                    <div className="text-[#231F20] font-bold uppercase">
+                      DOMESTIC DISPATCH
+                    </div>
+                    <div>24–48H INVENTORY TURN</div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Categories */}
-          <section className="py-14 bg-[#F7F8FA]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-end justify-between mb-6 pb-4 border-b border-[#E4E4E7]">
-                <div>
-                  <h2 className="text-xl font-semibold text-[#18181B]">
-                    Apparel export sectors
-                  </h2>
-                  <p className="text-sm text-[#71717A] mt-1">
-                    Classified by HS tariff headings and technical fabrication
-                  </p>
+                  <div>
+                    <div className="text-[#231F20] font-bold uppercase">
+                      CUSTOM MILLING
+                    </div>
+                    <div>14–21 DAYS PRODUCTION</div>
+                  </div>
+                  <div>
+                    <div className="text-[#231F20] font-bold uppercase">
+                      EXPORT FREIGHT
+                    </div>
+                    <div>FOB BIRGUNJ / KTM AIR</div>
+                  </div>
+                  <div>
+                    <div className="text-[#231F20] font-bold uppercase">
+                      TARIFF PROFILE
+                    </div>
+                    <div>0% DUTY US / EU EBA</div>
+                  </div>
                 </div>
-                <Link
-                  href="/products"
-                  className="text-sm text-[#2D5BE3] hover:underline"
-                >
-                  Full product catalog
-                </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/directory?category=${cat.slug}`}
-                    className="group bg-white border border-[#E4E4E7] hover:border-[#2D5BE3] rounded-md p-5 flex flex-col justify-between transition-colors"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="badge badge-neutral">
-                          {cat._count.products} styles
+              {/* Right Column (4 / 12 Split): Live Sourcing Telemetry & Aggregates */}
+              <div className="lg:col-span-4 bg-[#F2F2F2] p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#DFD8CE]">
+                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#231F20]">
+                      REGISTRY TELEMETRY
+                    </span>
+                    <span className="font-mono text-[9px] text-[#5E5F5A]">
+                      LIVE SYNC
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="bg-white p-4 border border-[#DFD8CE]">
+                      <div className="font-mono text-[9px] text-[#5E5F5A] uppercase tracking-wider mb-1">
+                        VERIFIED APEX MILLS
+                      </div>
+                      <div className="flex items-baseline justify-between">
+                        <span className="font-mono text-[22px] font-bold text-[#231F20]">
+                          {verifiedCount || enterpriseCount}
                         </span>
-                        <span className="text-xs text-[#71717A]">
-                          #{cat.slug.toUpperCase().slice(0, 4)}
+                        <span className="font-mono text-[9px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
+                          100% COMPLIANT
                         </span>
                       </div>
-                      <h3 className="font-semibold text-sm text-[#18181B] mb-1.5">
-                        {cat.name}
-                      </h3>
-                      <p className="text-sm text-[#71717A] line-clamp-2 leading-relaxed">
-                        {cat.description}
-                      </p>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#E4E4E7] flex items-center justify-between text-sm text-[#2D5BE3] font-medium">
-                      <span>View accredited mills</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
+
+                    <div className="bg-white p-4 border border-[#DFD8CE]">
+                      <div className="font-mono text-[9px] text-[#5E5F5A] uppercase tracking-wider mb-1">
+                        ACTIVE PRODUCT SPECIMENS
+                      </div>
+                      <div className="flex items-baseline justify-between">
+                        <span className="font-mono text-[22px] font-bold text-[#231F20]">
+                          {productCount}
+                        </span>
+                        <span className="font-mono text-[9px] text-[#5E5F5A]">
+                          RAW / FINISHED
+                        </span>
+                      </div>
                     </div>
+
+                    <div className="bg-white p-4 border border-[#DFD8CE]">
+                      <div className="font-mono text-[9px] text-[#5E5F5A] uppercase tracking-wider mb-1">
+                        AGGREGATE MONTHLY CAPACITY
+                      </div>
+                      <div className="flex items-baseline justify-between">
+                        <span className="font-mono text-[22px] font-bold text-[#231F20]">
+                          {capacityFormatted}
+                        </span>
+                        <span className="font-mono text-[9px] text-[#5E5F5A]">
+                          PCS / MONTH
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* System Architecture Details */}
+                  <div className="mt-6 border border-[#DFD8CE] bg-white divide-y divide-[#DFD8CE] font-mono text-[11px]">
+                    <div className="p-2.5 flex items-center justify-between text-[#5E5F5A]">
+                      <span>US TARIFF CODE:</span>
+                      <strong className="text-[#231F20]">HTS 9822.06.00</strong>
+                    </div>
+                    <div className="p-2.5 flex items-center justify-between text-[#5E5F5A]">
+                      <span>INSPECTION STANDARD:</span>
+                      <strong className="text-[#231F20]">AQL 1.5 / 2.5</strong>
+                    </div>
+                    <div className="p-2.5 flex items-center justify-between text-[#5E5F5A]">
+                      <span>SOCIAL GOVERNANCE:</span>
+                      <strong className="text-[#231F20]">WRAP / SEDEX</strong>
+                    </div>
+                    <div className="p-2.5 flex items-center justify-between text-[#5E5F5A]">
+                      <span>DISPATCH INTERACTION:</span>
+                      <strong className="text-[#231F20]">FOB / CIF GLOBAL</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-[#DFD8CE] flex items-center justify-between font-mono text-[9px] text-[#5E5F5A]">
+                  <span>AUTHENTICATED VIA PRISMA ORM</span>
+                  <span className="w-1.5 h-1.5 bg-[#231F20]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 2. Moving Category Carousel Ticker ─── */}
+        <section className="bg-[#DFD8CE] border-b border-[#231F20]/20 overflow-hidden relative group select-none">
+          <div className="flex items-center">
+            {/* Fixed Anchor Label */}
+            <div className="shrink-0 z-10 bg-[#DFD8CE] px-4 py-2.5 flex items-center gap-2 border-r border-[#231F20]/20 font-mono text-[11px] font-bold text-[#231F20] uppercase tracking-wider">
+              <span className="inline-block w-1.5 h-1.5 bg-[#231F20] rounded-full animate-pulse" />
+              <span>SPEC SECTORS:</span>
+            </div>
+
+            {/* Moving Marquee Track with Pause on Hover */}
+            <div className="overflow-hidden flex-1 relative">
+              <div className="animate-marquee flex items-center gap-6 text-[11px] font-mono whitespace-nowrap py-2.5">
+                {/* Loop Segment A */}
+                {[...categories, ...categories].map((cat, idx) => (
+                  <Link
+                    key={`cat-a-${cat.id}-${idx}`}
+                    href={`/products?category=${cat.slug}`}
+                    className="inline-flex items-center gap-1.5 text-[#231F20] hover:text-[#5E5F5A] transition-colors border-b border-transparent hover:border-[#231F20] uppercase tracking-wider shrink-0"
+                  >
+                    <span>{cat.name}</span>
+                    <span className="text-[#5E5F5A] text-[9px]">
+                      [{cat._count?.products ?? 0}]
+                    </span>
+                    <span className="text-[#231F20]/30 ml-4 font-normal">/</span>
+                  </Link>
+                ))}
+
+                {/* Loop Segment B (Identical clone for seamless infinite loop) */}
+                {[...categories, ...categories].map((cat, idx) => (
+                  <Link
+                    key={`cat-b-${cat.id}-${idx}`}
+                    href={`/products?category=${cat.slug}`}
+                    className="inline-flex items-center gap-1.5 text-[#231F20] hover:text-[#5E5F5A] transition-colors border-b border-transparent hover:border-[#231F20] uppercase tracking-wider shrink-0"
+                  >
+                    <span>{cat.name}</span>
+                    <span className="text-[#5E5F5A] text-[9px]">
+                      [{cat._count?.products ?? 0}]
+                    </span>
+                    <span className="text-[#231F20]/30 ml-4 font-normal">/</span>
                   </Link>
                 ))}
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Strategic advantages */}
-          <section id="why-nepal" className="py-14 bg-white border-y border-[#E4E4E7]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="mb-8 pb-4 border-b border-[#E4E4E7]">
-                <h2 className="text-xl font-semibold text-[#18181B]">
-                  Why source from Nepal
+        {/* ─── 3. Standard Spec Grid (4-Column Hairline Grid) ─── */}
+        <section className="bg-white border-b border-[#DFD8CE]">
+          <div className="max-w-7xl mx-auto">
+            {/* Header Bar */}
+            <div className="p-4 sm:p-6 border-b border-[#DFD8CE] flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="font-mono text-[9px] text-[#5E5F5A] tracking-widest uppercase block mb-1">
+                  CURATED ARCHIVE // PRODUCTION APPAREL BLANKS
+                </span>
+                <h2 className="text-[18px] sm:text-[22px] font-bold text-[#231F20] tracking-tight uppercase">
+                  STANDARD SPECIMEN SPECIFICATIONS
                 </h2>
-                <p className="text-sm text-[#71717A] mt-1">
-                  Preferential trade statutes, artisan supply chains, and clean energy processing
-                </p>
               </div>
+              <Link
+                href="/products"
+                className="font-mono text-[11px] text-[#231F20] font-medium tracking-wide uppercase hover:underline inline-flex items-center gap-1"
+              >
+                <span>VIEW FULL CATALOG ({productCount} STYLES)</span>
+                <span>→</span>
+              </Link>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  {
-                    num: "01",
-                    label: "US statutory tariff relief",
-                    title: "Nepal Trade Preference Act",
-                    body: "Under Public Law 114-125, eligible apparel enters the United States at 0% customs duty — a structural margin advantage over other Asian manufacturing hubs.",
-                    icon: Globe2,
-                  },
-                  {
-                    num: "02",
-                    label: "European Union access",
-                    title: "Duty-free EBA / GSP regime",
-                    body: "Exports to all 27 EU member states, the UK, and Switzerland receive zero-duty tariff treatment under the Everything But Arms arrangement via Form A.",
-                    icon: ShieldCheck,
-                  },
-                  {
-                    num: "03",
-                    label: "Artisan fiber heritage",
-                    title: "Chyangra Cashmere trademark",
-                    body: "Nepal holds the globally registered Chyangra Pashmina collective mark — 100% authentic high-altitude goat down, hand-loomed by certified craft guilds.",
-                    icon: Award,
-                  },
-                  {
-                    num: "04",
-                    label: "Regenerative fibers",
-                    title: "Wild mountain nettle & hemp",
-                    body: "Himalayan Giant Nettle (Allo), wild hemp, and organic bamboo silk — naturally pesticide-free, low-water harvesting supporting indigenous mountain collectives.",
-                    icon: Leaf,
-                  },
-                  {
-                    num: "05",
-                    label: "Social labor compliance",
-                    title: "Zero child labor, audited workplaces",
-                    body: "Strict enforcement verified by WRAP, Sedex SMETA, and amfori BSCI. Fair wages, gender parity in skilled tailoring, and fully formalized tax registrations.",
-                    icon: ShieldCheck,
-                  },
-                  {
-                    num: "06",
-                    label: "Clean energy supply chain",
-                    title: "Hydro-powered processing grid",
-                    body: "Over 95% of Nepal's national electrical grid is zero-carbon Himalayan hydroelectricity — substantially reducing Scope 2 manufacturing emissions for ESG reporting.",
-                    icon: Zap,
-                  },
-                ].map((item) => {
-                  const Icon = item.icon;
+            {/* 4-Column Hairline Specimen Grid */}
+            {specimenProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#DFD8CE]">
+                {specimenProducts.map((product) => {
+                  let parsedImage: string | null = null;
+                  try {
+                    const imgArr = JSON.parse(product.images);
+                    if (Array.isArray(imgArr) && imgArr.length > 0) {
+                      parsedImage = imgArr[0];
+                    }
+                  } catch {
+                    // Fallback
+                  }
+
                   return (
-                    <div
-                      key={item.num}
-                      className="bg-[#F7F8FA] border border-[#E4E4E7] rounded-md p-5 space-y-2"
-                    >
-                      <div className="flex items-center gap-2 text-xs text-[#2D5BE3] font-medium">
-                        <Icon className="w-3.5 h-3.5" />
-                        {item.label}
-                      </div>
-                      <h3 className="font-semibold text-sm text-[#18181B]">{item.title}</h3>
-                      <p className="text-sm text-[#71717A] leading-relaxed">{item.body}</p>
+                    <div key={product.id} className="p-3 sm:p-4">
+                      <ProductSpecCard
+                        id={product.id}
+                        title={product.title}
+                        slug={product.slug}
+                        gsm={product.gsmWeight}
+                        material={product.fabricType}
+                        category={product.category?.name}
+                        moq={product.moq}
+                        imageUrl={parsedImage}
+                        enterpriseName={product.enterprise?.name}
+                        enterpriseSlug={product.enterprise?.slug}
+                      />
                     </div>
                   );
                 })}
               </div>
-            </div>
-          </section>
-
-          {/* Featured factories */}
-          <section className="py-14 bg-[#F7F8FA]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-end justify-between mb-6 pb-4 border-b border-[#E4E4E7]">
-                <div>
-                  <h2 className="text-xl font-semibold text-[#18181B]">
-                    Audited member mills
-                  </h2>
-                  <p className="text-sm text-[#71717A] mt-1">
-                    Verified manufacturers licensed by the GAN secretariat
-                  </p>
-                </div>
-                <Link href="/directory" className="text-sm text-[#2D5BE3] hover:underline">
-                  Full registry
-                </Link>
+            ) : (
+              <div className="p-12 text-center font-mono text-[11px] text-[#5E5F5A]">
+                NO SPECIMENS RECORDED IN ACTIVE TELEMETRY ARCHIVE
               </div>
+            )}
+          </div>
+        </section>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {featuredEnterprises.map((factory) => (
-                  <div
-                    key={factory.id}
-                    className="bg-white border border-[#E4E4E7] rounded-md p-5 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div>
-                          <div className="text-xs text-[#71717A] mb-0.5">
-                            Est. {factory.yearEstablished} — {factory.city}, Nepal
-                          </div>
-                          <h3 className="font-semibold text-base text-[#18181B]">
-                            {factory.name}
-                          </h3>
-                        </div>
-                        <span className="badge badge-success shrink-0">Accredited</span>
+        {/* ─── 4. Our Production (Knitting Mill / Dye House / Sewing Factory) ─── */}
+        <ProductionSection />
+
+        {/* ─── 5. Verified Enterprise Registry Matrix ─── */}
+        <section className="bg-[#F2F2F2] border-b border-[#DFD8CE] py-10 sm:py-14">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+              <div>
+                <span className="font-mono text-[9px] text-[#5E5F5A] tracking-widest uppercase block mb-1">
+                  APEX MILL ROSTER // AUDITED ENTERPRISES
+                </span>
+                <h2 className="text-[18px] sm:text-[22px] font-bold text-[#231F20] tracking-tight uppercase">
+                  VERIFIED MANUFACTURER INDEX
+                </h2>
+              </div>
+              <Link
+                href="/directory"
+                className="font-mono text-[11px] text-[#231F20] font-medium tracking-wide uppercase hover:underline inline-flex items-center gap-1"
+              >
+                <span>ACCESS FULL ROSTER ({verifiedCount || enterpriseCount} MILLS)</span>
+                <span>→</span>
+              </Link>
+            </div>
+
+            {/* Matrix of Audited Mills */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featuredEnterprises.map((enterprise) => (
+                <div
+                  key={enterprise.id}
+                  className="bg-white border border-[#DFD8CE] p-5 flex flex-col justify-between hover:border-[#231F20] transition-colors"
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-[9px] font-mono text-[#5E5F5A] mb-2 pb-2 border-b border-[#DFD8CE]">
+                      <span>EST. {enterprise.yearEstablished}</span>
+                      <span className="text-[#231F20] font-bold">
+                        {enterprise.city.toUpperCase()}, NEPAL
+                      </span>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#231F20] uppercase tracking-tight mb-2">
+                      <Link
+                        href={`/directory/${enterprise.slug}`}
+                        className="hover:underline"
+                      >
+                        {enterprise.name}
+                      </Link>
+                    </h3>
+
+                    <p className="text-[11px] text-[#5E5F5A] line-clamp-3 leading-relaxed mb-4">
+                      {enterprise.description}
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="font-mono text-[11px] text-[#5E5F5A] mb-3 space-y-1 pt-3 border-t border-[#DFD8CE]">
+                      <div className="flex justify-between">
+                        <span>CAPACITY:</span>
+                        <strong className="text-[#231F20]">
+                          {(enterprise.monthlyCapacityPcs / 1000).toFixed(0)}K
+                          PCS/MO
+                        </strong>
                       </div>
-
-                      <p className="text-sm text-[#71717A] line-clamp-2 leading-relaxed mb-4">
-                        {factory.description}
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-3 py-3 border-y border-[#E4E4E7] text-sm">
-                        <div>
-                          <div className="text-xs text-[#71717A] mb-0.5">Monthly capacity</div>
-                          <div className="font-medium text-[#18181B]">
-                            {factory.monthlyCapacityPcs.toLocaleString()} pcs
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-[#71717A] mb-0.5">Workforce</div>
-                          <div className="font-medium text-[#18181B]">
-                            {factory.employeeCount} craftspeople
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-1">
-                        {factory.certifications.map((cert) => (
-                          <span key={cert.id} className="badge badge-neutral text-xs">
-                            {cert.name}
-                          </span>
-                        ))}
+                      <div className="flex justify-between">
+                        <span>LABOR FORCE:</span>
+                        <strong className="text-[#231F20]">
+                          {enterprise.employeeCount} SPECIALISTS
+                        </strong>
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[#E4E4E7] flex items-center justify-between">
-                      <Link
-                        href={`/directory/${factory.slug}`}
-                        className="text-sm text-[#2D5BE3] hover:underline"
-                      >
-                        View full profile
-                      </Link>
-                      <Link
-                        href={`/directory/${factory.slug}#rfq`}
-                        className="px-4 py-1.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors"
-                      >
-                        Request quote
-                      </Link>
+                    {/* Cert Badges */}
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {enterprise.certifications.map((c) => (
+                        <span
+                          key={c.id}
+                          className="bg-[#F2F2F2] text-[#231F20] border border-[#DFD8CE] font-mono text-[9px] px-1.5 py-0.5"
+                        >
+                          {c.name}
+                        </span>
+                      ))}
+                    </div>
+
+                    <Link
+                      href={`/directory/${enterprise.slug}`}
+                      className="block text-center font-mono text-[11px] uppercase tracking-wider bg-[#F2F2F2] hover:bg-[#231F20] hover:text-white text-[#231F20] py-2 transition-colors border border-[#DFD8CE]"
+                    >
+                      INSPECT MILL PROFILE →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 5. B2B Service Footprint ─── */}
+        <section className="bg-white border-b border-[#DFD8CE]">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#DFD8CE]">
+              {/* Pillar 1: Direct Wholesale Account Access */}
+              <div className="p-8 sm:p-12 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-2 h-2 bg-[#231F20]" />
+                    <span className="font-mono text-[11px] tracking-widest uppercase text-[#5E5F5A]">
+                      SERVICE SPECIMEN // SECTION A
+                    </span>
+                  </div>
+
+                  <h3 className="text-[22px] sm:text-[29px] font-bold text-[#231F20] tracking-tight uppercase mb-4">
+                    DIRECT WHOLESALE ACCOUNT ACCESS
+                  </h3>
+
+                  <p className="text-[13px] text-[#5E5F5A] leading-relaxed mb-6">
+                    Establish an institutional procurement agreement directly
+                    with GAN-accredited apparel manufacturers. Receive
+                    negotiated volume tier pricing, dedicated monthly production
+                    allocations, physical swatch binders, and direct port FOB
+                    terms.
+                  </p>
+
+                  <div className="bg-[#F2F2F2] border border-[#DFD8CE] divide-y divide-[#DFD8CE] font-mono text-[11px] mb-8">
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">TIER 1 (STARTER BULK):</span>
+                      <strong className="text-[#231F20]">500 – 2,500 UNITS / STYLE</strong>
+                    </div>
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">TIER 2 (CONTRACT SCALE):</span>
+                      <strong className="text-[#231F20]">2,500 – 10,000 UNITS / STYLE</strong>
+                    </div>
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">ENTERPRISE CUSTOM:</span>
+                      <strong className="text-[#231F20]">10,000+ DEDICATED LINES</strong>
+                    </div>
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">PAYMENT TERMS:</span>
+                      <strong className="text-[#231F20]">LC / CAD / TT WIRE</strong>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
+                </div>
 
-          {/* Trade desk CTA */}
-          <section className="bg-white border-t border-[#E4E4E7] py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="border border-[#E4E4E7] bg-[#F7F8FA] rounded-md p-10 sm:p-14 text-center">
-                <span className="badge badge-accent mb-4 inline-block">
-                  Secretariat trade desk
-                </span>
-                <h2 className="text-2xl font-semibold text-[#18181B] max-w-xl mx-auto mt-2">
-                  Start commercial sourcing through the GAN secretariat
-                </h2>
-                <p className="text-sm text-[#71717A] max-w-lg mx-auto mt-3 leading-relaxed">
-                  The GAN trade desk routes technical packs directly to licensed member mills, coordinates physical fabric swatches, and validates bilateral tariff documentation — at no broker commission.
-                </p>
-                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <div>
+                  <Link
+                    href="/apply"
+                    className="inline-flex items-center gap-2 bg-[#231F20] text-white hover:bg-[#5E5F5A] text-[11px] font-mono uppercase tracking-wider px-6 py-3.5 transition-colors"
+                  >
+                    <span>APPLY FOR WHOLESALE ACCOUNT</span>
+                    <span>→</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Pillar 2: Contract Milling & Dye Lab */}
+              <div className="p-8 sm:p-12 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-2 h-2 bg-[#231F20]" />
+                    <span className="font-mono text-[11px] tracking-widest uppercase text-[#5E5F5A]">
+                      SERVICE SPECIMEN // SECTION B
+                    </span>
+                  </div>
+
+                  <h3 className="text-[22px] sm:text-[29px] font-bold text-[#231F20] tracking-tight uppercase mb-4">
+                    CONTRACT MILLING &amp; DYE LAB
+                  </h3>
+
+                  <p className="text-[13px] text-[#5E5F5A] leading-relaxed mb-6">
+                    Bespoke fabric engineering from raw fiber to finished blank.
+                    Full Pantone TCX laboratory color matching, custom tubular or
+                    open-width knitting, brushing, carbon finishing, enzyme
+                    washes, and private label neck tapings.
+                  </p>
+
+                  <div className="bg-[#F2F2F2] border border-[#DFD8CE] divide-y divide-[#DFD8CE] font-mono text-[11px] mb-8">
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">LAB DIP TURNAROUND:</span>
+                      <strong className="text-[#231F20]">5 BUSINESS DAYS</strong>
+                    </div>
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">FABRIC WEIGHT SPECS:</span>
+                      <strong className="text-[#231F20]">180 GSM TO 600 GSM</strong>
+                    </div>
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">FINISHING CAPABILITIES:</span>
+                      <strong className="text-[#231F20]">ENZYME / SUEDED / ACID</strong>
+                    </div>
+                    <div className="p-3 flex justify-between">
+                      <span className="text-[#5E5F5A]">TESTING PROTOCOL:</span>
+                      <strong className="text-[#231F20]">AATCC 4-POINT INSPECTION</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
                   <Link
                     href="/rfq"
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-[#2D5BE3] hover:bg-[#2650CC] rounded transition-colors"
+                    className="inline-flex items-center gap-2 bg-[#231F20] text-white hover:bg-[#5E5F5A] text-[11px] font-mono uppercase tracking-wider px-6 py-3.5 transition-colors"
                   >
-                    Submit sourcing RFQ
-                  </Link>
-                  <Link
-                    href="/directory"
-                    className="px-6 py-2.5 text-sm font-medium text-[#18181B] bg-white border border-[#E4E4E7] hover:bg-[#F7F8FA] rounded transition-colors"
-                  >
-                    Search verified factories
+                    <span>SUBMIT SPECIFICATION RFQ</span>
+                    <span>→</span>
                   </Link>
                 </div>
               </div>
             </div>
-          </section>
-        </main>
+          </div>
+        </section>
 
-        <Footer />
+        {/* ─── 6. Global Duty Exemption & Institutional Mandate ─── */}
+        <section className="bg-[#F2F2F2] py-10 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto border border-[#DFD8CE] bg-white p-6 sm:p-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="max-w-3xl">
+                <span className="font-mono text-[9px] text-[#5E5F5A] tracking-widest uppercase block mb-1">
+                  TRADE ACCORD COMPLIANCE MANDATE
+                </span>
+                <h4 className="text-[16px] font-bold text-[#231F20] uppercase tracking-tight mb-2">
+                  NEPAL TRADE PREFERENCE ACT (NTPA) &amp; ILO LDC GRADUATION
+                </h4>
+                <p className="text-[11px] text-[#5E5F5A] leading-relaxed">
+                  Established under Public Law 114-125, the Nepal Trade
+                  Preference Act authorizes duty-free import into the United
+                  States for 77 Harmonized Tariff Schedule tariff lines spanning
+                  apparel, textile accessories, and travel goods. Audited
+                  Nepalese manufacturers provide certified country-of-origin
+                  documentation guaranteeing immediate tariff relief.
+                </p>
+              </div>
+              <div className="shrink-0 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/apply"
+                  className="bg-[#231F20] text-white hover:bg-[#5E5F5A] text-[11px] font-mono uppercase px-5 py-2.5 text-center transition-colors"
+                >
+                  START SOURCING
+                </Link>
+                <Link
+                  href="/rfq"
+                  className="border border-[#DFD8CE] bg-[#F2F2F2] text-[#231F20] hover:bg-[#DFD8CE] text-[11px] font-mono uppercase px-5 py-2.5 text-center transition-colors"
+                >
+                  INQUIRE WITH TRADE DESK
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );
